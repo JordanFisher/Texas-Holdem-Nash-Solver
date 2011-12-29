@@ -10,16 +10,22 @@ namespace Poker
 {
     class PocketData
     {
-        public float[] data;
+        public double[] data;
         public PocketData()
         {
-            data = new float[Pocket.N];
+            data = new double[Pocket.N];
         }
 
-        public float this[int n]
+        public double this[int n]
         {
             get { return data[n]; }
             set { data[n] = value; }
+        }
+
+        public void CopyFrom(PocketData Source)
+        {
+            for (int i = 0; i < Pocket.N; i++)
+                this[i] = Source[i];
         }
 
         public string[] Formated

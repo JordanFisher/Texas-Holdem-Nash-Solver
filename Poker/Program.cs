@@ -11,13 +11,13 @@ namespace Poker
 
     class Program
     {
-        static float Simulation()
+        static double Simulation()
         {
-            float EV = 0, TotalMass = 0;
+            double EV = 0, TotalMass = 0;
 
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                float PocketEV = 0, PocketTotalMass = 0;
+                double PocketEV = 0, PocketTotalMass = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
                     if (Pocket.Pockets[p1].Overlaps(Pocket.Pockets[p2])) continue;
@@ -40,7 +40,7 @@ namespace Poker
                                 if (Pocket.Pockets[p1].Contains(river)) continue;
                                 if (Pocket.Pockets[p2].Contains(river)) continue;
 
-                                float ev = node.Simulate(p1, p2, flop, turn, river);
+                                double ev = node.Simulate(p1, p2, flop, turn, river);
                                 
                                 //if (p1 == 0)
                                 //{
@@ -60,6 +60,7 @@ namespace Poker
                 }
 
                 //Console.WriteLine("  EV(p1 = {0}) = {1}", p1, PocketEV / PocketTotalMass);
+                //Console.WriteLine("  EV(p1 = {0}) = {1}", Pocket.Pockets[p1], PocketEV / PocketTotalMass);
             }
 
             return EV / TotalMass;
@@ -68,6 +69,8 @@ namespace Poker
         static PocketNode node;
         static void Main(string[] args)
         {
+            double EV;
+
             Counting.Test();
 
             Pocket.InitPockets();
@@ -78,10 +81,10 @@ namespace Poker
             node = new PocketNode();
             node.Process((n, i) =>
             {
-                if (n is PocketNode || n is FlopNode || n is TurnNode)
-                    return i < 5 ? 1 : 0;
+                if (n is PocketNode)// || n is FlopNode)// || n is TurnNode)
+                    return i < 1 ? 1 : 0;
                 else
-                    return 0.5f;
+                    return 0;
             });
             //node.Process(i => 1f);
             //node.Process(i => .35f);
@@ -90,7 +93,7 @@ namespace Poker
             //node.Process(i => i == 0 ? 1 : 0.1f);
 
 
-            /*
+            
             node.CalculatePostRaisePDF();
             for (int i = 0; i < 1000; i++)
             {
@@ -100,9 +103,9 @@ namespace Poker
                 //node.BToS();
                 node.HarmonicAlg(i+2);
             }
-            */
+            
 
-            /*
+            
             node.CalculatePostRaisePDF();
             Console.WriteLine("Post raise done.");
 
@@ -112,36 +115,31 @@ namespace Poker
             
             //node.CalculateBest();
             Console.WriteLine("Best done! {0} ops.", RiverNode.OpCount);
-            */
-
-
-            //node.blahhhh();
-            node.Process(i => 1f);
-            node.Switch();
-            node.Process((n, i) =>
-            {
-                if (n is PocketNode || n is FlopNode || n is TurnNode)
-                    return i < 3 ? 1 : 0;
-                else
-                    return .2f;
-            });
-            node.Switch();
-            node.Process((n, i) =>
-            {
-                if (n is PocketNode || n is FlopNode || n is TurnNode)
-                    return i > 1 ? 1 : 0;
-                else
-                    return .3f;
-            });
-
-            float EV = Simulation();
-            Console.WriteLine("Simulated EV = {0}", EV);
-            node.Switch();
             EV = Simulation();
             Console.WriteLine("Simulated EV = {0}", EV);
-            node.Switch();
-            EV = Simulation();
-            Console.WriteLine("Simulated EV = {0}", EV);
+            
+
+
+
+            //node.Process(i => 1f);
+            //node.Switch();
+            //node.Process((n, i) =>
+            //{
+            //    if (n is PocketNode || n is FlopNode)// || n is TurnNode)
+            //        return i < Pocket.N ? 1 : 0;
+            //    else
+            //        return 0;
+            //});
+            //node.Switch();
+
+            //EV = Simulation();
+            //Console.WriteLine("Simulated EV = {0}", EV);
+            //node.Switch();
+            //EV = Simulation();
+            //Console.WriteLine("Simulated EV = {0}", EV);
+            //node.Switch();
+            //EV = Simulation();
+            //Console.WriteLine("Simulated EV = {0}", EV);
 
             Console.Read();
         }

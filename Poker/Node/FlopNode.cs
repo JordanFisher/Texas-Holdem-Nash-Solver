@@ -32,7 +32,7 @@ namespace Poker
         public override void CalculateBest()
         {
             //return;
-            float SingleTurnWeight = 1f / (Card.N - 4 - 3);
+            double SingleTurnWeight = 1f / (Card.N - 4 - 3);
             CalculateBest_AccountForOverlaps(SingleTurnWeight);
         }
 
