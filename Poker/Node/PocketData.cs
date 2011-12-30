@@ -10,13 +10,13 @@ namespace Poker
 {
     class PocketData
     {
-        public double[] data;
+        public float[] data;
         public PocketData()
         {
-            data = new double[Pocket.N];
+            data = new float[Pocket.N];
         }
 
-        public double this[int n]
+        public float this[int n]
         {
             get { return data[n]; }
             set { data[n] = value; }
@@ -25,7 +25,7 @@ namespace Poker
         public void CopyFrom(PocketData Source)
         {
             for (int i = 0; i < Pocket.N; i++)
-                this[i] = Source[i];
+                data[i] = Source[i];
         }
 
         public string[] Formated
@@ -33,10 +33,22 @@ namespace Poker
             get
             {
                 var d = new string[Pocket.N];
-                for (int i = 0; i < Pocket.N; i++)
-                    d[i] = string.Format("{0} -> {1}", Pocket.Pockets[i], data[i]);
+                for (int p = 0; p < Pocket.N; p++)
+                    d[p] = string.Format("{0} -> {1}", Pocket.Pockets[p], data[p]);
                 return d;
             }
+        }
+
+        public float FloatHash()
+        {
+            float hash = 0;
+            for (int i = 0; i < Pocket.N; i++)
+            {
+                if (float.IsNaN(data[i])) hash += -1f * (i + 1);
+                else hash += data[i] * (i + 1);
+            }
+
+            return hash;
         }
     }
 }

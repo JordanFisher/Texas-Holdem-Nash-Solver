@@ -11,12 +11,13 @@ namespace Poker
     class Node
     {
         public Node Parent;
-        public double Weight;
+        public float Weight;
 
         protected int Spent, Pot;
 
         public PocketData S, PreRaiseP, PostRaiseP, EV, B;
-        public double ChanceToRaise;
+        public PocketData Hold;
+        public float ChanceToRaise;
 
         public Node(Node parent) { Parent = parent; Spent = Pot = 0; }
 
@@ -28,57 +29,91 @@ namespace Poker
             EV = new PocketData();
             B = new PocketData();
 
+            Hold = new PocketData();
+
             CreateBranches();
+        }
+
+        public void ClearWorkVariables()
+        {
+            for (int i = 0; i < Pocket.N; i++)
+                B[i] = PreRaiseP[i] = PostRaiseP[i] = EV[i] = 0;
+
+            if (Branches != null) foreach (Node node in Branches)
+                node.ClearWorkVariables();
+        }
+
+        public void SToHold2()
+        {
+            Hold2.CopyFrom(S);
+            if (Branches != null) foreach (Node node in Branches) node.SToHold2();
+        }
+        public void Hold2ToS()
+        {
+            S.CopyFrom(Hold2);
+            if (Branches != null) foreach (Node node in Branches) node.Hold2ToS();
+        }
+
+        public void SToHold()
+        {
+            Hold.CopyFrom(S);
+            if (Branches != null) foreach (Node node in Branches) node.SToHold();
+        }
+
+        public void HoldToS()
+        {
+            S.CopyFrom(Hold);
+            if (Branches != null) foreach (Node node in Branches) node.HoldToS();
         }
 
         public void BToS()
         {
-            for (int i = 0; i < Pocket.N; i++)
-            {
-                S[i] = B[i];
-                B[i] = PostRaiseP[i] = EV[i] = 0;
-            }
+            S.CopyFrom(B);
+            if (Branches != null) foreach (Node node in Branches) node.BToS();
+        }
 
-            if (Branches == null) return;
+        public void BiHarmonicAlg(int n, float ev1, float ev2)
+        {
+            n++;
+            float t = 1f / n;
+            float s = 1f - t;
 
-            foreach (Node node in Branches)
-                node.BToS();
+            float _ev1 = n - 1, _ev2 = 1f, _ev3 = .5f * _ev2;
+            //float _ev1 = 1f / ev1 + n, _ev2 = 1f / ev2, _ev3 = .5f * _ev2;
+
+            float power = 1; //1.2f;
+            _ev1 = (float)Math.Pow(_ev1, power);
+            _ev2 = (float)Math.Pow(_ev2, power);
+            _ev3 = (float)Math.Pow(_ev3, power);
+
+            float total = _ev1 + _ev2 + _ev3;
+            CombineStrats(_ev1 / total, _ev2 / total, _ev3 / total);
+            //CombineStrats(s, t, 0);
         }
 
         public void HarmonicAlg(int n)
         {
             n++;
-            double t = 1f / n;
-            double s = 1f - t;
+            float t = 1f / n;
+            float s = 1f - t;
 
-            for (int i = 0; i < Pocket.N; i++)
-            {
-                S[i] = t * B[i] + s * S[i];
-                B[i] = PostRaiseP[i] = EV[i] = 0;
-            }
-
-            if (Branches == null) return;
-
-            foreach (Node node in Branches)
-                node.HarmonicAlg(n);
+            CombineStrats(s, t);
         }
 
         public void Switch()
         {
             for (int i = 0; i < Pocket.N; i++)
             {
-                double temp = B[i];
+                float temp = B[i];
                 B[i] = S[i];
                 S[i] = temp;
             }
 
-            if (Branches == null) return;
-
-            foreach (Node node in Branches)
+            if (Branches != null) foreach (Node node in Branches)
                 node.Switch();
         }
 
-        public void Process(Func<int, double> PocketMod)
+        public void Process(Func<int, float> PocketMod)
         {
             for (int i = 0; i < Pocket.N; i++)
                 S[i] = PocketMod(i);
@@ -89,7 +124,7 @@ namespace Poker
                 node.Process(PocketMod);
         }
 
-        public void Process(Func<Node, int, double> PocketMod)
+        public void Process(Func<Node, int, float> PocketMod)
         {
             for (int i = 0; i < Pocket.N; i++)
                 S[i] = PocketMod(this, i);
@@ -105,9 +140,10 @@ namespace Poker
         /// Should recursively calculate B for all branches as well.
         /// This is a purely virtual function. All node subclasses 
         /// </summary>
-        public virtual void CalculateBest()
+        public virtual float CalculateBest()
         {
             Assert.NotReached();
+            return float.MinValue;
         }
 
         /// <summary>
@@ -116,7 +152,7 @@ namespace Poker
         /// has a branching structure introducing new community information.
         /// </summary>
         /// <param name="BranchWeight"></param>
-        public void CalculateBest_AccountForOverlaps(double BranchWeight)
+        public void CalculateBest_AccountForOverlaps(float BranchWeight)
         {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
@@ -125,14 +161,14 @@ namespace Poker
             // Ignore pockets that collide with community
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (Collision(p)) { S[p] = PreRaiseP[p] = PostRaiseP[p] = EV[p] = B[p] = double.NaN; continue; }
+                if (Collision(p)) { S[p] = PreRaiseP[p] = PostRaiseP[p] = EV[p] = B[p] = float.NaN; continue; }
             }
 
             // For each pocket we might have, calculate what we should do.
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PostRaiseP[p1])) continue;
+                if (float.IsNaN(PostRaiseP[p1])) continue;
 
                 // Update the opponent's pocket PDF using the new information,
                 // (which is that we now know which pocket we have).
@@ -141,11 +177,11 @@ namespace Poker
                 // Calculate the EV assuming we proceed to a branch.
                 // Loop through each possible opponent pocket and then each possible branch,
                 // summing up the EV of each branch times the probability of arriving there.
-                double TotalWeight = 0, BranchEV = 0;
-                double[] branchp = new double[Branches.Count];
+                float TotalWeight = 0, BranchEV = 0;
+                float[] branchp = new float[Branches.Count];
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    if (double.IsNaN(UpdatedP[p2])) continue;
+                    if (float.IsNaN(UpdatedP[p2])) continue;
 
                     // All branches not overlapping our pocket or the opponent's pocket are equally likely.
                     int b = 0;
@@ -172,13 +208,13 @@ namespace Poker
                 // conditioned on knowing our pocket).
 
                 // Calculate the chance the opponent will raise/fold
-                double RaiseChance = TotalChance(PreRaiseP, S, p1);
-                double FoldChance = 1 - RaiseChance;
+                float RaiseChance = TotalChance(PreRaiseP, S, p1);
+                float FoldChance = 1 - RaiseChance;
                 Assert.IsNum(RaiseChance);
 
                 // Calculate EV for raising and folding.
-                double RaiseEV = FoldChance * Pot + RaiseChance * BranchEV;
-                double FoldEV = RaiseChance * (-Spent);
+                float RaiseEV = FoldChance * Pot + RaiseChance * BranchEV;
+                float FoldEV = RaiseChance * (-Spent);
 
                 if (this is PocketNode) Tools.Nothing();
 
@@ -228,13 +264,13 @@ namespace Poker
                 PostRaiseP[i] = Parent.PostRaiseP[i];
 
             // Pocket can't have cards that are in this flop
-            double NewTotalMass = 0f;
+            float NewTotalMass = 0f;
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (double.IsNaN(PostRaiseP[p])) continue;
+                if (float.IsNaN(PostRaiseP[p])) continue;
 
                 if (NewCollision(p))
-                    PostRaiseP[p] = double.NaN;
+                    PostRaiseP[p] = float.NaN;
                 else
                     NewTotalMass += PostRaiseP[p];
                    
@@ -289,9 +325,9 @@ namespace Poker
         /// <param name="pdf">The PDF of pockets.</param>
         /// <param name="chance">The chance to act for each pocket.</param>
         /// <returns>The overall chance to act.</returns>
-        public double TotalChance(PocketData pdf, PocketData chance)
+        public float TotalChance(PocketData pdf, PocketData chance)
         {
-            double RaiseChance = 0;
+            float RaiseChance = 0;
             for (int p = 0; p < Pocket.N; p++)
                 RaiseChance += pdf[p] * chance[p];
 
@@ -307,14 +343,14 @@ namespace Poker
         /// <param name="chance">The chance to act for each pocket.</param>
         /// <param name="ExcludePocketIndex">Index of a pre-existing pocket. Exclude all pockets overlapping this pocket.</param>
         /// <returns>The overall chance to act.</returns>
-        public double TotalChance(PocketData pdf, PocketData chance, int ExcludePocketIndex)
+        public float TotalChance(PocketData pdf, PocketData chance, int ExcludePocketIndex)
         {
-            double RaiseChance = 0;
-            double weight = 0;
+            float RaiseChance = 0;
+            float weight = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (double.IsNaN(pdf[p])) continue;
-                if (double.IsNaN(chance[p])) continue;
+                if (float.IsNaN(pdf[p])) continue;
+                if (float.IsNaN(chance[p])) continue;
                 if (PocketPocketOverlap(p, ExcludePocketIndex)) continue;
 
                 weight += pdf[p];
@@ -339,10 +375,10 @@ namespace Poker
         /// <param name="ExcludePocketIndex">The index of the excluded pocket.</param>
         public void UpdateOnExclusion(PocketData P, PocketData UpdatedP, int ExcludePocketIndex)
         {
-            double TotalWeight = 0;
+            float TotalWeight = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (double.IsNaN(P[p])) { UpdatedP[p] = P[p]; continue; }
+                if (float.IsNaN(P[p])) { UpdatedP[p] = P[p]; continue; }
 
                 // If this pocket overlaps with the excluded pocket,
                 // then the probability of seeing it is 0.
@@ -386,25 +422,90 @@ namespace Poker
         public bool Collision(int p) { return Collision(Pocket.Pockets[p]); }
 
 
-        public double Simulate(int p1, int p2, params int[] BranchIndex)
+        public float Simulate(int p1, int p2, params int[] BranchIndex)
         {
             return Simulate(p1, p2, ref BranchIndex, 0);
         }
     
-        protected virtual double Simulate(int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        protected virtual float Simulate(int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             Node NextNode = BranchesByIndex[BranchIndex[IndexOffset]];
-            double BranchEV = NextNode.Simulate(p1, p2, ref BranchIndex, ++IndexOffset);
+            float BranchEV = NextNode.Simulate(p1, p2, ref BranchIndex, ++IndexOffset);
 
             //if (this is TurnNode || this is RiverNode) BranchEV = 0;
             //if (this is RiverNode) BranchEV = 0;
             //if (this is RiverNode) BranchEV = p1 < p2 ? 1 : -1;
 
-            double EV = 
+            float EV = 
                 B[p1]       * (S[p2] * BranchEV + (1 - S[p2]) * Pot) +
                 (1 - B[p1]) * (S[p2] * (-Spent) + (1 - S[p2]) * 0);
 
             return EV;
         }
+
+        public void CombineStrats(float t1, float t2)
+        {
+            for (int p = 0; p < Pocket.N; p++)
+                _CombineStrats(p, t1, t2);
+        }
+        void _CombineStrats(int p, float t1, float t2)
+        {
+            float normalize = (t1 * S[p] + t2 * B[p]);
+            float _t1 = t1 * S[p] / normalize;
+            float _t2 = t2 * B[p] / normalize;
+            
+            S[p] = t1 * S[p] + t2 * B[p];
+
+            //if (p == 0 && this is FlopNode && ((FlopNode)this).MyFlop == Flop.Flops[0])
+            //    Tools.Nothing();
+
+            if (Branches != null) foreach (Node node in Branches)
+                    node._CombineStrats(p, _t1, _t2);
+        }
+
+        public void CombineStrats(float t1, float t2, float t3)
+        {
+            for (int p = 0; p < Pocket.N; p++)
+                _CombineStrats(p, t1, t2, t3);
+        }
+        void _CombineStrats(int p, float t1, float t2, float t3)
+        {
+            PocketData S1 = Hold, S2 = S, S3 = B;
+
+            float normalize = (t1 * S1[p] + t2 * S2[p] + t3 * S3[p]);
+            float _t1 = t1 * S1[p] / normalize;
+            float _t2 = t2 * S2[p] / normalize;
+            float _t3 = t3 * S3[p] / normalize;
+
+            S[p] = t1 * S1[p] + t2 * S2[p] + t3 * S3[p];
+
+            if (Branches != null) foreach (Node node in Branches)
+                    node._CombineStrats(p, _t1, _t2, _t3);
+        }
+
+        void NaiveCombine(Var S1, float t1, Var S2, float t2, Var Destination)
+        {
+            PocketData s1 = S1(this), s2 = S2(this), destination = Destination(this);
+
+            for (int i = 0; i < Pocket.N; i++)
+                destination[i] = t1 * s1[i] + t2 * s2[i];
+
+            if (Branches != null) foreach (Node node in Branches)
+                    node.NaiveCombine(S1, t1, S2, t2, Destination);
+        }
+
+        public delegate PocketData Var(Node node);
+        public float FloatHash(Var v)
+        {
+            float hash = v(this).FloatHash();
+            if (Branches != null) foreach (Node node in Branches)
+                    hash += node.FloatHash(v);
+            return hash;
+        }
+
+        public static Var
+            VarS = n => n.S,
+            VarB = n => n.B,
+            VarHold = n => n.Hold;
     }
 }

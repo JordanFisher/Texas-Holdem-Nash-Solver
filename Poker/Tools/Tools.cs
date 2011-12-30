@@ -10,31 +10,31 @@ namespace Poker
 {
     class Assert
     {
-        public static void AlmostPos(double x)
+        public static void AlmostPos(float x)
         {
 #if DEBUG
-            if (x < -0.0001f || double.IsNaN(x) || double.IsInfinity(x))
+            if (x < -0.0001f || float.IsNaN(x) || float.IsInfinity(x))
                 Console.WriteLine("Negative number!");
 #endif
         }
-        public static void AlmostOne(double x)
+        public static void AlmostOne(float x)
         {
 #if DEBUG
-            if (Math.Abs(x - 1) > 0.0001f || double.IsNaN(x) || double.IsInfinity(x))
+            if (Math.Abs(x - 1) > 0.0001f || float.IsNaN(x) || float.IsInfinity(x))
                 Console.WriteLine("Not equal to 1!");
 #endif
         }
-        public static void ZeroOrOne(double x)
+        public static void ZeroOrOne(float x)
         {
 #if DEBUG
-            if ((Math.Abs(x - 1) > 0.0001f && x > 0) || double.IsNaN(x) || double.IsInfinity(x))
+            if ((Math.Abs(x - 1) > 0.0001f && x > 0) || float.IsNaN(x) || float.IsInfinity(x))
                 Console.WriteLine("Not 0 or 1!");
 #endif
         }
-        public static void IsNum(double x)
+        public static void IsNum(float x)
         {
 #if DEBUG
-            if (double.IsNaN(x) || double.IsInfinity(x))
+            if (float.IsNaN(x) || float.IsInfinity(x))
                 Console.WriteLine("Unreal number!");
 #endif
         }
@@ -55,8 +55,8 @@ namespace Poker
 
     class Tools
     {
-        public const double eps = .0001f;
-        public static bool Equals(double x, double y, double tolerance = eps)
+        public const float eps = .0001f;
+        public static bool Equals(float x, float y, float tolerance = eps)
         {
             return Math.Abs(x - y) < tolerance;
         }

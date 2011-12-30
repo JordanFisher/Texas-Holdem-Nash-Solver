@@ -20,7 +20,7 @@ namespace Poker
         //public static int Suits = 4;
 
         public static int Vals = 5;
-        public static int Suits = 2;
+        public static int Suits = 4;
 
         public static int N = Vals* Suits;
         //public static int N = 7;

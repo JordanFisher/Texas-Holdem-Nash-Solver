@@ -30,10 +30,12 @@ namespace Poker
             base.CalculatePostRaisePDF();
         }
 
-        public override void CalculateBest()
+        public override float CalculateBest()
         {
-            double SingleRiverWeight = 1f / (Card.N - 4 - 3 - 1);
+            float SingleRiverWeight = 1f / (Card.N - 4 - 3 - 1);
             CalculateBest_AccountForOverlaps(SingleRiverWeight);
+
+            return float.MinValue;
         }
 
         public override void CreateBranches()

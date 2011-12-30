@@ -43,12 +43,12 @@ namespace Poker
         }
 
         public static int OpCount = 0;
-        public override void CalculateBest()
+        public override float CalculateBest()
         {
             // Ignore pockets that collide with community
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (Collision(p)) { S[p] = PostRaiseP[p] = EV[p] = B[p] = double.NaN; continue; }
+                if (Collision(p)) { S[p] = PostRaiseP[p] = EV[p] = B[p] = float.NaN; continue; }
             }
 
             // For each pocket we might have, calculate what we should do.
@@ -57,7 +57,7 @@ namespace Poker
             uint PocketValue1, PocketValue2;
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PostRaiseP[p1])) continue;
+                if (float.IsNaN(PostRaiseP[p1])) continue;
                 PocketValue1 = PocketValue[p1];
                 Assert.That(PocketValue1 < uint.MaxValue);
 
@@ -66,10 +66,10 @@ namespace Poker
                 UpdateOnExclusion(PostRaiseP, UpdatedP, p1);
 
                 // Calculate the EV assuming we both raise.
-                double ShowdownEV = 0;
+                float ShowdownEV = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    if (double.IsNaN(UpdatedP[p2])) continue;
+                    if (float.IsNaN(UpdatedP[p2])) continue;
                     PocketValue2 = PocketValue[p2];
                     Assert.That(PocketValue2 < uint.MaxValue);
 
@@ -81,13 +81,13 @@ namespace Poker
                 }
 
                 // Calculate the chance the opponent will raise/fold
-                double RaiseChance = TotalChance(PreRaiseP, S, p1);
-                double FoldChance = 1 - RaiseChance;
+                float RaiseChance = TotalChance(PreRaiseP, S, p1);
+                float FoldChance = 1 - RaiseChance;
                 Assert.IsNum(RaiseChance);
 
                 // Calculate EV for raising and folding.
-                double RaiseEV = FoldChance * Pot + RaiseChance * ShowdownEV;
-                double FoldEV = RaiseChance * (-Spent);
+                float RaiseEV = FoldChance * Pot + RaiseChance * ShowdownEV;
+                float FoldEV = RaiseChance * (-Spent);
 
                 // Decide strategy based on which action is better.
                 if (RaiseEV >= FoldEV)
@@ -103,6 +103,8 @@ namespace Poker
                 }
                 Assert.IsNum(EV[p1]);
             }
+
+            return float.MinValue;
         }
 
         public override bool NewCollision(Pocket p)
@@ -120,7 +122,7 @@ namespace Poker
             return string.Format("({0}) {1}", MyFlop.ToString(), Card.ToString(Card.DefaultStyle, MyTurn, MyRiver));
         }
 
-        protected override double Simulate(int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        protected override float Simulate(int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             //return 0;
 
@@ -129,14 +131,14 @@ namespace Poker
             uint PocketValue1 = PocketValue[p1];
             uint PocketValue2 = PocketValue[p2];
 
-            double ShowdownEV;
+            float ShowdownEV;
             if (PocketValue1 == PocketValue2) ShowdownEV = 0;
             else if (PocketValue1 > PocketValue2)
                 ShowdownEV = ShowdownPot;
             else
                 ShowdownEV = -ShowdownPot;
 
-            double EV =
+            float EV =
                 B[p1]       * (S[p2] * ShowdownEV + (1 - S[p2]) * Pot) +
                 (1 - B[p1]) * (S[p2] * (-Spent) + (1 - S[p2]) * 0);
 

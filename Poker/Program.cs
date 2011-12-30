@@ -5,19 +5,21 @@ namespace Poker
 {
     class Ante
     {
+        //public const int PreDeal = 1, PreFlop = 1, Flop = 1, Turn = 1, River = 250;
         public const int PreDeal = 1, PreFlop = 1, Flop = 2, Turn = 2, River = 4;
+        //public const int PreDeal = 1, PreFlop = 2, Flop = 4, Turn = 8, River = 16;
         public const int MaxPot = PreDeal + PreFlop + Flop + Turn + River;
     }
 
     class Program
     {
-        static double Simulation()
+        static float Simulation()
         {
-            double EV = 0, TotalMass = 0;
+            float EV = 0, TotalMass = 0;
 
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                double PocketEV = 0, PocketTotalMass = 0;
+                float PocketEV = 0, PocketTotalMass = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
                     if (Pocket.Pockets[p1].Overlaps(Pocket.Pockets[p2])) continue;
@@ -40,7 +42,7 @@ namespace Poker
                                 if (Pocket.Pockets[p1].Contains(river)) continue;
                                 if (Pocket.Pockets[p2].Contains(river)) continue;
 
-                                double ev = node.Simulate(p1, p2, flop, turn, river);
+                                float ev = node.Simulate(p1, p2, flop, turn, river);
                                 
                                 //if (p1 == 0)
                                 //{
@@ -69,7 +71,7 @@ namespace Poker
         static PocketNode node;
         static void Main(string[] args)
         {
-            double EV;
+            float EV;
 
             Counting.Test();
 
@@ -93,24 +95,42 @@ namespace Poker
             //node.Process(i => i == 0 ? 1 : 0.1f);
 
 
-            
-            node.CalculatePostRaisePDF();
+
+            // Simple loop
+            //for (int i = 0; i < 1000; i++)
+            //{
+            //    float ev = node.BestAgainstS();
+            //    node.BToS();
+
+            //    if (ev < .1f) break;
+            //}
+
+            // Harmonic
+            //for (int i = 0; i < 1000; i++)
+            //{
+            //    node.BestAgainstS();
+            //    node.HarmonicAlg(i + 2);
+            //}
+
+            // BiHarmonic
+            float ev1, ev2;
             for (int i = 0; i < 1000; i++)
             {
-                node.CalculatePostRaisePDF();
-                node.CalculateBest();
-                Console.WriteLine("Simulated EV = {0}", Simulation());
-                //node.BToS();
-                node.HarmonicAlg(i+2);
+                ev1 = node.BestAgainstS();
+                node.SToHold();
+                node.BToS();
+                ev2 = node.BestAgainstS();
+
+                node.BiHarmonicAlg(i + 2, ev1, ev2);
+                Console.WriteLine("----------------");
             }
-            
 
             
             node.CalculatePostRaisePDF();
             Console.WriteLine("Post raise done.");
 
             node.CalculateBest();
-            //double t = Tools.Benchmark(node.CalculateBest, 10);
+            //float t = Tools.Benchmark(node.CalculateBest, 10);
             //Console.WriteLine("Average time: {0}", t);
             
             //node.CalculateBest();
