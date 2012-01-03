@@ -13,17 +13,16 @@ namespace Poker
         public enum OutputStyle { Text, Pretty, Number };
         public static OutputStyle DefaultStyle = OutputStyle.Number;
 
-        //public static int Vals = 13;
-        //public static int Suits = 4;
+        //public const int Vals = 13;
+        //public const int Suits = 4;
 
-        //public static int Vals = 5;
-        //public static int Suits = 4;
+        //public const int Vals = 5;
+        //public const int Suits = 4;
 
-        public static int Vals = 5;
-        public static int Suits = 4;
+        public const int Vals = 13;
+        public const int Suits = 1;
 
-        public static int N = Vals* Suits;
-        //public static int N = 7;
+        public const int N = Vals * Suits;
 
         //static char[] SuitChar = { '\u2660', '\u2661', '\u2662', '\u2663' };
         static char[] SuitChar = { '\u2660', '\u2665', '\u2666', '\u2663' };

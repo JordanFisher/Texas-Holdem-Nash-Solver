@@ -12,14 +12,14 @@ namespace Poker
     {
         public Flop MyFlop;
 
-        public FlopNode(Node parent, Flop flop)
-            : base(parent)
+        public FlopNode(Node parent, Flop flop, int Spent, int Pot)
+            : base(parent, Spent, Pot)
         {
             MyFlop = flop;
             Weight = 1f / Flop.N;
 
             Initialize();
-            Spent = Pot = Ante.PreDeal + Ante.PreFlop;
+            //Spent = Pot = Ante.PreDeal + Ante.PreFlop;
         }
 
         public override void CalculatePostRaisePDF()

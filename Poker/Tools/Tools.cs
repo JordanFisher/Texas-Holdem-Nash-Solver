@@ -13,48 +13,69 @@ namespace Poker
         public static void AlmostPos(float x)
         {
 #if DEBUG
-            if (x < -0.0001f || float.IsNaN(x) || float.IsInfinity(x))
-                Console.WriteLine("Negative number!");
+            if (x < -Tools.eps || float.IsNaN(x) || float.IsInfinity(x))
+                Tools.Raise("Negative number!");
 #endif
         }
         public static void AlmostOne(float x)
         {
 #if DEBUG
-            if (Math.Abs(x - 1) > 0.0001f || float.IsNaN(x) || float.IsInfinity(x))
-                Console.WriteLine("Not equal to 1!");
+            if (Math.Abs(x - 1) > Tools.eps || float.IsNaN(x) || float.IsInfinity(x))
+                Tools.Raise("Not equal to 1!");
 #endif
         }
         public static void ZeroOrOne(float x)
         {
 #if DEBUG
-            if ((Math.Abs(x - 1) > 0.0001f && x > 0) || float.IsNaN(x) || float.IsInfinity(x))
-                Console.WriteLine("Not 0 or 1!");
+            if ((Math.Abs(x - 1) > Tools.eps && x > 0) || float.IsNaN(x) || float.IsInfinity(x))
+                Tools.Raise("Not 0 or 1!");
+#endif
+        }
+        public static void IsProbability(float x)
+        {
+#if DEBUG
+            if (float.IsNaN(x) || float.IsInfinity(x) || x < 0 || x > 1)
+                Tools.Raise("Not a probability!");
+#endif
+        }
+        public static void AlmostProbability(float x)
+        {
+#if DEBUG
+            if (float.IsNaN(x) || float.IsInfinity(x) || x < -Tools.eps || x > 1 + Tools.eps)
+                Tools.Raise("Not a probability!");
 #endif
         }
         public static void IsNum(float x)
         {
 #if DEBUG
             if (float.IsNaN(x) || float.IsInfinity(x))
-                Console.WriteLine("Unreal number!");
+                Tools.Raise("Unreal number!");
 #endif
         }
         public static void That(bool expression)
         {
 #if DEBUG
             if (!expression)
-                Console.WriteLine("Assert failed!");
+                Tools.Raise("Assert failed!");
 #endif
         }
         public static void NotReached()
         {
 #if DEBUG
-            Console.WriteLine("Quarantined code reached!");
+            Tools.Raise("Quarantined code reached!");
 #endif
         }
     }
 
     class Tools
     {
+        public static void Raise(string message)
+        {
+#if DEBUG
+            Console.WriteLine(message);
+#endif
+        }
+
         public const float eps = .0001f;
         public static bool Equals(float x, float y, float tolerance = eps)
         {
@@ -78,6 +99,16 @@ namespace Poker
             T temp = t2;
             t2 = t1;
             t1 = temp;
+        }
+
+        /// <summary>
+        /// Returns the restriction of a number between 0 and 1.
+        /// </summary>
+        public static float Restrict(float p)
+        {
+            if (p > 1) return 1;
+            else if (p < 0) return 0;
+            else return p;
         }
 
         public static void Nothing() { }

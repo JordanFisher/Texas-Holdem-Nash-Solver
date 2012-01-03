@@ -14,13 +14,13 @@ namespace Poker
         public int MyTurn;
 
         public TurnNode(Node parent, Flop flop, int turn)
-            : base(parent)
+            : base(parent, Ante.PreDeal + Ante.PreFlop + Ante.Flop, Ante.PreDeal + Ante.PreFlop + Ante.Flop)
         {
             MyFlop = flop;
             MyTurn = turn;
 
             Initialize();
-            Spent = Pot = Ante.PreDeal + Ante.PreFlop + Ante.Flop;
+            //Spent = Pot = Ante.PreDeal + Ante.PreFlop + Ante.Flop;
         }
 
         public override void CalculatePostRaisePDF()

@@ -16,14 +16,15 @@ namespace Poker
         public uint[] PocketValue;
 
         public RiverNode(Node parent, Flop flop, int turn, int river)
-            : base(parent)
+            : base(parent, Ante.PreDeal + Ante.PreFlop + Ante.Flop + Ante.Turn,
+                           Ante.PreDeal + Ante.PreFlop + Ante.Flop + Ante.Turn)
         {
             MyFlop = flop;
             MyTurn = turn;
             MyRiver = river;
 
             Initialize();
-            Spent = Pot = Ante.PreDeal + Ante.PreFlop + Ante.Flop + Ante.Turn;
+            //Spent = Pot = Ante.PreDeal + Ante.PreFlop + Ante.Flop + Ante.Turn;
 
             PocketValue = new uint[Pocket.N];
             for (int p = 0; p < Pocket.N; p++)
@@ -122,9 +123,10 @@ namespace Poker
             return string.Format("({0}) {1}", MyFlop.ToString(), Card.ToString(Card.DefaultStyle, MyTurn, MyRiver));
         }
 
-        protected override float Simulate(int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        protected override float Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             //return 0;
+            PocketData Data1 = S1(this), Data2 = S2(this);
 
             int ShowdownPot = Pot + Ante.River;
 
@@ -139,8 +141,9 @@ namespace Poker
                 ShowdownEV = -ShowdownPot;
 
             float EV =
-                B[p1]       * (S[p2] * ShowdownEV + (1 - S[p2]) * Pot) +
-                (1 - B[p1]) * (S[p2] * (-Spent) + (1 - S[p2]) * 0);
+                Data1[p1]       * (Data2[p2] * ShowdownEV + (1 - Data2[p2]) * Pot) +
+                (1 - Data1[p1]) * (Data2[p2] * (-Spent) + (1 - Data2[p2]) * 0);
+            Assert.IsNum(EV);
 
             return EV;
         }

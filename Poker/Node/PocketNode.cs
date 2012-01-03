@@ -11,10 +11,10 @@ namespace Poker
     class PocketNode : Node
     {
         public PocketNode()
-            : base(null)
+            : base(null, Ante.PreDeal, Ante.PreDeal)
         {
             Initialize();
-            Spent = Pot = Ante.PreDeal;
+            //Spent = Pot = Ante.PreDeal;
         }
 
         public float BestAgainstS()
@@ -58,7 +58,8 @@ namespace Poker
             Branches = new List<Node>(Flop.N);
 
             foreach (Flop flop in Flop.Flops)
-                Branches.Add(new FlopNode(this, flop));
+                //Branches.Add(new FlopNode(this, flop));
+                Branches.Add(new FlopNode(this, flop, Spent + Ante.PreFlop, Pot + Ante.PreFlop));
             BranchesByIndex = Branches;
         }
     }

@@ -47,7 +47,13 @@
     <Compile Include="Cards\Card.cs" />
     <Compile Include="Cards\Flop.cs" />
     <Compile Include="Cards\Pocket.cs" />
-    <Compile Include="Node\PocketData.cs" />
+    <Compile Include="Data\RaiseCallFoldData.cs" />
+    <Compile Include="Node\BetNodes\BetNode.cs" />
+    <Compile Include="Node\BetNodes\CallFoldNode.cs" />
+    <Compile Include="Node\BetNodes\RaiseCallNode.cs" />
+    <Compile Include="Node\BetNodes\RaiseCallFoldNode.cs" />
+    <Compile Include="Data\PocketData.cs" />
+    <Compile Include="Node\Junctions\Junction.cs" />
     <Compile Include="Node\RiverNode.cs" />
     <Compile Include="Node\TurnNode.cs" />
     <Compile Include="Node\FlopNode.cs" />

@@ -8,6 +8,7 @@ using HoldemHand;
 
 namespace Poker
 {
+    delegate PocketData Var(Node node);
     class Node
     {
         public Node Parent;
@@ -19,9 +20,14 @@ namespace Poker
         public PocketData Hold;
         public float ChanceToRaise;
 
-        public Node(Node parent) { Parent = parent; Spent = Pot = 0; }
+        public Node(Node parent, int Spent, int Pot)
+        {
+            Parent = parent;
+            this.Spent = Spent;
+            this.Pot = Pot;
+        }
 
-        protected void Initialize()
+        protected virtual void Initialize()
         {
             S = new PocketData();
             PreRaiseP = new PocketData();
@@ -36,22 +42,14 @@ namespace Poker
 
         public void ClearWorkVariables()
         {
-            for (int i = 0; i < Pocket.N; i++)
-                B[i] = PreRaiseP[i] = PostRaiseP[i] = EV[i] = 0;
+            B.Reset();
+
+            PreRaiseP.Reset();
+            PostRaiseP.Reset();
+            EV.Reset();
 
             if (Branches != null) foreach (Node node in Branches)
                 node.ClearWorkVariables();
-        }
-
-        public void SToHold2()
-        {
-            Hold2.CopyFrom(S);
-            if (Branches != null) foreach (Node node in Branches) node.SToHold2();
-        }
-        public void Hold2ToS()
-        {
-            S.CopyFrom(Hold2);
-            if (Branches != null) foreach (Node node in Branches) node.Hold2ToS();
         }
 
         public void SToHold()
@@ -113,6 +111,17 @@ namespace Poker
                 node.Switch();
         }
 
+        public void Process(Action<int, Node> PocketMod)
+        {
+            for (int i = 0; i < Pocket.N; i++)
+                PocketMod(i, this);
+
+            if (Branches == null) return;
+
+            foreach (Node node in Branches)
+                node.Process(PocketMod);
+        }
+
         public void Process(Func<int, float> PocketMod)
         {
             for (int i = 0; i < Pocket.N; i++)
@@ -124,15 +133,17 @@ namespace Poker
                 node.Process(PocketMod);
         }
 
-        public void Process(Func<Node, int, float> PocketMod)
+        public void Process(Var Variable, Func<Node, int, float> PocketMod)
         {
+            PocketData data = Variable(this);
+
             for (int i = 0; i < Pocket.N; i++)
-                S[i] = PocketMod(this, i);
+                data[i] = Tools.Restrict(PocketMod(this, i));
 
             if (Branches == null) return;
 
             foreach (Node node in Branches)
-                node.Process(PocketMod);
+                node.Process(Variable, PocketMod);
         }
 
         /// <summary>
@@ -189,8 +200,6 @@ namespace Poker
                     {
                         b++;
                         if (Branch.NewCollision(p1) || Branch.NewCollision(p2)) continue;
-
-                        if (UpdatedP[p2] * BranchWeight > 0) { int x = 1; x += 1; }
 
                         BranchEV += UpdatedP[p2] * BranchWeight * Branch.EV[p1];
                         TotalWeight += UpdatedP[p2] * BranchWeight;
@@ -301,7 +310,8 @@ namespace Poker
             ChanceToRaise = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (Collision(p)) continue;
+                if (float.IsNaN(S[p]) || float.IsNaN(PostRaiseP[p]) || Collision(p)) continue;
+                //if (Collision(p)) continue;
                 ChanceToRaise += PostRaiseP[p] * S[p];
             }
 
@@ -422,23 +432,22 @@ namespace Poker
         public bool Collision(int p) { return Collision(Pocket.Pockets[p]); }
 
 
-        public float Simulate(int p1, int p2, params int[] BranchIndex)
+        public float Simulate(Var S1, Var S2, int p1, int p2, params int[] BranchIndex)
         {
-            return Simulate(p1, p2, ref BranchIndex, 0);
+            return Simulate(S1, S2, p1, p2, ref BranchIndex, 0);
         }
     
-        protected virtual float Simulate(int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        protected virtual float Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
-            Node NextNode = BranchesByIndex[BranchIndex[IndexOffset]];
-            float BranchEV = NextNode.Simulate(p1, p2, ref BranchIndex, ++IndexOffset);
+            PocketData Data1 = S1(this), Data2 = S2(this);
 
-            //if (this is TurnNode || this is RiverNode) BranchEV = 0;
-            //if (this is RiverNode) BranchEV = 0;
-            //if (this is RiverNode) BranchEV = p1 < p2 ? 1 : -1;
+            Node NextNode = BranchesByIndex[BranchIndex[IndexOffset]];
+            float BranchEV = NextNode.Simulate(S1, S2, p1, p2, ref BranchIndex, ++IndexOffset);
 
             float EV = 
-                B[p1]       * (S[p2] * BranchEV + (1 - S[p2]) * Pot) +
-                (1 - B[p1]) * (S[p2] * (-Spent) + (1 - S[p2]) * 0);
+                Data1[p1]       * (Data2[p2] * BranchEV + (1 - Data2[p2]) * Pot) +
+                (1 - Data1[p1]) * (Data2[p2] * (-Spent) + (1 - Data2[p2]) * 0);
+            Assert.IsNum(EV);
 
             return EV;
         }
@@ -454,10 +463,8 @@ namespace Poker
             float _t1 = t1 * S[p] / normalize;
             float _t2 = t2 * B[p] / normalize;
             
-            S[p] = t1 * S[p] + t2 * B[p];
-
-            //if (p == 0 && this is FlopNode && ((FlopNode)this).MyFlop == Flop.Flops[0])
-            //    Tools.Nothing();
+            //S[p] = t1 * S[p] + t2 * B[p];
+            S.Linear(p, t1, S, t2, B);
 
             if (Branches != null) foreach (Node node in Branches)
                     node._CombineStrats(p, _t1, _t2);
@@ -477,7 +484,8 @@ namespace Poker
             float _t2 = t2 * S2[p] / normalize;
             float _t3 = t3 * S3[p] / normalize;
 
-            S[p] = t1 * S1[p] + t2 * S2[p] + t3 * S3[p];
+            //S[p] = t1 * S1[p] + t2 * S2[p] + t3 * S3[p];
+            S.Linear(p, t1, S1, t2, S2, t3, S3);
 
             if (Branches != null) foreach (Node node in Branches)
                     node._CombineStrats(p, _t1, _t2, _t3);
@@ -494,7 +502,6 @@ namespace Poker
                     node.NaiveCombine(S1, t1, S2, t2, Destination);
         }
 
-        public delegate PocketData Var(Node node);
         public float FloatHash(Var v)
         {
             float hash = v(this).FloatHash();
