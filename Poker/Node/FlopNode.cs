@@ -29,12 +29,10 @@ namespace Poker
             base.CalculatePostRaisePDF();
         }
 
-        public override double CalculateBest()
+        public override void CalculateBest()
         {
             double SingleTurnWeight = 1f / (Card.N - 4 - 3);
             CalculateBest_AccountForOverlaps(SingleTurnWeight);
-
-            return double.MinValue;
         }
 
         public override void CreateBranches()

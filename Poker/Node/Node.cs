@@ -9,10 +9,13 @@ using HoldemHand;
 namespace Poker
 {
     delegate PocketData Var(Node node);
+
     class Node
     {
         public Node Parent;
         public double Weight;
+
+        public BettingPhase Phase = BettingPhase.NotSet;
 
         protected int Spent, Pot;
 
@@ -149,12 +152,11 @@ namespace Poker
         /// <summary>
         /// Calculate the best possible strategy B against S.
         /// Should recursively calculate B for all branches as well.
-        /// This is a purely virtual function. All node subclasses 
+        /// This is a purely virtual function. All node subclasses must override.
         /// </summary>
-        public virtual double CalculateBest()
+        public virtual void CalculateBest()
         {
             Assert.NotReached();
-            return double.MinValue;
         }
 
         /// <summary>
@@ -224,8 +226,6 @@ namespace Poker
                 // Calculate EV for raising and folding.
                 double RaiseEV = FoldChance * Pot + RaiseChance * BranchEV;
                 double FoldEV = RaiseChance * (-Spent);
-
-                if (this is PocketNode) Tools.Nothing();
 
                 // Decide strategy based on which action is better.
                 if (RaiseEV >= FoldEV)

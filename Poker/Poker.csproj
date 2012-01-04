@@ -50,10 +50,16 @@
     <Compile Include="Data\RaiseCallFoldData.cs" />
     <Compile Include="Node\BetNodes\BetNode.cs" />
     <Compile Include="Node\BetNodes\CallFoldNode.cs" />
+    <Compile Include="Node\BetNodes\SimultaneousNode.cs" />
     <Compile Include="Node\BetNodes\RaiseCheckNode.cs" />
     <Compile Include="Node\BetNodes\RaiseCallFoldNode.cs" />
     <Compile Include="Data\PocketData.cs" />
     <Compile Include="Node\Junctions\Junction.cs" />
+    <Compile Include="Node\Phases\PhaseRoot.cs" />
+    <Compile Include="Node\Phases\Flop.cs" />
+    <Compile Include="Node\Phases\Pocket.cs" />
+    <Compile Include="Node\Phases\River.cs" />
+    <Compile Include="Node\Phases\Turn.cs" />
     <Compile Include="Node\RiverNode.cs" />
     <Compile Include="Node\TurnNode.cs" />
     <Compile Include="Node\FlopNode.cs" />

@@ -43,7 +43,7 @@ namespace Poker
         }
 
         public static int OpCount = 0;
-        public override double CalculateBest()
+        public override void CalculateBest()
         {
             // Ignore pockets that collide with community
             for (int p = 0; p < Pocket.N; p++)
@@ -103,8 +103,6 @@ namespace Poker
                 }
                 Assert.IsNum(EV[p1]);
             }
-
-            return double.MinValue;
         }
 
         public override bool NewCollision(Pocket p)

@@ -5,6 +5,8 @@ namespace Poker
 {
     class Ante
     {
+        public const int LittleBlind = 1, BigBlind = 2;
+
         //public const int PreDeal = 1, PreFlop = 1, Flop = 1, Turn = 1, River = 250;
         public const int PreDeal = 1, PreFlop = 1, Flop = 2, Turn = 2, River = 4;
         //public const int PreDeal = 1, PreFlop = 2, Flop = 4, Turn = 8, River = 16;

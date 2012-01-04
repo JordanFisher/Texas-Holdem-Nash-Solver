@@ -21,7 +21,11 @@ namespace Poker
         {
             ClearWorkVariables();
             CalculatePostRaisePDF();
-            return CalculateBest();
+            CalculateBest();
+
+            double FinalEV = EV.Average();
+            Console.WriteLine("EV = {0}", FinalEV);
+            return FinalEV;
         }
 
         public override void CalculatePostRaisePDF()
@@ -35,22 +39,10 @@ namespace Poker
             base.CalculatePostRaisePDF();
         }
 
-        public override double CalculateBest()
+        public override void CalculateBest()
         {
             double SingleFlopWeight = 1f / Counting.Choose(Card.N - 4, 3);
             CalculateBest_AccountForOverlaps(SingleFlopWeight);
-
-            // Calculate final EV.
-            double FinalEV = 0;
-            for (int p = 0; p < Pocket.N; p++)
-            {
-                FinalEV += EV[p];
-                //Console.WriteLine("EV(p1 = {0}) = {1}", p, EV[p]);
-            }
-            FinalEV /= Pocket.N;
-            Console.WriteLine("EV = {0}", FinalEV);
-            
-            return FinalEV;
         }
 
         public override void CreateBranches()
