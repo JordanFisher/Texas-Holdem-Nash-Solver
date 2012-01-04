@@ -13,8 +13,9 @@ namespace Poker
         public Flop MyFlop;
         public int MyTurn;
 
-        public TurnNode(Node parent, Flop flop, int turn)
-            : base(parent, Ante.PreDeal + Ante.PreFlop + Ante.Flop, Ante.PreDeal + Ante.PreFlop + Ante.Flop)
+        public TurnNode(Node parent, Flop flop, int turn, int Spent, int Pot)
+            : base(parent, Spent, Pot)
+//            : base(parent, Ante.PreDeal + Ante.PreFlop + Ante.Flop, Ante.PreDeal + Ante.PreFlop + Ante.Flop)
         {
             MyFlop = flop;
             MyTurn = turn;
@@ -30,12 +31,12 @@ namespace Poker
             base.CalculatePostRaisePDF();
         }
 
-        public override float CalculateBest()
+        public override double CalculateBest()
         {
-            float SingleRiverWeight = 1f / (Card.N - 4 - 3 - 1);
+            double SingleRiverWeight = 1f / (Card.N - 4 - 3 - 1);
             CalculateBest_AccountForOverlaps(SingleRiverWeight);
 
-            return float.MinValue;
+            return double.MinValue;
         }
 
         public override void CreateBranches()
@@ -48,7 +49,7 @@ namespace Poker
                 Node NewBranch;
                 if (!MyFlop.Contains(river) && river != MyTurn)
                 {
-                    NewBranch = new RiverNode(this, MyFlop, MyTurn, river);
+                    NewBranch = new RiverNode(this, MyFlop, MyTurn, river, Spent + Ante.Turn, Pot + Ante.Turn);
                     Branches.Add(NewBranch);
                 }
                 else

@@ -29,12 +29,12 @@ namespace Poker
             base.CalculatePostRaisePDF();
         }
 
-        public override float CalculateBest()
+        public override double CalculateBest()
         {
-            float SingleTurnWeight = 1f / (Card.N - 4 - 3);
+            double SingleTurnWeight = 1f / (Card.N - 4 - 3);
             CalculateBest_AccountForOverlaps(SingleTurnWeight);
 
-            return float.MinValue;
+            return double.MinValue;
         }
 
         public override void CreateBranches()
@@ -48,7 +48,7 @@ namespace Poker
                 Node NewBranch;
                 if (!MyFlop.Contains(turn))
                 {
-                    NewBranch = new TurnNode(this, MyFlop, turn);
+                    NewBranch = new TurnNode(this, MyFlop, turn, Spent + Ante.Flop, Pot + Ante.Flop);
                     Branches.Add(NewBranch);
                 }
                 else

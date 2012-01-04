@@ -10,45 +10,45 @@ namespace Poker
 {
     class Assert
     {
-        public static void AlmostPos(float x)
+        public static void AlmostPos(double x)
         {
 #if DEBUG
-            if (x < -Tools.eps || float.IsNaN(x) || float.IsInfinity(x))
+            if (x < -Tools.eps || double.IsNaN(x) || double.IsInfinity(x))
                 Tools.Raise("Negative number!");
 #endif
         }
-        public static void AlmostOne(float x)
+        public static void AlmostOne(double x)
         {
 #if DEBUG
-            if (Math.Abs(x - 1) > Tools.eps || float.IsNaN(x) || float.IsInfinity(x))
+            if (Math.Abs(x - 1) > Tools.eps || double.IsNaN(x) || double.IsInfinity(x))
                 Tools.Raise("Not equal to 1!");
 #endif
         }
-        public static void ZeroOrOne(float x)
+        public static void ZeroOrOne(double x)
         {
 #if DEBUG
-            if ((Math.Abs(x - 1) > Tools.eps && x > 0) || float.IsNaN(x) || float.IsInfinity(x))
+            if ((Math.Abs(x - 1) > Tools.eps && x > 0) || double.IsNaN(x) || double.IsInfinity(x))
                 Tools.Raise("Not 0 or 1!");
 #endif
         }
-        public static void IsProbability(float x)
+        public static void IsProbability(double x)
         {
 #if DEBUG
-            if (float.IsNaN(x) || float.IsInfinity(x) || x < 0 || x > 1)
+            if (double.IsNaN(x) || double.IsInfinity(x) || x < 0 || x > 1)
                 Tools.Raise("Not a probability!");
 #endif
         }
-        public static void AlmostProbability(float x)
+        public static void AlmostProbability(double x)
         {
 #if DEBUG
-            if (float.IsNaN(x) || float.IsInfinity(x) || x < -Tools.eps || x > 1 + Tools.eps)
+            if (double.IsNaN(x) || double.IsInfinity(x) || x < -Tools.eps || x > 1 + Tools.eps)
                 Tools.Raise("Not a probability!");
 #endif
         }
-        public static void IsNum(float x)
+        public static void IsNum(double x)
         {
 #if DEBUG
-            if (float.IsNaN(x) || float.IsInfinity(x))
+            if (double.IsNaN(x) || double.IsInfinity(x))
                 Tools.Raise("Unreal number!");
 #endif
         }
@@ -76,8 +76,8 @@ namespace Poker
 #endif
         }
 
-        public const float eps = .0001f;
-        public static bool Equals(float x, float y, float tolerance = eps)
+        public const double eps = .0001f;
+        public static bool Equals(double x, double y, double tolerance = eps)
         {
             return Math.Abs(x - y) < tolerance;
         }
@@ -104,7 +104,7 @@ namespace Poker
         /// <summary>
         /// Returns the restriction of a number between 0 and 1.
         /// </summary>
-        public static float Restrict(float p)
+        public static double Restrict(double p)
         {
             if (p > 1) return 1;
             else if (p < 0) return 0;

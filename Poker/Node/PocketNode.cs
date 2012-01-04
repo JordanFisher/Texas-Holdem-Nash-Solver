@@ -17,7 +17,7 @@ namespace Poker
             //Spent = Pot = Ante.PreDeal;
         }
 
-        public float BestAgainstS()
+        public double BestAgainstS()
         {
             ClearWorkVariables();
             CalculatePostRaisePDF();
@@ -27,7 +27,7 @@ namespace Poker
         public override void CalculatePostRaisePDF()
         {
             // First assume a uniform prior for which pockets opponent has.
-            float UniformP = 1f / Pocket.N;
+            double UniformP = 1f / Pocket.N;
             for (int i = 0; i < Pocket.N; i++)
                 PostRaiseP[i] = UniformP;
 
@@ -35,13 +35,13 @@ namespace Poker
             base.CalculatePostRaisePDF();
         }
 
-        public override float CalculateBest()
+        public override double CalculateBest()
         {
-            float SingleFlopWeight = 1f / Counting.Choose(Card.N - 4, 3);
+            double SingleFlopWeight = 1f / Counting.Choose(Card.N - 4, 3);
             CalculateBest_AccountForOverlaps(SingleFlopWeight);
 
             // Calculate final EV.
-            float FinalEV = 0;
+            double FinalEV = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
                 FinalEV += EV[p];

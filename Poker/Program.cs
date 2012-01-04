@@ -13,13 +13,13 @@ namespace Poker
 
     class Program
     {
-        static float Simulation(Var S1, Var S2)
+        static double Simulation(Var S1, Var S2)
         {
-            float EV = 0, TotalMass = 0;
+            double EV = 0, TotalMass = 0;
 
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                float PocketEV = 0, PocketTotalMass = 0;
+                double PocketEV = 0, PocketTotalMass = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
                     if (Pocket.Pockets[p1].Overlaps(Pocket.Pockets[p2])) continue;
@@ -42,7 +42,7 @@ namespace Poker
                                 if (Pocket.Pockets[p1].Contains(river)) continue;
                                 if (Pocket.Pockets[p2].Contains(river)) continue;
 
-                                float ev = node.Simulate(S1, S2, p1, p2, flop, turn, river);
+                                double ev = node.Simulate(S1, S2, p1, p2, flop, turn, river);
 
                                 TotalMass += 1;
                                 EV += ev;
@@ -65,7 +65,7 @@ namespace Poker
         static PocketNode node;
         static void Main(string[] args)
         {
-            float EV;
+            double EV;
 
             Counting.Test();
 
@@ -73,6 +73,9 @@ namespace Poker
             Flop.InitFlops();
 
             Console.WriteLine("Init done.");
+
+            var FistNode = new FirstActionNode(null, true, 1, 2);
+
 
             node = new PocketNode();
             //node.Process(Node.VarS, (n, i) =>
@@ -93,7 +96,7 @@ namespace Poker
             // Simple loop
             //for (int i = 0; i < 1000; i++)
             //{
-            //    float ev = node.BestAgainstS();
+            //    double ev = node.BestAgainstS();
             //    node.BToS();
 
             //    //node.Process(Node.VarHold, (n, j) => .5f);
@@ -117,30 +120,32 @@ namespace Poker
             {
                 node.BestAgainstS();
 
-                EV = Simulation(Node.VarB, Node.VarS);
-                Console.WriteLine("Simulated EV = {0}", EV);
+                //Console.WriteLine("hash(B) = {0}", node.Hash(Node.VarB));
 
-                node.Process(Node.VarHold, (n, j) => float.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
-                EV = Simulation(Node.VarHold, Node.VarS);
-                Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
+                //EV = Simulation(Node.VarB, Node.VarS);
+                //Console.WriteLine("Simulated EV = {0}", EV);
 
-                node.Process(Node.VarHold, (n, j) => .5f);
-                EV = Simulation(Node.VarS, Node.VarHold);
-                Console.WriteLine("Simulated EV = {0}  (idiot)", EV);
+                //node.Process(Node.VarHold, (n, j) => double.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
+                //EV = Simulation(Node.VarHold, Node.VarS);
+                //Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
 
-                node.Process(Node.VarHold, (n, j) => 1);
-                EV = Simulation(Node.VarS, Node.VarHold);
-                Console.WriteLine("Simulated EV = {0}  (aggressive)", EV);
+                //node.Process(Node.VarHold, (n, j) => .5f);
+                //EV = Simulation(Node.VarS, Node.VarHold);
+                //Console.WriteLine("Simulated EV = {0}  (idiot)", EV);
 
-                node.Process(Node.VarHold, (n, j) => 0);
-                EV = Simulation(Node.VarS, Node.VarHold);
-                Console.WriteLine("Simulated EV = {0}  (passive)", EV);
+                //node.Process(Node.VarHold, (n, j) => 1);
+                //EV = Simulation(Node.VarS, Node.VarHold);
+                //Console.WriteLine("Simulated EV = {0}  (aggressive)", EV);
+
+                //node.Process(Node.VarHold, (n, j) => 0);
+                //EV = Simulation(Node.VarS, Node.VarHold);
+                //Console.WriteLine("Simulated EV = {0}  (passive)", EV);
 
                 node.HarmonicAlg(i + 2);
             }
 
             // BiHarmonic
-            float ev1, ev2;
+            double ev1, ev2;
             for (int i = 0; i < 1000; i++)
             {
                 ev1 = node.BestAgainstS();
@@ -157,7 +162,7 @@ namespace Poker
             Console.WriteLine("Post raise done.");
 
             node.CalculateBest();
-            //float t = Tools.Benchmark(node.CalculateBest, 10);
+            //double t = Tools.Benchmark(node.CalculateBest, 10);
             //Console.WriteLine("Average time: {0}", t);
             
             //node.CalculateBest();

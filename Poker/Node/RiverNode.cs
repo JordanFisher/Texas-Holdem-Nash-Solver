@@ -15,9 +15,8 @@ namespace Poker
 
         public uint[] PocketValue;
 
-        public RiverNode(Node parent, Flop flop, int turn, int river)
-            : base(parent, Ante.PreDeal + Ante.PreFlop + Ante.Flop + Ante.Turn,
-                           Ante.PreDeal + Ante.PreFlop + Ante.Flop + Ante.Turn)
+        public RiverNode(Node parent, Flop flop, int turn, int river, int Spent, int Pot)
+            : base(parent, Spent, Pot)
         {
             MyFlop = flop;
             MyTurn = turn;
@@ -44,12 +43,12 @@ namespace Poker
         }
 
         public static int OpCount = 0;
-        public override float CalculateBest()
+        public override double CalculateBest()
         {
             // Ignore pockets that collide with community
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (Collision(p)) { S[p] = PostRaiseP[p] = EV[p] = B[p] = float.NaN; continue; }
+                if (Collision(p)) { S[p] = PostRaiseP[p] = EV[p] = B[p] = double.NaN; continue; }
             }
 
             // For each pocket we might have, calculate what we should do.
@@ -58,7 +57,7 @@ namespace Poker
             uint PocketValue1, PocketValue2;
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (float.IsNaN(PostRaiseP[p1])) continue;
+                if (double.IsNaN(PostRaiseP[p1])) continue;
                 PocketValue1 = PocketValue[p1];
                 Assert.That(PocketValue1 < uint.MaxValue);
 
@@ -67,10 +66,10 @@ namespace Poker
                 UpdateOnExclusion(PostRaiseP, UpdatedP, p1);
 
                 // Calculate the EV assuming we both raise.
-                float ShowdownEV = 0;
+                double ShowdownEV = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    if (float.IsNaN(UpdatedP[p2])) continue;
+                    if (double.IsNaN(UpdatedP[p2])) continue;
                     PocketValue2 = PocketValue[p2];
                     Assert.That(PocketValue2 < uint.MaxValue);
 
@@ -82,13 +81,13 @@ namespace Poker
                 }
 
                 // Calculate the chance the opponent will raise/fold
-                float RaiseChance = TotalChance(PreRaiseP, S, p1);
-                float FoldChance = 1 - RaiseChance;
+                double RaiseChance = TotalChance(PreRaiseP, S, p1);
+                double FoldChance = 1 - RaiseChance;
                 Assert.IsNum(RaiseChance);
 
                 // Calculate EV for raising and folding.
-                float RaiseEV = FoldChance * Pot + RaiseChance * ShowdownEV;
-                float FoldEV = RaiseChance * (-Spent);
+                double RaiseEV = FoldChance * Pot + RaiseChance * ShowdownEV;
+                double FoldEV = RaiseChance * (-Spent);
 
                 // Decide strategy based on which action is better.
                 if (RaiseEV >= FoldEV)
@@ -105,7 +104,7 @@ namespace Poker
                 Assert.IsNum(EV[p1]);
             }
 
-            return float.MinValue;
+            return double.MinValue;
         }
 
         public override bool NewCollision(Pocket p)
@@ -123,7 +122,7 @@ namespace Poker
             return string.Format("({0}) {1}", MyFlop.ToString(), Card.ToString(Card.DefaultStyle, MyTurn, MyRiver));
         }
 
-        protected override float Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        protected override double Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             //return 0;
             PocketData Data1 = S1(this), Data2 = S2(this);
@@ -133,14 +132,14 @@ namespace Poker
             uint PocketValue1 = PocketValue[p1];
             uint PocketValue2 = PocketValue[p2];
 
-            float ShowdownEV;
+            double ShowdownEV;
             if (PocketValue1 == PocketValue2) ShowdownEV = 0;
             else if (PocketValue1 > PocketValue2)
                 ShowdownEV = ShowdownPot;
             else
                 ShowdownEV = -ShowdownPot;
 
-            float EV =
+            double EV =
                 Data1[p1]       * (Data2[p2] * ShowdownEV + (1 - Data2[p2]) * Pot) +
                 (1 - Data1[p1]) * (Data2[p2] * (-Spent) + (1 - Data2[p2]) * 0);
             Assert.IsNum(EV);

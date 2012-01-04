@@ -19,8 +19,8 @@ namespace Poker
         //public const int Vals = 5;
         //public const int Suits = 4;
 
-        public const int Vals = 13;
-        public const int Suits = 1;
+        public const int Vals = 5;
+        public const int Suits = 2;
 
         public const int N = Vals * Suits;
 
