@@ -74,7 +74,7 @@ namespace Poker
 
             Console.WriteLine("Init done.");
 
-            var FistNode = new FirstActionNode(null, true, 1, 2);
+            //var FistNode = new FirstActionNode(null, true, 1, 2);
 
 
             node = new PocketNode();
@@ -122,12 +122,12 @@ namespace Poker
 
                 //Console.WriteLine("hash(B) = {0}", node.Hash(Node.VarB));
 
-                //EV = Simulation(Node.VarB, Node.VarS);
-                //Console.WriteLine("Simulated EV = {0}", EV);
+                EV = Simulation(Node.VarB, Node.VarS);
+                Console.WriteLine("Simulated EV = {0}", EV);
 
-                //node.Process(Node.VarHold, (n, j) => double.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
-                //EV = Simulation(Node.VarHold, Node.VarS);
-                //Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
+                node.Process(Node.VarHold, (n, j) => double.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
+                EV = Simulation(Node.VarHold, Node.VarS);
+                Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
 
                 //node.Process(Node.VarHold, (n, j) => .5f);
                 //EV = Simulation(Node.VarS, Node.VarHold);
