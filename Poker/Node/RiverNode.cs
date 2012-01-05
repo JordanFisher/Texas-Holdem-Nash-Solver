@@ -64,6 +64,7 @@ namespace Poker
                 // Update the opponent's pocket PDF using the new information,
                 // (which is that we now know which pocket we have).
                 UpdateOnExclusion(PostRaiseP, UpdatedP, p1);
+                OpCount++;
 
                 // Calculate the EV assuming we both raise.
                 double ShowdownEV = 0;
@@ -120,9 +121,8 @@ namespace Poker
             return string.Format("({0}) {1}", MyFlop.ToString(), Card.ToString(Card.DefaultStyle, MyTurn, MyRiver));
         }
 
-        protected override double Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
-            //return 0;
             PocketData Data1 = S1(this), Data2 = S2(this);
 
             int ShowdownPot = Pot + Ante.River;

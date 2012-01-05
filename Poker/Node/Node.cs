@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Diagnostics;
 
-using HoldemHand;
 
 namespace Poker
 {
@@ -14,6 +11,8 @@ namespace Poker
     {
         public Node Parent;
         public double Weight;
+
+        public PhaseRoot MyPhaseRoot;
 
         public BettingPhase Phase = BettingPhase.NotSet;
 
@@ -26,6 +25,11 @@ namespace Poker
         public Node(Node parent, int Spent, int Pot)
         {
             Parent = parent;
+            if (Parent != null)
+                MyPhaseRoot = Parent.MyPhaseRoot;
+            else
+                MyPhaseRoot = null;
+
             this.Spent = Spent;
             this.Pot = Pot;
         }
@@ -45,14 +49,24 @@ namespace Poker
 
         public void ClearWorkVariables()
         {
-            B.Reset();
+            if (B != null) B.Reset();
 
-            PreRaiseP.Reset();
-            PostRaiseP.Reset();
+            if (PreRaiseP != null) PreRaiseP.Reset();
+            if (PostRaiseP != null) PostRaiseP.Reset();
             EV.Reset();
 
             if (Branches != null) foreach (Node node in Branches)
                 node.ClearWorkVariables();
+        }
+
+        public void CopyTo(Var Source, Var Destination)
+        {
+            PocketData SourceData = Source(this), DestinationData = Destination(this);
+
+            if (SourceData != null && DestinationData != null)
+                DestinationData.CopyFrom(SourceData);
+
+            if (Branches != null) foreach (Node node in Branches) node.CopyTo(Source, Destination);
         }
 
         public void SToHold()
@@ -89,7 +103,7 @@ namespace Poker
 
             double total = _ev1 + _ev2 + _ev3;
             CombineStrats(_ev1 / total, _ev2 / total, _ev3 / total);
-            //CombineStrats(s, t, 0);
+            //CombineStrats(s, t);
         }
 
         public void HarmonicAlg(int n)
@@ -101,17 +115,15 @@ namespace Poker
             CombineStrats(s, t);
         }
 
-        public void Switch()
+        public void Switch(Var S1, Var S2)
         {
-            for (int i = 0; i < Pocket.N; i++)
-            {
-                double temp = B[i];
-                B[i] = S[i];
-                S[i] = temp;
-            }
+            PocketData Data1 = S1(this), Data2 = S2(this);
+
+            if (Data1 != null && Data2 != null)
+                Data1.SwitchWith(Data2);
 
             if (Branches != null) foreach (Node node in Branches)
-                node.Switch();
+                node.Switch(S1, S2);
         }
 
         public void Process(Action<int, Node> PocketMod)
@@ -119,20 +131,19 @@ namespace Poker
             for (int i = 0; i < Pocket.N; i++)
                 PocketMod(i, this);
 
-            if (Branches == null) return;
-
-            foreach (Node node in Branches)
+            if (Branches == null) foreach (Node node in Branches)
                 node.Process(PocketMod);
         }
 
         public void Process(Func<int, double> PocketMod)
         {
-            for (int i = 0; i < Pocket.N; i++)
-                S[i] = PocketMod(i);
+            if (S != null)
+            {
+                for (int i = 0; i < Pocket.N; i++)
+                    S[i] = PocketMod(i);
+            }
 
-            if (Branches == null) return;
-
-            foreach (Node node in Branches)
+            if (Branches != null) foreach (Node node in Branches)
                 node.Process(PocketMod);
         }
 
@@ -140,12 +151,13 @@ namespace Poker
         {
             PocketData data = Variable(this);
 
-            for (int i = 0; i < Pocket.N; i++)
-                data[i] = Tools.Restrict(PocketMod(this, i));
+            if (data != null)
+            {
+                for (int i = 0; i < Pocket.N; i++)
+                    data[i] = Tools.Restrict(PocketMod(this, i));
+            }
 
-            if (Branches == null) return;
-
-            foreach (Node node in Branches)
+            if (Branches != null) foreach (Node node in Branches)
                 node.Process(Variable, PocketMod);
         }
 
@@ -242,9 +254,9 @@ namespace Poker
             }
         }
 
-        protected virtual void UpdatePDF(PocketData PreviousPDF, PocketData Chance)
+        protected virtual void UpdateChildrensPDFs()
         {
-            Update(PreviousPDF, Chance, PreRaiseP);
+            if (Branches != null) foreach (Node branch in Branches) branch.UpdateChildrensPDFs();
         }
 
         public void Update(PocketData PreviousPDF, PocketData Strategy, PocketData Destination)
@@ -252,7 +264,11 @@ namespace Poker
             double ChanceToProceed = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (double.IsNaN(PreviousPDF[p]) || double.IsNaN(Strategy[p])) continue;
+                if (double.IsNaN(PreviousPDF[p]) || double.IsNaN(Strategy[p]))
+                {
+                    Destination[p] = double.NaN;
+                    continue;
+                }
                 ChanceToProceed += PreviousPDF[p] * Strategy[p];
             }
 
@@ -444,19 +460,19 @@ namespace Poker
             return false;
         }
         public bool Collision(int p) { return Collision(Pocket.Pockets[p]); }
-
+        public virtual bool Contains(int card) { return false; }
 
         public double Simulate(Var S1, Var S2, int p1, int p2, params int[] BranchIndex)
         {
-            return Simulate(S1, S2, p1, p2, ref BranchIndex, 0);
+            return _Simulate(S1, S2, p1, p2, ref BranchIndex, 0);
         }
     
-        protected virtual double Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public virtual double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             PocketData Data1 = S1(this), Data2 = S2(this);
 
             Node NextNode = BranchesByIndex[BranchIndex[IndexOffset]];
-            double BranchEV = NextNode.Simulate(S1, S2, p1, p2, ref BranchIndex, ++IndexOffset);
+            double BranchEV = NextNode._Simulate(S1, S2, p1, p2, ref BranchIndex, ++IndexOffset);
 
             double EV = 
                 Data1[p1]       * (Data2[p2] * BranchEV + (1 - Data2[p2]) * Pot) +
@@ -473,12 +489,20 @@ namespace Poker
         }
         void _CombineStrats(int p, double t1, double t2)
         {
-            double normalize = (t1 * S[p] + t2 * B[p]);
-            double _t1 = t1 * S[p] / normalize;
-            double _t2 = t2 * B[p] / normalize;
-            
-            //S[p] = t1 * S[p] + t2 * B[p];
-            S.Linear(p, t1, S, t2, B);
+            double _t1, _t2;
+
+            if (S != null && B != null && !double.IsNaN(S[p]) && !double.IsNaN(B[p]))
+            {
+                double normalize = (t1 * S[p] + t2 * B[p]);
+                _t1 = t1 * S[p] / normalize;
+                _t2 = t2 * B[p] / normalize;
+
+                S.Linear(p, t1, S, t2, B);
+            }
+            else
+            {
+                _t1 = t1; _t2 = t2;
+            }
 
             if (Branches != null) foreach (Node node in Branches)
                     node._CombineStrats(p, _t1, _t2);
@@ -493,13 +517,22 @@ namespace Poker
         {
             PocketData S1 = Hold, S2 = S, S3 = B;
 
-            double normalize = (t1 * S1[p] + t2 * S2[p] + t3 * S3[p]);
-            double _t1 = t1 * S1[p] / normalize;
-            double _t2 = t2 * S2[p] / normalize;
-            double _t3 = t3 * S3[p] / normalize;
+            double _t1, _t2, _t3;
 
-            //S[p] = t1 * S1[p] + t2 * S2[p] + t3 * S3[p];
-            S.Linear(p, t1, S1, t2, S2, t3, S3);
+            if (S1 != null && S2 != null && S3 != null && !double.IsNaN(S1[p]) && !double.IsNaN(S2[p]) && !double.IsNaN(S3[p]))
+            {
+                double normalize = (t1 * S1[p] + t2 * S2[p] + t3 * S3[p]);
+                Assert.That(normalize != 0);
+                _t1 = t1 * S1[p] / normalize;
+                _t2 = t2 * S2[p] / normalize;
+                _t3 = t3 * S3[p] / normalize;
+
+                S.Linear(p, t1, S1, t2, S2, t3, S3);
+            }
+            else
+            {
+                _t1 = t1; _t2 = t2; _t3 = t3;
+            }
 
             if (Branches != null) foreach (Node node in Branches)
                     node._CombineStrats(p, _t1, _t2, _t3);
@@ -509,8 +542,11 @@ namespace Poker
         {
             PocketData s1 = S1(this), s2 = S2(this), destination = Destination(this);
 
-            for (int i = 0; i < Pocket.N; i++)
-                destination[i] = t1 * s1[i] + t2 * s2[i];
+            if (s1 != null && s2 != null && destination != null)
+            {
+                for (int i = 0; i < Pocket.N; i++)
+                    destination[i] = t1 * s1[i] + t2 * s2[i];
+            }
 
             if (Branches != null) foreach (Node node in Branches)
                     node.NaiveCombine(S1, t1, S2, t2, Destination);
@@ -518,7 +554,17 @@ namespace Poker
 
         public double Hash(Var v)
         {
-            double hash = v(this).Hash();
+            PocketData data = v(this);
+            double hash;
+
+            if (data != null && !(this is SimultaneousNode))
+                Tools.Nothing();
+
+            if (data != null)
+                hash = data.Hash();
+            else
+                hash = 0;
+
             if (Branches != null) foreach (Node node in Branches)
                     hash += node.Hash(v);
             return hash;
