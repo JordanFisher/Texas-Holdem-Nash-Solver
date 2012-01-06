@@ -24,29 +24,27 @@ namespace Poker
         protected List<Node> Branches;
         protected List<Node> BranchesByIndex;
 
+        public int Depth;
+
         public Node(Node parent, int Spent, int Pot)
         {
             Parent = parent;
             if (Parent != null)
+            {
                 MyPhaseRoot = Parent.MyPhaseRoot;
+                Depth = Parent.Depth + 1;
+            }
             else
+            {
                 MyPhaseRoot = null;
+                Depth = 0;                
+            }
 
             this.Spent = Spent;
             this.Pot = Pot;
         }
 
-        protected virtual void Initialize()
-        {
-            S = new PocketData();
-            B = new PocketData();
-            Hold = new PocketData();
-
-            PocketP = new PocketData();
-            EV = new PocketData();
-            
-            CreateBranches();
-        }
+        protected virtual void Initialize() { }
 
         public void ClearWorkVariables()
         {
@@ -285,24 +283,9 @@ namespace Poker
         public bool Collision(int p) { return Collision(Pocket.Pockets[p]); }
         public virtual bool Contains(int card) { return false; }
 
-        public double Simulate(Var S1, Var S2, int p1, int p2, params int[] BranchIndex)
-        {
-            return _Simulate(S1, S2, p1, p2, ref BranchIndex, 0);
-        }
-    
         public virtual double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
-            PocketData Data1 = S1(this), Data2 = S2(this);
-
-            Node NextNode = BranchesByIndex[BranchIndex[IndexOffset]];
-            double BranchEV = NextNode._Simulate(S1, S2, p1, p2, ref BranchIndex, ++IndexOffset);
-
-            double EV = 
-                Data1[p1]       * (Data2[p2] * BranchEV + (1 - Data2[p2]) * Pot) +
-                (1 - Data1[p1]) * (Data2[p2] * (-Spent) + (1 - Data2[p2]) * 0);
-            Assert.IsNum(EV);
-
-            return EV;
+            return double.NaN;
         }
 
         public void CombineStrats(double t1, double t2)

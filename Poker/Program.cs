@@ -1,6 +1,5 @@
 ﻿using System;
 
-
 namespace Poker
 {
     class Ante
@@ -81,6 +80,8 @@ namespace Poker
 
 
             root = new PocketRoot();
+            Console.WriteLine("#(PocketDatas) = {0}", PocketData.InstanceCount);
+            
             root.Process(i => 1f);
             //root.Process(i => Math.Abs(Math.Cos(i)));
             //root.Process(i => .5f);
@@ -91,7 +92,7 @@ namespace Poker
             //root.BestAgainstS();
             //Console.WriteLine("Best done! {0} ops.", ShowdownNode.OpCount);
             
-            /*
+            
             // Harmonic
             for (int i = 0; i < 1000; i++)
             {
@@ -118,7 +119,7 @@ namespace Poker
 
                 root.HarmonicAlg(i + 2);
             }
-            */
+            
             
             
             // BiHarmonic
