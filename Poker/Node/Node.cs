@@ -18,9 +18,11 @@ namespace Poker
 
         protected int Spent, Pot;
 
-        public PocketData S, PreRaiseP, PostRaiseP, EV, B;
-        public PocketData Hold;
-        public double ChanceToRaise;
+        public PocketData S, B, Hold;
+        public PocketData PocketP, EV;
+
+        protected List<Node> Branches;
+        protected List<Node> BranchesByIndex;
 
         public Node(Node parent, int Spent, int Pot)
         {
@@ -37,13 +39,12 @@ namespace Poker
         protected virtual void Initialize()
         {
             S = new PocketData();
-            PreRaiseP = new PocketData();
-            PostRaiseP = new PocketData();
-            EV = new PocketData();
             B = new PocketData();
-
             Hold = new PocketData();
 
+            PocketP = new PocketData();
+            EV = new PocketData();
+            
             CreateBranches();
         }
 
@@ -51,8 +52,7 @@ namespace Poker
         {
             if (B != null) B.Reset();
 
-            if (PreRaiseP != null) PreRaiseP.Reset();
-            if (PostRaiseP != null) PostRaiseP.Reset();
+            if (PocketP != null) PocketP.Reset();
             EV.Reset();
 
             if (Branches != null) foreach (Node node in Branches)
@@ -67,24 +67,6 @@ namespace Poker
                 DestinationData.CopyFrom(SourceData);
 
             if (Branches != null) foreach (Node node in Branches) node.CopyTo(Source, Destination);
-        }
-
-        public void SToHold()
-        {
-            Hold.CopyFrom(S);
-            if (Branches != null) foreach (Node node in Branches) node.SToHold();
-        }
-
-        public void HoldToS()
-        {
-            S.CopyFrom(Hold);
-            if (Branches != null) foreach (Node node in Branches) node.HoldToS();
-        }
-
-        public void BToS()
-        {
-            S.CopyFrom(B);
-            if (Branches != null) foreach (Node node in Branches) node.BToS();
         }
 
         public void BiHarmonicAlg(int n, double ev1, double ev2)
@@ -103,7 +85,6 @@ namespace Poker
 
             double total = _ev1 + _ev2 + _ev3;
             CombineStrats(_ev1 / total, _ev2 / total, _ev3 / total);
-            //CombineStrats(s, t);
         }
 
         public void HarmonicAlg(int n)
@@ -171,89 +152,6 @@ namespace Poker
             Assert.NotReached();
         }
 
-        /// <summary>
-        /// Calculate the best possible strategy B against S.
-        /// This is a generic function calculating B assuming this node
-        /// has a branching structure introducing new community information.
-        /// </summary>
-        /// <param name="BranchWeight"></param>
-        public void CalculateBest_AccountForOverlaps(double BranchWeight)
-        {
-            // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBest();
-
-            // Ignore pockets that collide with community
-            for (int p = 0; p < Pocket.N; p++)
-            {
-                if (Collision(p)) { S[p] = PreRaiseP[p] = PostRaiseP[p] = EV[p] = B[p] = double.NaN; continue; }
-            }
-
-            // For each pocket we might have, calculate what we should do.
-            PocketData UpdatedP = new PocketData();
-            for (int p1 = 0; p1 < Pocket.N; p1++)
-            {
-                if (double.IsNaN(PostRaiseP[p1])) continue;
-
-                // Update the opponent's pocket PDF using the new information,
-                // (which is that we now know which pocket we have).
-                UpdateOnExclusion(PostRaiseP, UpdatedP, p1);
-
-                // Calculate the EV assuming we proceed to a branch.
-                // Loop through each possible opponent pocket and then each possible branch,
-                // summing up the EV of each branch times the probability of arriving there.
-                double TotalWeight = 0, BranchEV = 0;
-                double[] branchp = new double[Branches.Count];
-                for (int p2 = 0; p2 < Pocket.N; p2++)
-                {
-                    if (double.IsNaN(UpdatedP[p2])) continue;
-
-                    // All branches not overlapping our pocket or the opponent's pocket are equally likely.
-                    int b = 0;
-                    foreach (Node Branch in Branches)
-                    {
-                        b++;
-                        if (Branch.NewCollision(p1) || Branch.NewCollision(p2)) continue;
-
-                        BranchEV += UpdatedP[p2] * BranchWeight * Branch.EV[p1];
-                        TotalWeight += UpdatedP[p2] * BranchWeight;
-                        branchp[b-1] += UpdatedP[p2] * BranchWeight;
-                    }
-                }
-                Assert.ZeroOrOne(branchp.Sum());
-                Assert.ZeroOrOne(TotalWeight);
-                Assert.That(BranchEV >= -Ante.MaxPot -Tools.eps && BranchEV <= Ante.MaxPot + Tools.eps);
-
-                // Optimize: the above loop is always the same, except for a different constant
-                // multiplicative factor, and except for a few exclusions of some branches.
-                // Do the full sum, no exclusions, and then go back and subtract the ones we don't need,
-                // then correct for the multiplicative factor (which comes from renormalizing P
-                // conditioned on knowing our pocket).
-
-                // Calculate the chance the opponent will raise/fold
-                double RaiseChance = TotalChance(PreRaiseP, S, p1);
-                double FoldChance = 1 - RaiseChance;
-                Assert.IsNum(RaiseChance);
-
-                // Calculate EV for raising and folding.
-                double RaiseEV = FoldChance * Pot + RaiseChance * BranchEV;
-                double FoldEV = RaiseChance * (-Spent);
-
-                // Decide strategy based on which action is better.
-                if (RaiseEV >= FoldEV)
-                {
-                    B[p1] = 1;
-                    EV[p1] = RaiseEV;
-                }
-                else
-                {
-                    B[p1] = 0;
-                    EV[p1] = FoldEV;
-                }
-                Assert.IsNum(EV[p1]);
-            }
-        }
-
         protected virtual void UpdateChildrensPDFs()
         {
             if (Branches != null) foreach (Node branch in Branches) branch.UpdateChildrensPDFs();
@@ -280,81 +178,6 @@ namespace Poker
                 Destination[p] = PreviousPDF[p] * Strategy[p] / ChanceToProceed;
         }
 
-        /// <summary>
-        /// Calculate the PDF of the opponent's possible pockets,
-        /// assuming both we and the opponent have decided to raise.
-        /// Take into account new information such as community cards,
-        /// and do this recursively for all branches.
-        /// </summary>
-        public virtual void CalculatePostRaisePDF()
-        {
-            // Modify the Pocket PDF assuming opponent raises.
-            PreRaiseP.CopyFrom(PostRaiseP);
-            RaiseUpdate();
-
-            // Have all branches do this recursively.
-            if (Branches != null) foreach (Node node in Branches)
-                node.CalculatePostRaisePDF();
-        }
-
-        /// <summary>
-        /// Addtional processing for calculating the post raise PDF of the opponent's pocket,
-        /// taking into account that a newly introduced community card
-        /// may preclude the possibility of certain pockets.
-        /// </summary>
-        public void CalculatePostRaisePDF_AccountForOverlaps()
-        {
-            // Copy the parent node's post-raise pocket PDF
-            for (int i = 0; i < Pocket.N; i++)
-                PostRaiseP[i] = Parent.PostRaiseP[i];
-
-            // Pocket can't have cards that are in this flop
-            double NewTotalMass = 0f;
-            for (int p = 0; p < Pocket.N; p++)
-            {
-                if (double.IsNaN(PostRaiseP[p])) continue;
-
-                if (NewCollision(p))
-                    PostRaiseP[p] = double.NaN;
-                else
-                    NewTotalMass += PostRaiseP[p];
-            }
-            Assert.AlmostPos(NewTotalMass);
-
-            if (NewTotalMass <= 0) NewTotalMass = 1;
-
-            // Normalize Pocket PDF 
-            for (int i = 0; i < Pocket.N; i++)
-                PostRaiseP[i] = PostRaiseP[i] / NewTotalMass;
-        }
-
-        /// <summary>
-        /// Calculate the PDF of the opponent's possible pockets,
-        /// assuming both we and the opponent have decided to raise.
-        /// Does NOT take into account new information such as community cards,
-        /// and does NOT recursively calculate for all branches.
-        /// </summary>
-        public void RaiseUpdate()
-        {
-            // Calculate chance opponent will raise, not knowing what pocket they have.
-            ChanceToRaise = 0;
-            for (int p = 0; p < Pocket.N; p++)
-            {
-                if (double.IsNaN(S[p]) || double.IsNaN(PostRaiseP[p]) || Collision(p)) continue;
-                //if (Collision(p)) continue;
-                ChanceToRaise += PostRaiseP[p] * S[p];
-            }
-
-            Assert.AlmostPos(ChanceToRaise);
-            if (ChanceToRaise <= 0) ChanceToRaise = 1;
-
-            // Calculate the Pocket PDF assuming opponent raised.
-            for (int i = 0; i < Pocket.N; i++)
-                PostRaiseP[i] = PostRaiseP[i] * S[i] / ChanceToRaise;
-        }
-
-        protected List<Node> Branches;
-        protected List<Node> BranchesByIndex;
         public virtual void CreateBranches() { }
 
         /// <summary>

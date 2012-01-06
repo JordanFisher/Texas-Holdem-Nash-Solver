@@ -64,10 +64,6 @@
     <Compile Include="Node\Phases\PocketRoot.cs" />
     <Compile Include="Node\Phases\RiverRoot.cs" />
     <Compile Include="Node\Phases\TurnRoot.cs" />
-    <Compile Include="Node\RiverNode.cs" />
-    <Compile Include="Node\TurnNode.cs" />
-    <Compile Include="Node\FlopNode.cs" />
-    <Compile Include="Node\PocketNode.cs" />
     <Compile Include="Node\Node.cs" />
     <Compile Include="HandEvaluator.cs" />
     <Compile Include="Program.cs" />

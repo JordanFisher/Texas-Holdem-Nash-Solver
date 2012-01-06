@@ -44,7 +44,6 @@ namespace Poker
                                 if (Pocket.Pockets[p1].Contains(river)) continue;
                                 if (Pocket.Pockets[p2].Contains(river)) continue;
 
-                                //double ev = node.Simulate(S1, S2, p1, p2, flop, turn, river);
                                 double ev = root.Simulate(S1, S2, p1, p2, flop, turn, river);
 
                                 TotalMass += 1;
@@ -65,7 +64,7 @@ namespace Poker
             return EV / TotalMass;
         }
 
-        static PocketNode node;
+
         static PocketRoot root;
         static void Main(string[] args)
         {
@@ -92,7 +91,7 @@ namespace Poker
             //root.BestAgainstS();
             //Console.WriteLine("Best done! {0} ops.", ShowdownNode.OpCount);
             
-            
+            /*
             // Harmonic
             for (int i = 0; i < 1000; i++)
             {
@@ -119,115 +118,25 @@ namespace Poker
 
                 root.HarmonicAlg(i + 2);
             }
+            */
             
             
-            /*
             // BiHarmonic
             for (int i = 0; i < 1000; i++)
             {
                 ev1 = root.BestAgainstS();
                 Console.WriteLine("Hash = {0}.", root.Hash(Node.VarB));
+
                 root.CopyTo(Node.VarS, Node.VarHold);
                 root.CopyTo(Node.VarB, Node.VarS);
-                //root.SToHold();
-                //root.BToS();
                 ev2 = root.BestAgainstS();
                 Console.WriteLine("Hash = {0}.", root.Hash(Node.VarB));
 
                 root.BiHarmonicAlg(i + 2, ev1, ev2);
                 Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
                 Console.WriteLine("----------------");
-            }*/
-            
-
-
-            node = new PocketNode();
-            node.Process(i => 1f);
-            //node.Process(i => Math.Abs(Math.Cos(i)));
-            //node.Process(i => .5f);
-            //node.Process(i => 0);
-            //Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
-
-            //t = Tools.Benchmark(() => node.BestAgainstS(), 5);
-            //Console.WriteLine("Time = {0}.", t);
-            //node.BestAgainstS();
-            //Console.WriteLine("Best done! {0} ops.", RiverNode.OpCount);
-
-
-
-
-
-
-
-            // Simple loop
-            //for (int i = 0; i < 1000; i++)
-            //{
-            //    double ev = node.BestAgainstS();
-            //    node.BToS();
-
-            //    //node.Process(Node.VarHold, (n, j) => .5f);
-            //    //EV = Simulation(Node.VarS, Node.VarHold);
-            //    //Console.WriteLine("Simulated EV = {0}  (idiot)", EV);
-
-            //    //node.Process(Node.VarHold, (n, j) => 1);
-            //    //EV = Simulation(Node.VarS, Node.VarHold);
-            //    //Console.WriteLine("Simulated EV = {0}  (aggressive)", EV);
-
-            //    //node.Process(Node.VarHold, (n, j) => 0);
-            //    //EV = Simulation(Node.VarS, Node.VarHold);
-            //    //Console.WriteLine("Simulated EV = {0}  (passive)", EV);
-
-            //    if (ev < .1f) break;
-            //}
-
-            /*
-            // Harmonic
-            for (int i = 0; i < 1000; i++)
-            {
-                node.BestAgainstS();
-
-                //Console.WriteLine("hash(B) = {0}", node.Hash(Node.VarB));
-
-                EV = Simulation(Node.VarB, Node.VarS);
-                Console.WriteLine("Simulated EV = {0}", EV);
-
-                node.Process(Node.VarHold, (n, j) => double.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
-                EV = Simulation(Node.VarHold, Node.VarS);
-                Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
-
-                //node.Process(Node.VarHold, (n, j) => .5f);
-                //EV = Simulation(Node.VarS, Node.VarHold);
-                //Console.WriteLine("Simulated EV = {0}  (idiot)", EV);
-
-                //node.Process(Node.VarHold, (n, j) => 1);
-                //EV = Simulation(Node.VarS, Node.VarHold);
-                //Console.WriteLine("Simulated EV = {0}  (aggressive)", EV);
-
-                //node.Process(Node.VarHold, (n, j) => 0);
-                //EV = Simulation(Node.VarS, Node.VarHold);
-                //Console.WriteLine("Simulated EV = {0}  (passive)", EV);
-
-                node.HarmonicAlg(i + 2);
-            }*/
-
-            // BiHarmonic
-            for (int i = 0; i < 1000; i++)
-            {
-                ev1 = node.BestAgainstS();
-                Console.WriteLine("Hash = {0}.", node.Hash(Node.VarB));
-
-                node.CopyTo(Node.VarS, Node.VarHold);
-                node.CopyTo(Node.VarB, Node.VarS);
-                //node.SToHold();
-                //node.BToS();
-                ev2 = node.BestAgainstS();
-                Console.WriteLine("Hash = {0}.", node.Hash(Node.VarB));
-
-                node.BiHarmonicAlg(i + 2, ev1, ev2);
-                Console.WriteLine("Hash = {0}.", node.Hash(Node.VarS));
-                Console.WriteLine("----------------");
             }
-
+            
             Console.Read();
         }
     }
