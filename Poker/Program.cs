@@ -43,6 +43,8 @@ namespace Poker
                                 if (Pocket.Pockets[p1].Contains(river)) continue;
                                 if (Pocket.Pockets[p2].Contains(river)) continue;
 
+                                //if (p1 > 40) Tools.Nothing();
+
                                 double ev = root.Simulate(S1, S2, p1, p2, flop, turn, river);
 
                                 TotalMass += 1;
@@ -80,9 +82,24 @@ namespace Poker
 
 
             root = new PocketRoot();
-            Console.WriteLine("#(PocketDatas) = {0}", PocketData.InstanceCount);
-            
-            root.Process(i => 1f);
+            //Console.WriteLine("#(PocketDatas) = {0}", PocketData.InstanceCount);
+            //Console.WriteLine("#(BetNodes) = {0}", BetNode.InstanceCount);
+            root.Process(i => 1);
+            //root.Process(Node.VarS, (n, i) => n.Depth <= 1 ? .8 : .5);
+            //root.PrintOut(Node.VarS);
+            //EV = Simulation(Node.VarS, Node.VarS);
+            //Console.WriteLine("Simulated EV = {0}", EV);
+
+            root.BestAgainstS();
+            EV = Simulation(Node.VarS, Node.VarB);
+            Console.WriteLine("Simulated EV = {0}", EV);
+            EV = Simulation(Node.VarB, Node.VarS);
+            Console.WriteLine("Simulated EV = {0}", EV);
+
+            Console.WriteLine("");
+            //root.PrintOut(Node.VarB);
+
+            /*
             //root.Process(i => Math.Abs(Math.Cos(i)));
             //root.Process(i => .5f);
             //Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
@@ -137,7 +154,7 @@ namespace Poker
                 Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
                 Console.WriteLine("----------------");
             }
-            
+            */
             Console.Read();
         }
     }

@@ -54,6 +54,7 @@
     <Compile Include="Node\BetNodes\RaiseCheckNode.cs" />
     <Compile Include="Node\BetNodes\RaiseCallFoldNode.cs" />
     <Compile Include="Data\PocketData.cs" />
+    <Compile Include="Node\PocketShowdownNode.cs" />
     <Compile Include="Node\ShowdownNode.cs" />
     <Compile Include="Node\Junctions\RiverJunction.cs" />
     <Compile Include="Node\Junctions\TurnJunction.cs" />

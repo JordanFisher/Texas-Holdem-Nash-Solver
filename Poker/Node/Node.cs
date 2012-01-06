@@ -380,5 +380,24 @@ namespace Poker
             VarS = n => n.S,
             VarB = n => n.B,
             VarHold = n => n.Hold;
+
+        public void PrintOut(Var v)
+        {
+            for (int p = 0; p < Pocket.N; p++)
+                    Console.WriteLine("{0} -> {1}", p.ToString("00"), _PrintOut(p, v));
+        }
+        public string _PrintOut(int p, Var v)
+        {
+            string s = "";
+
+            PocketData d = v(this);
+            if (d != null && this is BetNode)
+                s = d.ShortFormat(p) + "  ";
+
+            if (Branches != null) foreach (Node branch in Branches)
+                s += branch._PrintOut(p, v);
+
+            return s;
+        }
     }
 }
