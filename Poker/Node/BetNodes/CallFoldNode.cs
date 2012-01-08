@@ -46,11 +46,11 @@ namespace Poker
             Branches.Add(CallBranch);
         }
 
-        protected override void CalculateBest_Active()
+        protected override void CalculateBest_Active(Player Opponent)
         {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
-                node.CalculateBest();
+                node.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
@@ -76,11 +76,11 @@ namespace Poker
             }
         }
 
-        protected override void CalculateBest_Inactive()
+        protected override void CalculateBest_Inactive(Player Opponent)
         {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
-                node.CalculateBest();
+                node.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we expect to happen.
             for (int p1 = 0; p1 < Pocket.N; p1++)

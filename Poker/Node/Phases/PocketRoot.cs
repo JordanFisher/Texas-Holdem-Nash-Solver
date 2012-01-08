@@ -21,25 +21,44 @@ namespace Poker
             Initialize();
         }
 
-        public double BestAgainstS()
+        public double BestAgainstS(Player Opponent)
         {
-            ClearWorkVariables();
-            UpdateChildrensPDFs();
-            CalculateBest();
+            //ClearWorkVariables();
+            UpdateChildrensPDFs(Opponent);
+            CalculateBestAgainst(Opponent);
 
             double FinalEV = EV.Average();
-            Console.WriteLine("EV = {0}", FinalEV);
             return FinalEV;
         }
 
-        protected override void UpdateChildrensPDFs()
+        public double BestAgainstS()
+        {
+            double FinalEV;
+
+            if (BetNode.SimultaneousBetting)
+            {
+                FinalEV = BestAgainstS(Player.Undefined);
+                Console.WriteLine("EV = {0}", FinalEV);
+            }
+            else
+            {
+                double EV_AgainstButton = BestAgainstS(Player.Button);
+                double EV_AgainstDealer = BestAgainstS(Player.Dealer);
+                FinalEV = .5f * (EV_AgainstButton + EV_AgainstDealer);
+                Console.WriteLine("EV = {0} : {1} -> {2}", EV_AgainstButton, EV_AgainstDealer, FinalEV);
+            }
+
+            return FinalEV;
+        }
+
+        protected override void UpdateChildrensPDFs(Player Opponent)
         {
             // Initially assume a uniform prior for which pockets opponent has.
             double UniformP = 1f / Pocket.N;
             for (int i = 0; i < Pocket.N; i++)
                 PocketP[i] = UniformP;
 
-            base.UpdateChildrensPDFs();
+            base.UpdateChildrensPDFs(Opponent);
         }
 
         public double Simulate(Var S1, Var S2, int p1, int p2, params int[] BranchIndex)

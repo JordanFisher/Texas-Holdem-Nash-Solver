@@ -29,12 +29,12 @@ namespace Poker
             EV = BettingBranch.EV;
         }
 
-        public override void CalculateBest()
+        public override void CalculateBestAgainst(Player Opponent)
         {
-            BettingBranch.CalculateBest();
+            BettingBranch.CalculateBestAgainst(Opponent);
         }
 
-        protected override void UpdateChildrensPDFs()
+        protected override void UpdateChildrensPDFs(Player Opponent)
         {
             if (Parent != null)
             {
@@ -62,7 +62,7 @@ namespace Poker
             }
 
             BettingBranch.PocketP.CopyFrom(PocketP);
-            base.UpdateChildrensPDFs();
+            base.UpdateChildrensPDFs(Opponent);
         }
 
         public override void CreateBranches()

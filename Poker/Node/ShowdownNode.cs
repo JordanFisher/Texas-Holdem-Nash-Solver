@@ -30,7 +30,7 @@ namespace Poker
         }
 
         public static int OpCount = 0;
-        public override void CalculateBest()
+        public override void CalculateBestAgainst(Player Opponent)
         {
             // Ignore pockets that collide with community
             //for (int p = 0; p < Pocket.N; p++)

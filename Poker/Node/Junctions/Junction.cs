@@ -21,11 +21,10 @@ namespace Poker
             Assert.That(Spent == Pot);
         }
 
-        public static Node GetJunction(BettingPhase Phase, Node parent, int Spent, int Pot)
-        {
-            return new PocketShowdownNode(parent, Pot);
-        }
-        /*
+        //public static Node GetJunction(BettingPhase Phase, Node parent, int Spent, int Pot)
+        //{
+        //    return new PocketShowdownNode(parent, Pot);
+        //}
         public static Junction GetJunction(BettingPhase Phase, Node parent, int Spent, int Pot)
         {
             switch (Phase)
@@ -39,7 +38,7 @@ namespace Poker
                     return null;
             }
         }
-        */
+
         protected override void Initialize()
         {
             PocketP = new PocketData();
@@ -48,16 +47,16 @@ namespace Poker
             CreateBranches();
         }
 
-        protected override void UpdateChildrensPDFs()
+        protected override void UpdateChildrensPDFs(Player Opponent)
         {
-            base.UpdateChildrensPDFs();
+            base.UpdateChildrensPDFs(Opponent);
         }
 
-        public override void CalculateBest()
+        public override void CalculateBestAgainst(Player Opponent)
         {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
-                node.CalculateBest();
+                node.CalculateBestAgainst(Opponent);
 
             // Ignore pockets that collide with community
             for (int p = 0; p < Pocket.N; p++)

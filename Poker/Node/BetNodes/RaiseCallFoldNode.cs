@@ -21,7 +21,7 @@ namespace Poker
                 RaiseBranch =      new CallFoldNode(this, NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
             else
                 RaiseBranch = new RaiseCallFoldNode(this, NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
-            CallBranch = new RaiseCheckNode(this, NextPlayer(ActivePlayer), Pot, Pot, NumRaises + 1);
+            CallBranch = new RaiseCheckNode(this, NextPlayer(ActivePlayer), Pot, Pot, NumRaises);
             
             Branches = new List<Node>(2);
             Branches.Add(RaiseBranch);
@@ -77,13 +77,15 @@ namespace Poker
             Update(PocketP, _S.Call, CallBranch.PocketP);
         }
 
-        protected override void CalculateBest_Active()
+        protected override void CalculateBest_Active(Player Opponent)
         {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
-                node.CalculateBest();
+                node.CalculateBestAgainst(Opponent);
 
             RaiseCallFoldData _B = B as RaiseCallFoldData;
+
+            Assert.That(_B.IsValid());
 
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
@@ -115,13 +117,15 @@ namespace Poker
             }
         }
 
-        protected override void CalculateBest_Inactive()
+        protected override void CalculateBest_Inactive(Player Opponent)
         {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
-                node.CalculateBest();
+                node.CalculateBestAgainst(Opponent);
 
             RaiseCallFoldData _S = S as RaiseCallFoldData;
+
+            Assert.That(_S.IsValid());
 
             // For each pocket we might have, calculate what we expect to happen.
             for (int p1 = 0; p1 < Pocket.N; p1++)

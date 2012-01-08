@@ -25,7 +25,7 @@ namespace Poker
         }
 
         public static int OpCount = 0;
-        public override void CalculateBest()
+        public override void CalculateBestAgainst(Player Opponent)
         {
             // For each pocket we might have, calculate EV.
             PocketData UpdatedP = new PocketData();

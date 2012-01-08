@@ -29,6 +29,18 @@ namespace Poker
             Call[pocket] = c;
         }
 
+        public bool IsValid()
+        {
+            for (int i = 0; i < Pocket.N; i++)
+            {
+                if (Raise[i] < -Tools.eps || Raise[i] > 1 + Tools.eps) return false;
+                if (Call[i] < -Tools.eps || Call[i] > 1 + Tools.eps) return false;
+                if (Raise[i] + Call[i] > 1 + Tools.eps) return false;
+            }
+
+            return true;
+        }
+
         public override void Reset()
         {
             for (int i = 0; i < Pocket.N; i++)
@@ -49,7 +61,7 @@ namespace Poker
             }
         }
 
-        public virtual void SwitchWith(PocketData other)
+        public override void SwitchWith(PocketData other)
         {
             RaiseCallFoldData _other = other as RaiseCallFoldData;
             Assert.That(_other != null);
@@ -60,14 +72,14 @@ namespace Poker
 
         public override void Linear(int pocket, double t1, PocketData data1, double t2, PocketData data2)
         {
-            Raise.Linear(pocket, t1, data1, t2, data2);
-            Call.Linear(pocket, t1, data1, t2, data2);
+            base.Linear(pocket, t1, data1, t2, data2);
+            Call.Linear(pocket, t1, ((RaiseCallFoldData)data1).Call, t2, ((RaiseCallFoldData)data2).Call);
         }
 
         public override void Linear(int pocket, double t1, PocketData data1, double t2, PocketData data2, double t3, PocketData data3)
         {
-            Raise.Linear(pocket, t1, data1, t2, data2, t3, data3);
-            Call.Linear(pocket, t1, data1, t2, data2, t3, data3);
+            base.Linear(pocket, t1, data1, t2, data2, t3, data3);
+            Call.Linear(pocket, t1, ((RaiseCallFoldData)data1).Call, t2, ((RaiseCallFoldData)data2).Call, t3, ((RaiseCallFoldData)data3).Call);
         }
 
         public override string[] Formated

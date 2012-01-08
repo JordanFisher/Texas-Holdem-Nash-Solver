@@ -16,7 +16,7 @@ namespace Poker
         public static int InstanceCount = 0;
 #endif
 
-        public const bool SimultaneousBetting = false;
+        public const bool SimultaneousBetting = true;
         public const int AllowedRaises = 1;
         protected int NumRaises;
 
@@ -35,30 +35,32 @@ namespace Poker
 
 #if DEBUG
             InstanceCount++;
-            Console.WriteLine(this);
+            //Console.WriteLine(this);
 #endif
         }
 
-        public override void CalculateBest()
+        public override void CalculateBestAgainst(Player Opponent)
         {
             Assert.That(ActivePlayer != Player.Undefined);
 
-            if (ActivePlayer != Player.Button)
-                CalculateBest_Inactive();
+            //if (ActivePlayer != Player.Button)
+            if (ActivePlayer == Opponent)
+                CalculateBest_Inactive(Opponent);
             else
-                CalculateBest_Active();
+                CalculateBest_Active(Opponent);
         }
 
-        protected override void UpdateChildrensPDFs()
+        protected override void UpdateChildrensPDFs(Player Opponent)
         {
             Assert.That(ActivePlayer != Player.Undefined);
 
-            if (ActivePlayer != Player.Button)
+            //if (ActivePlayer != Player.Button)
+            if (ActivePlayer == Opponent)
                 UpdateChildrensPDFs_Inactive();
             else
                 UpdateChildrensPDFs_Active();
 
-            base.UpdateChildrensPDFs();
+            base.UpdateChildrensPDFs(Opponent);
         }
 
         protected virtual void UpdateChildrensPDFs_Active()
@@ -68,8 +70,8 @@ namespace Poker
         }
         protected virtual void UpdateChildrensPDFs_Inactive() { }
 
-        protected virtual void CalculateBest_Active() { }
-        protected virtual void CalculateBest_Inactive() { }
+        protected virtual void CalculateBest_Active(Player Opponent) { }
+        protected virtual void CalculateBest_Inactive(Player Opponent) { }
 
         protected Player NextPlayer(Player CurrentPlayer)
         {

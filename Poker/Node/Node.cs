@@ -9,10 +9,10 @@ namespace Poker
 
     class Node
     {
-        public Node Parent;
         public double Weight;
 
         public PhaseRoot MyPhaseRoot;
+        public Node Parent;
 
         public BettingPhase Phase = BettingPhase.NotSet;
 
@@ -29,6 +29,7 @@ namespace Poker
         public Node(Node parent, int Spent, int Pot)
         {
             Parent = parent;
+
             if (Parent != null)
             {
                 MyPhaseRoot = Parent.MyPhaseRoot;
@@ -45,6 +46,8 @@ namespace Poker
         }
 
         protected virtual void Initialize() { }
+
+        public virtual void CreateBranches() { }
 
         public void ClearWorkVariables()
         {
@@ -91,7 +94,8 @@ namespace Poker
             double t = 1f / n;
             double s = 1f - t;
 
-            CombineStrats(s, t);
+            //CombineStrats(s, t);
+            NaiveCombine(Node.VarS, s, Node.VarB, t, Node.VarS);
         }
 
         public void Switch(Var S1, Var S2)
@@ -145,14 +149,14 @@ namespace Poker
         /// Should recursively calculate B for all branches as well.
         /// This is a purely virtual function. All node subclasses must override.
         /// </summary>
-        public virtual void CalculateBest()
+        public virtual void CalculateBestAgainst(Player Opponent)
         {
             Assert.NotReached();
         }
 
-        protected virtual void UpdateChildrensPDFs()
+        protected virtual void UpdateChildrensPDFs(Player Opponent)
         {
-            if (Branches != null) foreach (Node branch in Branches) branch.UpdateChildrensPDFs();
+            if (Branches != null) foreach (Node branch in Branches) branch.UpdateChildrensPDFs(Opponent);
         }
 
         public void Update(PocketData PreviousPDF, PocketData Strategy, PocketData Destination)
@@ -175,8 +179,6 @@ namespace Poker
             for (int p = 0; p < Pocket.N; p++)
                 Destination[p] = PreviousPDF[p] * Strategy[p] / ChanceToProceed;
         }
-
-        public virtual void CreateBranches() { }
 
         /// <summary>
         /// Given a strategy to act or not act for each pocket,
@@ -350,8 +352,9 @@ namespace Poker
 
             if (s1 != null && s2 != null && destination != null)
             {
-                for (int i = 0; i < Pocket.N; i++)
-                    destination[i] = t1 * s1[i] + t2 * s2[i];
+                for (int p = 0; p < Pocket.N; p++)
+                    destination.Linear(p, t1, s1, t2, s2);
+                    //destination[i] = t1 * s1[i] + t2 * s2[i];
             }
 
             if (Branches != null) foreach (Node node in Branches)

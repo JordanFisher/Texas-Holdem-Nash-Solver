@@ -51,18 +51,18 @@ namespace Poker
             Branches.Add(RaiseBranch);
         }
 
-        protected override void UpdateChildrensPDFs()
+        protected override void UpdateChildrensPDFs(Player Opponent)
         {
             Update(PocketP, S, RaiseBranch.PocketP);
 
-            base.UpdateChildrensPDFs();
+            base.UpdateChildrensPDFs(Opponent);
         }
 
-        public override void CalculateBest()
+        public override void CalculateBestAgainst(Player Opponent)
         {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
-                node.CalculateBest();
+                node.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)

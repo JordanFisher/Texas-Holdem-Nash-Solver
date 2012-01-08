@@ -16,6 +16,20 @@ namespace Poker
     {
         static double Simulation(Var S1, Var S2)
         {
+            if (BetNode.SimultaneousBetting)
+                return _Simulation(S1, S2);
+            else
+            {
+                double EV1 = _Simulation(S1, S2);
+                double EV2 = -_Simulation(S2, S1);
+                double TotalEV = .5f * (EV1 + EV2);
+                Console.WriteLine("EV = {0} : {1} -> {2}", EV1, EV2, TotalEV);
+                return TotalEV;
+            }
+        }
+
+        static double _Simulation(Var S1, Var S2)
+        {
             double EV = 0, TotalMass = 0;
 
             for (int p1 = 0; p1 < Pocket.N; p1++)
@@ -82,24 +96,32 @@ namespace Poker
 
 
             root = new PocketRoot();
-            //Console.WriteLine("#(PocketDatas) = {0}", PocketData.InstanceCount);
-            //Console.WriteLine("#(BetNodes) = {0}", BetNode.InstanceCount);
+#if DEBUG
+            Console.WriteLine("#(PocketDatas) = {0}", PocketData.InstanceCount);
+            Console.WriteLine("#(BetNodes) = {0}", BetNode.InstanceCount);
+#endif
             root.Process(i => 1);
-            //root.Process(Node.VarS, (n, i) => n.Depth <= 1 ? .8 : .5);
+            //root.Process(Node.VarS, (n, i) => n.Depth <= 1 ? .5 : .8);
             //root.PrintOut(Node.VarS);
             //EV = Simulation(Node.VarS, Node.VarS);
             //Console.WriteLine("Simulated EV = {0}", EV);
 
-            root.BestAgainstS();
-            EV = Simulation(Node.VarS, Node.VarB);
-            Console.WriteLine("Simulated EV = {0}", EV);
-            EV = Simulation(Node.VarB, Node.VarS);
-            Console.WriteLine("Simulated EV = {0}", EV);
 
-            Console.WriteLine("");
-            //root.PrintOut(Node.VarB);
+            ////root.BestAgainstS();
+            ////root.HarmonicAlg(2);
+            ////root.PrintOut(Node.VarB);
+            ////root.PrintOut(Node.VarS);
+            ////root.BestAgainstS();
+            ////Console.WriteLine("");
+            ////root.PrintOut(Node.VarB);
+            //////EV = Simulation(Node.VarB, Node.VarS);
+            //////Console.WriteLine("Simulated EV = {0}", EV);
+            ////Console.WriteLine("");
+            //////root.PrintOut(Node.VarB);
 
-            /*
+
+
+            
             //root.Process(i => Math.Abs(Math.Cos(i)));
             //root.Process(i => .5f);
             //Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
@@ -109,18 +131,18 @@ namespace Poker
             //root.BestAgainstS();
             //Console.WriteLine("Best done! {0} ops.", ShowdownNode.OpCount);
             
-            
+
             // Harmonic
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 root.BestAgainstS();
 
                 EV = Simulation(Node.VarB, Node.VarS);
                 Console.WriteLine("Simulated EV = {0}", EV);
 
-                root.Process(Node.VarHold, (n, j) => double.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
-                EV = Simulation(Node.VarHold, Node.VarS);
-                Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
+                //root.Process(Node.VarHold, (n, j) => double.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
+                //EV = Simulation(Node.VarHold, Node.VarS);
+                //Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
 
                 //root.Process(root.VarHold, (n, j) => .5f);
                 //EV = Simulation(root.VarS, root.VarHold);
@@ -138,7 +160,7 @@ namespace Poker
             }
             
             
-            
+            /*
             // BiHarmonic
             for (int i = 0; i < 1000; i++)
             {
