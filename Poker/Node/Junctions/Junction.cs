@@ -10,17 +10,6 @@ namespace Poker
 {
     class Junction : Node
     {
-        public Junction(Node parent, int Spent, int Pot)
-            : base(parent, Spent, Pot)
-        {
-            Weight = double.NaN;
-
-            this.Spent = Spent;
-            this.Pot = Pot;
-
-            Assert.That(Spent == Pot);
-        }
-
         public Junction(Node parent, CommunityNode Community, int Spent, int Pot)
             : base(parent, Spent, Pot)
         {
@@ -72,20 +61,6 @@ namespace Poker
         public static Junction GetJunction(BettingPhase Phase, Node Parent, int Spent, int Pot)
         {
             return new Junction(Parent, Parent.MyCommunity, Spent, Pot);
-
-            switch (Phase)
-            {
-                //case BettingPhase.PreFlop: return new FlopJunction(Parent, Spent, Pot);
-                case BettingPhase.PreFlop: return new Junction(Parent, Parent.MyCommunity, Spent, Pot);
-                //case BettingPhase.Flop: return new TurnJunction(Parent, Spent, Pot);
-                case BettingPhase.Flop: return new Junction(Parent, Parent.MyCommunity, Spent, Pot);
-                //case BettingPhase.Turn: return new RiverJunction(Parent, Spent, Pot);
-                case BettingPhase.Turn: return new Junction(Parent, Parent.MyCommunity, Spent, Pot);
-
-                default:
-                    Assert.NotReached();
-                    return null;
-            }
         }
 
         protected override void Initialize()
@@ -110,7 +85,7 @@ namespace Poker
             // Ignore pockets that collide with community
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (Collision(p)) { S[p] = PocketP[p] = EV[p] = B[p] = double.NaN; continue; }
+                //if (Collision(p)) { S[p] = PocketP[p] = EV[p] = B[p] = double.NaN; continue; }
             }
 
             // For each pocket we might have, calculate what we should do.
@@ -137,7 +112,7 @@ namespace Poker
                     foreach (Node Branch in Branches)
                     {
                         b++;
-                        if (Branch.NewCollision(p1) || Branch.NewCollision(p2)) continue;
+                        if (Branch.MyCommunity.NewCollision(p1) || Branch.MyCommunity.NewCollision(p2)) continue;
 
                         double Weight = Branch.Weight;
                         BranchEV += UpdatedP[p2] * Weight * Branch.EV[p1];

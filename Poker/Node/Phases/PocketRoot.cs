@@ -13,12 +13,8 @@ namespace Poker
         public const int InitialSpent = BetNode.SimultaneousBetting ? Ante.PreDeal : Ante.LittleBlind;
         public const int InitialBet = BetNode.SimultaneousBetting ? Ante.PreDeal : Ante.BigBlind;
         public PocketRoot()
-            : base(null, InitialSpent, InitialBet)
+            : base(null, CommunityNode.Root, InitialSpent, InitialBet)
         {
-            Phase = BettingPhase.PreFlop;
-            MyCommunity = CommunityNode.Root;
-            InitiallyActivePlayer = Player.Button;
-
             Initialize();
         }
 

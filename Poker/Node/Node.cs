@@ -52,6 +52,7 @@ namespace Poker
 
         protected virtual void CreateBranches() { }
 
+        /*
         public void ClearWorkVariables()
         {
             if (B != null) B.Reset();
@@ -61,7 +62,7 @@ namespace Poker
 
             if (Branches != null) foreach (Node node in Branches)
                 node.ClearWorkVariables();
-        }
+        }*/
 
         public void CopyTo(Var Source, Var Destination)
         {
@@ -269,6 +270,7 @@ namespace Poker
             return Pocket.Pockets[p1].Overlaps(Pocket.Pockets[p2]);
         }
 
+        /*
         /// <summary>
         /// Checks if the pocket's cards overlap with any of the new community cards of this node.
         /// </summary>
@@ -287,7 +289,7 @@ namespace Poker
         }
         public bool Collision(int p) { return Collision(Pocket.Pockets[p]); }
         public virtual bool Contains(int card) { return false; }
-
+        */
         public virtual double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             return double.NaN;

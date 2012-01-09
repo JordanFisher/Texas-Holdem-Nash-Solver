@@ -15,12 +15,6 @@ namespace Poker
         protected Node BettingBranch;
         protected Player InitiallyActivePlayer = Player.Undefined;
 
-        public PhaseRoot(Node parent, int Spent, int Pot)
-            : base(parent, Spent, Pot)
-        {
-            MyPhaseRoot = this;
-        }
-
         public PhaseRoot(Node Parent, CommunityNode Community, int Spent, int Pot)
             : base(Parent, Spent, Pot)
         {
@@ -60,7 +54,7 @@ namespace Poker
                 {
                     if (double.IsNaN(PocketP[p])) continue;
 
-                    if (NewCollision(p))
+                    if (MyCommunity.NewCollision(p))
                         PocketP[p] = double.NaN;
                     else
                         NewTotalMass += PocketP[p];
@@ -94,6 +88,7 @@ namespace Poker
             return BettingBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
         }
 
+        /*
         public override bool NewCollision(Pocket p)
         {
             return MyCommunity.NewCollision(p);
@@ -107,6 +102,6 @@ namespace Poker
         public override bool Contains(int card)
         {
             return MyCommunity.Contains(card);
-        }
+        }*/
     }
 }
