@@ -15,7 +15,7 @@ namespace Poker
         {
         }
 
-        public override void CreateBranches()
+        protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
                 RaiseBranch =      new CallFoldNode(this, NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
@@ -52,7 +52,7 @@ namespace Poker
         }
 
 
-        public override void CreateBranches()
+        protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
                 RaiseBranch =      new CallFoldNode(this, NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);

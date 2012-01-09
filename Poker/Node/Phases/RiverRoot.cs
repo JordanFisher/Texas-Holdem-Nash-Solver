@@ -39,6 +39,30 @@ namespace Poker
             Initialize();
         }
 
+        public RiverRoot(Node parent, CommunityNode Community, int Spent, int Pot)
+            : base(parent, Spent, Pot)
+        {
+            MyCommunity = Community;
+            MyFlop = ((RiverCommunity)MyCommunity).MyFlop;
+            MyTurn = ((RiverCommunity)MyCommunity).MyTurn;
+            MyRiver = ((RiverCommunity)MyCommunity).MyRiver;
+
+            Weight = 1f / (Card.N - 4 - 3 - 1);
+            Phase = BettingPhase.River;
+            InitiallyActivePlayer = Player.Dealer;
+
+            PocketValue = new uint[Pocket.N];
+            for (int p = 0; p < Pocket.N; p++)
+            {
+                if (Collision(p))
+                    PocketValue[p] = uint.MaxValue;
+                else
+                    PocketValue[p] = Value.Eval(MyFlop, MyTurn, MyRiver, Pocket.Pockets[p]);
+            }
+
+            Initialize();
+        }
+
         public override bool NewCollision(Pocket p)
         {
             return p.Contains(MyRiver);

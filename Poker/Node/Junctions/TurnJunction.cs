@@ -17,7 +17,7 @@ namespace Poker
             Initialize();
         }
 
-        public override void CreateBranches()
+        protected override void CreateBranches()
         {
             Branches = new List<Node>(Card.N - 3);
             BranchesByIndex = new List<Node>(Card.N);
@@ -26,8 +26,8 @@ namespace Poker
             {
                 Node NewBranch;
                 Assert.That(MyPhaseRoot is FlopRoot);
-                //if (!MyFlop.Contains(turn))
                 if (!MyPhaseRoot.Contains(turn))
+                //if (!MyCommunity.Contains(turn))
                 {
                     NewBranch = new TurnRoot(this, turn, Spent, Pot);
                     Branches.Add(NewBranch);

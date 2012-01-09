@@ -50,6 +50,21 @@ namespace Poker
             Number = Value + Suit * Vals;
         }
 
+        public static string CommunityToString(Flop flop, int turn = -1, int river = -1)
+        {
+            string str = "";
+            
+            str += string.Format("({0})", flop);
+
+            if (turn >= 0) str += string.Format(" {0}", ToString(OutputStyle.Number, turn));
+            else return str;
+
+            if (river >= 0) str += string.Format(" {0}", ToString(OutputStyle.Number, river));
+            else return str;
+
+            return str;
+        }
+
         public static string CommunityToString(params int[] Indices)
         {
             string str = "";

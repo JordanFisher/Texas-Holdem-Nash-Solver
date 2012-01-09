@@ -17,7 +17,7 @@ namespace Poker
             Initialize();
         }
 
-        public override void CreateBranches()
+        protected override void CreateBranches()
         {
             Branches = new List<Node>(Flop.N);
 

@@ -27,6 +27,20 @@ namespace Poker
             Initialize();
         }
 
+        public TurnRoot(Node parent, CommunityNode Community, int Spent, int Pot)
+            : base(parent, Spent, Pot)
+        {
+            MyCommunity = Community;
+            MyFlop = ((TurnCommunity)MyCommunity).MyFlop;
+            MyTurn = ((TurnCommunity)MyCommunity).MyTurn;
+
+            Weight = 1f / (Card.N - 4 - 3);
+            Phase = BettingPhase.Turn;
+            InitiallyActivePlayer = Player.Dealer;
+
+            Initialize();
+        }
+
         public override bool NewCollision(Pocket p)
         {
             return p.Contains(MyTurn);

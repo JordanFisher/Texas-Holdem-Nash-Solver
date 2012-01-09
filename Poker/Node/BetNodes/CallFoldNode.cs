@@ -35,7 +35,7 @@ namespace Poker
             Update(PocketP, S, CallBranch.PocketP);
         }
 
-        public override void CreateBranches()
+        protected override void CreateBranches()
         {
             if (Phase == BettingPhase.River)
                 CallBranch = new ShowdownNode(this, Pot);

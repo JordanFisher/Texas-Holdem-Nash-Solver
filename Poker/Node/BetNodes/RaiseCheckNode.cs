@@ -39,7 +39,7 @@ namespace Poker
             Update(PocketP, NotS, CheckBranch.PocketP);
         }
 
-        public override void CreateBranches()
+        protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
                 RaiseBranch =      new CallFoldNode(this, NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);

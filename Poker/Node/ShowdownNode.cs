@@ -15,8 +15,10 @@ namespace Poker
         public ShowdownNode(Node parent, int Pot)
             : base(parent, Pot, Pot)
         {
-            RiverRoot LastPhase = MyPhaseRoot as RiverRoot;
-            PocketValue = LastPhase.PocketValue;
+            //RiverRoot LastPhase = MyPhaseRoot as RiverRoot;
+            //PocketValue = LastPhase.PocketValue;
+
+            PocketValue = ((RiverCommunity)MyCommunity).PocketValue;
 
             Initialize();
         }

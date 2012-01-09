@@ -21,17 +21,66 @@ namespace Poker
             Assert.That(Spent == Pot);
         }
 
+        public Junction(Node parent, CommunityNode Community, int Spent, int Pot)
+            : base(parent, Spent, Pot)
+        {
+            Weight = double.NaN;
+
+            this.Spent = Spent;
+            this.Pot = Pot;
+            Assert.That(Spent == Pot);
+
+            MyCommunity = Community;
+            Phase = MyCommunity.Phase;
+
+            Initialize();
+        }
+
+        protected override void CreateBranches()
+        {
+            Branches = new List<Node>(MyCommunity.Branches.Count);
+            BranchesByIndex = new List<Node>(MyCommunity.BranchesByIndex.Count);
+
+            foreach (CommunityNode community in MyCommunity.BranchesByIndex)
+            {
+                PhaseRoot NewRoot = null;
+
+                if (community != null)
+                {
+                    //NewRoot = new PhaseRoot(this, community, Spent, Pot);
+                    if (Phase == BettingPhase.PreFlop)
+                        //NewRoot = new FlopRoot(this, community, Spent, Pot);
+                        NewRoot = new PhaseRoot(this, community, Spent, Pot);
+                    if (Phase == BettingPhase.Flop)
+                        //NewRoot = new TurnRoot(this, community, Spent, Pot);
+                        NewRoot = new PhaseRoot(this, community, Spent, Pot);
+                    if (Phase == BettingPhase.Turn)
+                        //NewRoot = new RiverRoot(this, community, Spent, Pot);
+                        NewRoot = new PhaseRoot(this, community, Spent, Pot);
+
+                    Branches.Add(NewRoot);
+                }
+
+                BranchesByIndex.Add(NewRoot);
+            }
+        }
+
         //public static Node GetJunction(BettingPhase Phase, Node parent, int Spent, int Pot)
         //{
         //    return new PocketShowdownNode(parent, Pot);
         //}
-        public static Junction GetJunction(BettingPhase Phase, Node parent, int Spent, int Pot)
+        public static Junction GetJunction(BettingPhase Phase, Node Parent, int Spent, int Pot)
         {
+            return new Junction(Parent, Parent.MyCommunity, Spent, Pot);
+
             switch (Phase)
             {
-                case BettingPhase.PreFlop: return new FlopJunction(parent, Spent, Pot);
-                case BettingPhase.Flop: return new TurnJunction(parent, Spent, Pot);
-                case BettingPhase.Turn: return new RiverJunction(parent, Spent, Pot);
+                //case BettingPhase.PreFlop: return new FlopJunction(Parent, Spent, Pot);
+                case BettingPhase.PreFlop: return new Junction(Parent, Parent.MyCommunity, Spent, Pot);
+                //case BettingPhase.Flop: return new TurnJunction(Parent, Spent, Pot);
+                case BettingPhase.Flop: return new Junction(Parent, Parent.MyCommunity, Spent, Pot);
+                //case BettingPhase.Turn: return new RiverJunction(Parent, Spent, Pot);
+                case BettingPhase.Turn: return new Junction(Parent, Parent.MyCommunity, Spent, Pot);
 
                 default:
                     Assert.NotReached();

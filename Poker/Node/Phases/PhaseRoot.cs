@@ -21,6 +21,19 @@ namespace Poker
             MyPhaseRoot = this;
         }
 
+        public PhaseRoot(Node Parent, CommunityNode Community, int Spent, int Pot)
+            : base(Parent, Spent, Pot)
+        {
+            MyPhaseRoot = this;
+            MyCommunity = Community;
+
+            Weight = MyCommunity.Weight;
+            Phase = MyCommunity.Phase;
+            InitiallyActivePlayer = MyCommunity.InitiallyActivePlayer;
+
+            Initialize();
+        }
+
         protected override void Initialize()
         {
             PocketP = new PocketData();
@@ -65,7 +78,7 @@ namespace Poker
             base.UpdateChildrensPDFs(Opponent);
         }
 
-        public override void CreateBranches()
+        protected override void CreateBranches()
         {
             if (BetNode.SimultaneousBetting)
                 BettingBranch = new SimultaneousNode(this, Spent, Pot, Phase);
@@ -79,6 +92,21 @@ namespace Poker
         public override double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             return BettingBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
+        }
+
+        public override bool NewCollision(Pocket p)
+        {
+            return MyCommunity.NewCollision(p);
+        }
+
+        public override bool Collision(Pocket p)
+        {
+            return MyCommunity.Collision(p);
+        }
+
+        public override bool Contains(int card)
+        {
+            return MyCommunity.Contains(card);
         }
     }
 }

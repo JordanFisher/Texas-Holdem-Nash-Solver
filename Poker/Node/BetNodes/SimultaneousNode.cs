@@ -31,7 +31,7 @@ namespace Poker
             CreateBranches();
         }
 
-        public override void CreateBranches()
+        protected override void CreateBranches()
         {
             int NewPot = Pot;
             switch (Phase)

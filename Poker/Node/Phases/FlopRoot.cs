@@ -24,6 +24,19 @@ namespace Poker
             Initialize();
         }
 
+        public FlopRoot(Node parent, CommunityNode Community, int Spent, int Pot)
+            : base(parent, Spent, Pot)
+        {
+            MyCommunity = Community;
+            MyFlop = ((FlopCommunity)MyCommunity).MyFlop;
+
+            Weight = 1f / Counting.Choose(Card.N - 4, 3);
+            Phase = BettingPhase.Flop;
+            InitiallyActivePlayer = Player.Dealer;
+
+            Initialize();
+        }
+
         public override bool NewCollision(Pocket p)
         {
             return p.Overlaps(MyFlop);

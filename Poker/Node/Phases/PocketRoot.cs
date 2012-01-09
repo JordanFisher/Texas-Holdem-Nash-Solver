@@ -16,6 +16,7 @@ namespace Poker
             : base(null, InitialSpent, InitialBet)
         {
             Phase = BettingPhase.PreFlop;
+            MyCommunity = CommunityNode.Root;
             InitiallyActivePlayer = Player.Button;
 
             Initialize();

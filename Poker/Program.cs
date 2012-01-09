@@ -91,6 +91,8 @@ namespace Poker
             Pocket.InitPockets();
             Flop.InitFlops();
 
+            CommunityRoot.Root = new CommunityRoot();
+
             Console.WriteLine("Init done.");
 
 

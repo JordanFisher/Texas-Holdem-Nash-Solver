@@ -12,6 +12,7 @@ namespace Poker
         public double Weight;
 
         public PhaseRoot MyPhaseRoot;
+        public CommunityNode MyCommunity;
         public Node Parent;
 
         public BettingPhase Phase = BettingPhase.NotSet;
@@ -33,11 +34,13 @@ namespace Poker
             if (Parent != null)
             {
                 MyPhaseRoot = Parent.MyPhaseRoot;
+                MyCommunity = Parent.MyCommunity;
                 Depth = Parent.Depth + 1;
             }
             else
             {
                 MyPhaseRoot = null;
+                MyCommunity = null;
                 Depth = 0;                
             }
 
@@ -47,7 +50,7 @@ namespace Poker
 
         protected virtual void Initialize() { }
 
-        public virtual void CreateBranches() { }
+        protected virtual void CreateBranches() { }
 
         public void ClearWorkVariables()
         {
