@@ -96,11 +96,11 @@ namespace Poker
             Console.WriteLine("Init done.");
 
 
-
             root = new PocketRoot();
 #if DEBUG
             Console.WriteLine("#(PocketDatas) = {0}", PocketData.InstanceCount);
             Console.WriteLine("#(BetNodes) = {0}", BetNode.InstanceCount);
+            Console.WriteLine("#(ShowdownNodes) = {0}", ShowdownNode.InstanceCount);
 #endif
             root.Process(i => 1);
             //root.Process(Node.VarS, (n, i) => n.Depth <= 1 ? .5 : .8);

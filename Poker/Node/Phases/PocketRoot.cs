@@ -15,7 +15,6 @@ namespace Poker
         public PocketRoot()
             : base(null, CommunityNode.Root, InitialSpent, InitialBet)
         {
-            Initialize();
         }
 
         public double BestAgainstS(Player Opponent)

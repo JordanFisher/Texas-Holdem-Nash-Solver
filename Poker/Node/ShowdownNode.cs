@@ -10,6 +10,9 @@ namespace Poker
 {
     class ShowdownNode : Node
     {
+#if DEBUG
+        public static int InstanceCount = 0;
+#endif
         public uint[] PocketValue;
 
         public ShowdownNode(Node parent, int Pot)
@@ -21,6 +24,12 @@ namespace Poker
             PocketValue = ((RiverCommunity)MyCommunity).PocketValue;
 
             Initialize();
+
+#if DEBUG
+            InstanceCount++;
+            if (InstanceCount > 5040) Tools.Nothing();
+            if (InstanceCount > 0) Tools.Nothing();
+#endif
         }
 
         protected override void Initialize()

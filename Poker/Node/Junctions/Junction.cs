@@ -36,17 +36,7 @@ namespace Poker
 
                 if (community != null)
                 {
-                    //NewRoot = new PhaseRoot(this, community, Spent, Pot);
-                    if (Phase == BettingPhase.PreFlop)
-                        //NewRoot = new FlopRoot(this, community, Spent, Pot);
-                        NewRoot = new PhaseRoot(this, community, Spent, Pot);
-                    if (Phase == BettingPhase.Flop)
-                        //NewRoot = new TurnRoot(this, community, Spent, Pot);
-                        NewRoot = new PhaseRoot(this, community, Spent, Pot);
-                    if (Phase == BettingPhase.Turn)
-                        //NewRoot = new RiverRoot(this, community, Spent, Pot);
-                        NewRoot = new PhaseRoot(this, community, Spent, Pot);
-
+                    NewRoot = new PhaseRoot(this, community, Spent, Pot);
                     Branches.Add(NewRoot);
                 }
 
