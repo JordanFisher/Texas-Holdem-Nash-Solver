@@ -319,7 +319,7 @@ namespace Poker
             for (int p = 0; p < Pocket.N; p++)
             {
                 if (Collision(p))
-                    PocketValue[p] = uint.MaxValue;
+                    PocketValue[p] = 0;//uint.MaxValue;
                 else
                     PocketValue[p] = Value.Eval(MyFlop, MyTurn, MyRiver, Pocket.Pockets[p]);
             }

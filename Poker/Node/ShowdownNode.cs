@@ -87,63 +87,61 @@ namespace Poker
 
 
             // For each pocket we might have, calculate EV.
-            //PocketData UpdatedP = new PocketData();
-            //uint PocketValue1, PocketValue2;
             RiverCommunity River = (RiverCommunity)MyCommunity;
             RiverCommunity.ResetSummed();
             RiverCommunity.ProbabilityPrecomputation(PocketP);
-            int _p1 = 0, _p2;
             double Correction;
+
+            int _p1 = 0;
             while (_p1 < Pocket.N)
             {
                 int p1 = River.SortedPockets[_p1];
                 if (double.IsNaN(PocketP[p1])) { _p1++; continue; }
 
-                var pocket1 = Pocket.Pockets[p1];
-                int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
-                double P = PocketP[p1];
+                // Find next highest pocket
+                int NextHighest = _p1 + 1;
+                uint CurrentPocketValue = River.PocketValue[p1];
+                while (NextHighest < Pocket.N && River.SortedPocketValue[NextHighest] == CurrentPocketValue)
+                    NextHighest++;
 
-                double ChanceToWin =
-                RiverCommunity.SummedChance -
-                    RiverCommunity.SummedChance_OneCardFixed[c1] -
-                    RiverCommunity.SummedChance_OneCardFixed[c2];
-                
-                RiverCommunity.SummedChance += P;
-                RiverCommunity.SummedChance_OneCardFixed[c1] += P;
-                RiverCommunity.SummedChance_OneCardFixed[c2] += P;
-
-                Correction = RiverCommunity.MassAfterExclusion(PocketP, p1);
-                ChanceToWin /= Correction;
-
-                // Calculate chance to tie
-                double ChanceToTie = 0;
-                PocketValue1 = River.SortedPocketValue[_p1];
-                for (_p2 = _p1 + 1;; _p2++)
+                // For all pockets of equal value, calculate the chance to win
+                for (int EqualValuedPocket = _p1; EqualValuedPocket < NextHighest; EqualValuedPocket++)
                 {
-                    if (River.SortedPocketValue[_p2] != PocketValue1) break;
+                    int p = River.SortedPockets[EqualValuedPocket];
+                    if (double.IsNaN(PocketP[p])) continue;
 
-                    int p2 = River.SortedPockets[_p2];
-                    var pocket2 = Pocket.Pockets[p2];
-                    int c3 = pocket2.Cards[0], c4 = pocket2.Cards[1];
-                    P = PocketP[p2];
+                    var pocket1 = Pocket.Pockets[p];
+                    int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
-                    if (c3 != c1 && c3 != c2 && c4 != c1 && c4 != c2)
-                    {
-                        ChanceToTie += P;
-                    }
+                    double ChanceToWin =
+                    RiverCommunity.SummedChance -
+                        RiverCommunity.SummedChance_OneCardFixed[c1] -
+                        RiverCommunity.SummedChance_OneCardFixed[c2];
 
-                    RiverCommunity.SummedChance += P;
-                    RiverCommunity.SummedChance_OneCardFixed[c3] += P;
-                    RiverCommunity.SummedChance_OneCardFixed[c4] += P;
+                    Correction = RiverCommunity.MassAfterExclusion(PocketP, p);
+                    ChanceToWin /= Correction;
+
+                    Console.WriteLine("({2} -> {3}) {0} == {1}", EV[River.SortedPockets[EqualValuedPocket]], ChanceToWin, River.SortedPockets[EqualValuedPocket], CurrentPocketValue);
+                    Assert.That(Tools.Equals(EV[River.SortedPockets[EqualValuedPocket]], ChanceToWin));
                 }
 
-                //EV[p1] = ChanceToWin * Pot - (1 - ChanceToWin - ChanceToTie) * Pot;
-                //double NewEV = ChanceToWin * Pot - (1 - ChanceToWin - ChanceToTie) * Pot;
-                double NewEV = ChanceToWin * 1 / Correction;
-                Console.WriteLine("({2} -> {3}) {0} == {1}", EV[p1], NewEV, p1, PocketValue1);
-                Assert.IsNum(EV[p1]);
+                // Total the probability mass of our opponent having a hand with equal value
+                for (int EqualValuedPocket = _p1; EqualValuedPocket < NextHighest; EqualValuedPocket++)
+                {
+                    int p = River.SortedPockets[EqualValuedPocket];
+                    if (double.IsNaN(PocketP[p])) continue;
 
-                _p1 = _p2;
+                    var pocket1 = Pocket.Pockets[p];
+                    int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1]; 
+                    
+                    double P = PocketP[p];
+
+                    RiverCommunity.SummedChance += P;
+                    RiverCommunity.SummedChance_OneCardFixed[c1] += P;
+                    RiverCommunity.SummedChance_OneCardFixed[c2] += P;
+                }
+
+                _p1 = NextHighest;
             }
             Console.WriteLine();
         }
