@@ -194,6 +194,18 @@ namespace Poker
         public int MyTurn, MyRiver;
 
         public uint[] PocketValue;
+        public int[] SortedPockets;
+        public uint[] SortedPocketValue;
+
+        public static double SummedChance;
+        public static double[] SummedChance_OneCardFixed = new double[Card.N];
+
+        public static void Reset()
+        {
+            SummedChance = 0;
+            for (int i = 0; i < Card.N; i++)
+                SummedChance_OneCardFixed[i] = 0;
+        }
 
         public RiverCommunity(Flop flop, int turn, int river)
             : base()
@@ -206,6 +218,7 @@ namespace Poker
             Phase = BettingPhase.River;
             InitiallyActivePlayer = Player.Dealer;
 
+            // Get all pocket values
             PocketValue = new uint[Pocket.N];
             for (int p = 0; p < Pocket.N; p++)
             {
@@ -214,6 +227,16 @@ namespace Poker
                 else
                     PocketValue[p] = Value.Eval(MyFlop, MyTurn, MyRiver, Pocket.Pockets[p]);
             }
+
+            // Sort pockets
+            SortedPockets = new int[Pocket.N];
+            for (int i = 0; i < Pocket.N; i++) SortedPockets[i] = i;
+
+            SortedPocketValue = new uint[Pocket.N];
+            PocketValue.CopyTo(SortedPocketValue, 0);
+
+            Array.Sort(SortedPocketValue, SortedPockets);
+            Tools.Nothing();
         }
 
         public override bool NewCollision(Pocket p)

@@ -111,6 +111,46 @@ namespace Poker
             else return p;
         }
 
+        static Random Rnd = new Random();
+        public static int RandomCard()
+        {
+            return Rnd.Next(Card.N);
+        }
+
+        public static int RandomCard(params int[] ExistingCards)
+        {
+            return RandomCard(ExistingCards, ExistingCards.Length);
+        }
+        public static int RandomCard(int[] ExistingCards, int Length)
+        {
+            int NewCard = Rnd.Next(Card.N);
+            while (ExistingCards.Contains(NewCard))
+                NewCard = Rnd.Next(Card.N);
+            return NewCard;
+        }
+
+        public static void RandomCards(int[] cards)
+        {
+            for (int i = 0; i < cards.Length; i++)
+            {
+                new ArraySegment<int>(cards, 0, i);
+                cards[i] = RandomCard(cards, i);
+            }
+        }
+
+        public static int RandomPocket()
+        {
+            return Rnd.Next(Pocket.N);
+        }
+
+        public static int RandomPocket(int ExistingPockets)
+        {
+            int NewPocket = Rnd.Next(Pocket.N);
+            while (Pocket.Pockets[NewPocket].Overlaps(Pocket.Pockets[ExistingPockets]))
+                NewPocket = Rnd.Next(Pocket.N);
+            return NewPocket;
+        }
+
         public static void Nothing() { }
     }
 
