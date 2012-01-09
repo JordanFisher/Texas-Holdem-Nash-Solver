@@ -90,8 +90,10 @@ namespace Poker
             //PocketData UpdatedP = new PocketData();
             //uint PocketValue1, PocketValue2;
             RiverCommunity River = (RiverCommunity)MyCommunity;
-            RiverCommunity.Reset();
+            RiverCommunity.ResetSummed();
+            RiverCommunity.ProbabilityPrecomputation(PocketP);
             int _p1 = 0, _p2;
+            double Correction;
             while (_p1 < Pocket.N)
             {
                 int p1 = River.SortedPockets[_p1];
@@ -110,6 +112,9 @@ namespace Poker
                 RiverCommunity.SummedChance_OneCardFixed[c1] += P;
                 RiverCommunity.SummedChance_OneCardFixed[c2] += P;
 
+                Correction = RiverCommunity.MassAfterExclusion(PocketP, p1);
+                ChanceToWin /= Correction;
+
                 // Calculate chance to tie
                 double ChanceToTie = 0;
                 PocketValue1 = River.SortedPocketValue[_p1];
@@ -123,7 +128,9 @@ namespace Poker
                     P = PocketP[p2];
 
                     if (c3 != c1 && c3 != c2 && c4 != c1 && c4 != c2)
+                    {
                         ChanceToTie += P;
+                    }
 
                     RiverCommunity.SummedChance += P;
                     RiverCommunity.SummedChance_OneCardFixed[c3] += P;
@@ -132,7 +139,7 @@ namespace Poker
 
                 //EV[p1] = ChanceToWin * Pot - (1 - ChanceToWin - ChanceToTie) * Pot;
                 //double NewEV = ChanceToWin * Pot - (1 - ChanceToWin - ChanceToTie) * Pot;
-                double NewEV = ChanceToWin * 1;
+                double NewEV = ChanceToWin * 1 / Correction;
                 Console.WriteLine("({2} -> {3}) {0} == {1}", EV[p1], NewEV, p1, PocketValue1);
                 Assert.IsNum(EV[p1]);
 

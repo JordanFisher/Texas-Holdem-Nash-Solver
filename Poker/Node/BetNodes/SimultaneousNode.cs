@@ -91,6 +91,36 @@ namespace Poker
                 }
                 Assert.IsNum(EV[p1]);
             }
+
+            /*
+            // For each pocket we might have, calculate what we should do.
+            RiverCommunity.ChanceToActPrecomputation(PocketP, S);
+            for (int p1 = 0; p1 < Pocket.N; p1++)
+            {
+                if (double.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
+
+                // Calculate the chance the opponent will raise/fold
+                double RaiseChance = RiverCommunity.ChanceToActWithExclusion(PocketP, S, p1);
+                double FoldChance = 1 - RaiseChance;
+                Assert.IsNum(RaiseChance);
+
+                // Calculate EV for raising and folding.
+                double RaiseEV = FoldChance * Pot + RaiseChance * RaiseBranch.EV[p1];
+                double FoldEV = RaiseChance * (-Spent);
+
+                // Decide strategy based on which action is better.
+                if (RaiseEV >= FoldEV)
+                {
+                    B[p1] = 1;
+                    EV[p1] = RaiseEV;
+                }
+                else
+                {
+                    B[p1] = 0;
+                    EV[p1] = FoldEV;
+                }
+                Assert.IsNum(EV[p1]);
+            }*/
         }
 
         public override double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)

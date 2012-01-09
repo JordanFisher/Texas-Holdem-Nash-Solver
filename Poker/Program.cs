@@ -110,6 +110,7 @@ namespace Poker
             Console.WriteLine("#(ShowdownNodes) = {0}", ShowdownNode.InstanceCount);
 #endif
             root.Process(i => 1);
+            //root.Process(i => Math.Cos(i));
             //root.Process(Node.VarS, (n, i) => n.Depth <= 1 ? .5 : .8);
             //root.PrintOut(Node.VarS);
             //EV = Simulation(Node.VarS, Node.VarS);
