@@ -41,12 +41,8 @@ namespace Poker
         public static int OpCount = 0;
         public override void CalculateBestAgainst(Player Opponent)
         {
-            // Ignore pockets that collide with community
-            //for (int p = 0; p < Pocket.N; p++)
-            //{
-            //    if (MyPhaseRoot.Collision(p)) { PocketP[p] = EV[p] = double.NaN; continue; }
-            //}
-
+#if NAIVE
+            /* Naive implementation. O(N^4) */
             // For each pocket we might have, calculate EV.
             PocketData UpdatedP = new PocketData();
             uint PocketValue1, PocketValue2;
@@ -68,31 +64,24 @@ namespace Poker
                     PocketValue2 = PocketValue[p2];
                     Assert.That(PocketValue2 < uint.MaxValue);
 
-                    //if (PocketValue1 == PocketValue2) continue;
-                    //else if (PocketValue1 > PocketValue2)
-                    //    ShowdownEV += UpdatedP[p2] * Pot;
-                    //else
-                    //    ShowdownEV -= UpdatedP[p2] * Spent;
-
                     if (PocketValue1 == PocketValue2) continue;
-                    //else if (PocketValue1 > PocketValue2)
-                    //    ShowdownEV += UpdatedP[p2] * 1;
-                    else if (PocketValue1 < PocketValue2)
-                        ShowdownEV -= UpdatedP[p2] * 1;
+                    else if (PocketValue1 > PocketValue2)
+                        ShowdownEV += UpdatedP[p2] * Pot;
+                    else
+                        ShowdownEV -= UpdatedP[p2] * Pot;
                 }
 
                 EV[p1] = ShowdownEV;
                 Assert.IsNum(EV[p1]);
             }
-
-
-            
+#else
+            /* Assymptotically optimal implementation. O(N^2) */
+            //PocketData NewEV = new PocketData();
             RiverCommunity River = (RiverCommunity)MyCommunity;
             RiverCommunity.ProbabilityPrecomputation(PocketP);
             double Correction;
             int _p1;
 
-            /*
             // For each pocket we might have, calculate the chance to win.
             RiverCommunity.ResetSummed();
 
@@ -125,8 +114,10 @@ namespace Poker
                     Correction = RiverCommunity.MassAfterExclusion(PocketP, p);
                     ChanceToWin /= Correction;
 
-                    Console.WriteLine("({2} -> {3}) {0} == {1}", EV[River.SortedPockets[EqualValuedPocket]], ChanceToWin, River.SortedPockets[EqualValuedPocket], CurrentPocketValue);
-                    Assert.That(Tools.Equals(EV[River.SortedPockets[EqualValuedPocket]], ChanceToWin));
+                    EV[p] = ChanceToWin * Pot;
+                    //NewEV[p] += ChanceToWin * Pot;
+                    //Console.WriteLine("({2} -> {3}) {0} == {1}", EV[River.SortedPockets[EqualValuedPocket]], ChanceToWin, River.SortedPockets[EqualValuedPocket], CurrentPocketValue);
+                    //Assert.That(Tools.Equals(EV[River.SortedPockets[EqualValuedPocket]], ChanceToWin));
                 }
 
                 // Total the probability mass of our opponent having a hand with equal value
@@ -146,7 +137,7 @@ namespace Poker
                 }
 
                 _p1 = NextHighest;
-            }*/
+            }
 
             // For each pocket we might have, calculate the chance to lose.
             RiverCommunity.ResetSummed();
@@ -180,8 +171,10 @@ namespace Poker
                     Correction = RiverCommunity.MassAfterExclusion(PocketP, p);
                     ChanceToLose /= Correction;
 
-                    Console.WriteLine("({2} -> {3}) {0} == {1}", EV[River.SortedPockets[EqualValuedPocket]], ChanceToLose, River.SortedPockets[EqualValuedPocket], CurrentPocketValue);
-                    Assert.That(Tools.Equals(EV[River.SortedPockets[EqualValuedPocket]], ChanceToLose));
+                    EV[p] -= ChanceToLose * Pot;
+                    //NewEV[p] -= ChanceToLose * Pot;
+                    //Console.WriteLine("({2} -> {3}) {0} == {1}", EV[River.SortedPockets[EqualValuedPocket]], ChanceToLose, River.SortedPockets[EqualValuedPocket], CurrentPocketValue);
+                    //Assert.That(Tools.Equals(EV[River.SortedPockets[EqualValuedPocket]], -ChanceToLose));
                 }
 
                 // Total the probability mass of our opponent having a hand with equal value
@@ -202,7 +195,16 @@ namespace Poker
 
                 _p1 = NextLowest;
             }
-            Console.WriteLine();
+
+            //for (int i = 0; i < Pocket.N; i++)
+            //{
+            //    if (double.IsNaN(PocketP[i])) continue;
+            //    Console.WriteLine("({2} -> {3}) {0} == {1}", EV[i], NewEV[i], i, PocketValue[i]);
+            //    Assert.That(Tools.Equals(EV[i], NewEV[i]));
+            //    EV[i] = NewEV[i];
+            //}
+            //Console.WriteLine();
+#endif
         }
 
         public override double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)

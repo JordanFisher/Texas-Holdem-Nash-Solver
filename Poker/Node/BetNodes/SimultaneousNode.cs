@@ -64,6 +64,8 @@ namespace Poker
             foreach (Node node in Branches)
                 node.CalculateBestAgainst(Opponent);
 
+#if NAIVE
+            /* Naive implementation */
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
@@ -91,8 +93,8 @@ namespace Poker
                 }
                 Assert.IsNum(EV[p1]);
             }
-
-            /*
+#else
+            /* Optimal implementation */
             // For each pocket we might have, calculate what we should do.
             RiverCommunity.ChanceToActPrecomputation(PocketP, S);
             for (int p1 = 0; p1 < Pocket.N; p1++)
@@ -120,7 +122,8 @@ namespace Poker
                     EV[p1] = FoldEV;
                 }
                 Assert.IsNum(EV[p1]);
-            }*/
+            }
+#endif
         }
 
         public override double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
