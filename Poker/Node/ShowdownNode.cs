@@ -76,7 +76,6 @@ namespace Poker
             }
 #else
             /* Assymptotically optimal implementation. O(N^2) */
-            //PocketData NewEV = new PocketData();
             RiverCommunity River = (RiverCommunity)MyCommunity;
             RiverCommunity.ProbabilityPrecomputation(PocketP);
             double Correction;
@@ -115,9 +114,6 @@ namespace Poker
                     ChanceToWin /= Correction;
 
                     EV[p] = ChanceToWin * Pot;
-                    //NewEV[p] += ChanceToWin * Pot;
-                    //Console.WriteLine("({2} -> {3}) {0} == {1}", EV[River.SortedPockets[EqualValuedPocket]], ChanceToWin, River.SortedPockets[EqualValuedPocket], CurrentPocketValue);
-                    //Assert.That(Tools.Equals(EV[River.SortedPockets[EqualValuedPocket]], ChanceToWin));
                 }
 
                 // Total the probability mass of our opponent having a hand with equal value
@@ -172,9 +168,6 @@ namespace Poker
                     ChanceToLose /= Correction;
 
                     EV[p] -= ChanceToLose * Pot;
-                    //NewEV[p] -= ChanceToLose * Pot;
-                    //Console.WriteLine("({2} -> {3}) {0} == {1}", EV[River.SortedPockets[EqualValuedPocket]], ChanceToLose, River.SortedPockets[EqualValuedPocket], CurrentPocketValue);
-                    //Assert.That(Tools.Equals(EV[River.SortedPockets[EqualValuedPocket]], -ChanceToLose));
                 }
 
                 // Total the probability mass of our opponent having a hand with equal value
@@ -195,15 +188,6 @@ namespace Poker
 
                 _p1 = NextLowest;
             }
-
-            //for (int i = 0; i < Pocket.N; i++)
-            //{
-            //    if (double.IsNaN(PocketP[i])) continue;
-            //    Console.WriteLine("({2} -> {3}) {0} == {1}", EV[i], NewEV[i], i, PocketValue[i]);
-            //    Assert.That(Tools.Equals(EV[i], NewEV[i]));
-            //    EV[i] = NewEV[i];
-            //}
-            //Console.WriteLine();
 #endif
         }
 

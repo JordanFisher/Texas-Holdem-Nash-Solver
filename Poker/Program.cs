@@ -136,8 +136,9 @@ namespace Poker
             //root.Process(i => .5f);
             //Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
             
-            //t = Tools.Benchmark(() => root.BestAgainstS(), 5);
-            //Console.WriteLine("Time = {0}.", t);
+            t = Tools.Benchmark(() => root.BestAgainstS(), 3);
+            Console.WriteLine("Time = {0}.", t);
+            Tools.Nothing();
             //root.BestAgainstS();
             //Console.WriteLine("Best done! {0} ops.", ShowdownNode.OpCount);
             
