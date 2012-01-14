@@ -8,37 +8,41 @@ using HoldemHand;
 
 namespace Poker
 {
-    class TurnRoot : PhaseRoot
+    class TurnCommunity : CommunityNode
     {
         public Flop MyFlop;
         public int MyTurn;
 
-        public TurnRoot(Node parent, int turn, int Spent, int Pot)
-            : base(parent, Spent, Pot)
+        public TurnCommunity(Flop flop, int turn)
+            : base()
         {
-            FlopRoot PreviousPhase = Parent.MyPhaseRoot as FlopRoot;
-            MyFlop = PreviousPhase.MyFlop;
+            MyFlop = flop;
             MyTurn = turn;
 
             Weight = 1f / (Card.N - 4 - 3);
             Phase = BettingPhase.Turn;
             InitiallyActivePlayer = Player.Dealer;
 
-            Initialize();
+            CreateBranches();
         }
 
-        public TurnRoot(Node parent, CommunityNode Community, int Spent, int Pot)
-            : base(parent, Spent, Pot)
+        protected override void CreateBranches()
         {
-            MyCommunity = Community;
-            MyFlop = ((TurnCommunity)MyCommunity).MyFlop;
-            MyTurn = ((TurnCommunity)MyCommunity).MyTurn;
+            Branches = new List<CommunityNode>(Card.N - 4);
+            BranchesByIndex = new List<CommunityNode>(Card.N);
 
-            Weight = 1f / (Card.N - 4 - 3);
-            Phase = BettingPhase.Turn;
-            InitiallyActivePlayer = Player.Dealer;
-
-            Initialize();
+            for (int river = 0; river < Card.N; river++)
+            {
+                CommunityNode NewBranch;
+                if (!Contains(river))
+                {
+                    NewBranch = new RiverCommunity(MyFlop, MyTurn, river);
+                    Branches.Add(NewBranch);
+                }
+                else
+                    NewBranch = null;
+                BranchesByIndex.Add(NewBranch);
+            }
         }
 
         public override bool NewCollision(Pocket p)
@@ -58,7 +62,7 @@ namespace Poker
 
         public override string ToString()
         {
-            return string.Format("({0}) {1}", MyFlop.ToString(), Card.ToString(Card.DefaultStyle, MyTurn));
+            return Card.CommunityToString(MyFlop, MyTurn);
         }
     }
 }

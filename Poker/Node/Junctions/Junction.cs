@@ -72,12 +72,6 @@ namespace Poker
             foreach (Node node in Branches)
                 node.CalculateBestAgainst(Opponent);
 
-            // Ignore pockets that collide with community
-            for (int p = 0; p < Pocket.N; p++)
-            {
-                //if (Collision(p)) { S[p] = PocketP[p] = EV[p] = B[p] = double.NaN; continue; }
-            }
-
             // For each pocket we might have, calculate what we should do.
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)

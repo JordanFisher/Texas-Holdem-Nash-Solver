@@ -105,7 +105,7 @@ namespace Poker
 
             Game.Init();
 
-            B_Test();
+            //B_Test();
 
             //var game = new Game(new HumanPlayer(), new HumanPlayer(), true);
             //var game = new Game(new HumanPlayer(), new StrategyPlayer(Node.VarS), true);
@@ -113,7 +113,10 @@ namespace Poker
             //double result = game.Round(2000000000);
             //Console.WriteLine("Result = {0}", result);
 
-/*
+            //root.Process(i => 1);
+            //root.BestAgainstS();
+
+
 
             
 #if DEBUG
@@ -149,7 +152,7 @@ namespace Poker
 
                 root.HarmonicAlg(i + 2);
             }
-            
+/*            
             
             
             //// BiHarmonic

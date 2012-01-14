@@ -8,12 +8,12 @@ using HoldemHand;
 
 namespace Poker
 {
-    class FlopRoot : PhaseRoot
+    class FlopCommunity : CommunityNode
     {
         public Flop MyFlop;
 
-        public FlopRoot(Node parent, Flop flop, int Spent, int Pot)
-            : base(parent, Spent, Pot)
+        public FlopCommunity(Flop flop)
+            : base()
         {
             MyFlop = flop;
 
@@ -21,20 +21,26 @@ namespace Poker
             Phase = BettingPhase.Flop;
             InitiallyActivePlayer = Player.Dealer;
 
-            Initialize();
+            CreateBranches();
         }
 
-        public FlopRoot(Node parent, CommunityNode Community, int Spent, int Pot)
-            : base(parent, Spent, Pot)
+        protected override void CreateBranches()
         {
-            MyCommunity = Community;
-            MyFlop = ((FlopCommunity)MyCommunity).MyFlop;
+            Branches = new List<CommunityNode>(Card.N - 3);
+            BranchesByIndex = new List<CommunityNode>(Card.N);
 
-            Weight = 1f / Counting.Choose(Card.N - 4, 3);
-            Phase = BettingPhase.Flop;
-            InitiallyActivePlayer = Player.Dealer;
-
-            Initialize();
+            for (int turn = 0; turn < Card.N; turn++)
+            {
+                CommunityNode NewBranch;
+                if (!Contains(turn))
+                {
+                    NewBranch = new TurnCommunity(MyFlop, turn);
+                    Branches.Add(NewBranch);
+                }
+                else
+                    NewBranch = null;
+                BranchesByIndex.Add(NewBranch);
+            }
         }
 
         public override bool NewCollision(Pocket p)
@@ -54,7 +60,7 @@ namespace Poker
 
         public override string ToString()
         {
-            return MyFlop.ToString();
+            return Card.CommunityToString(MyFlop);
         }
     }
 }
