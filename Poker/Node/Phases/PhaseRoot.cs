@@ -77,8 +77,13 @@ namespace Poker
             if (BetNode.SimultaneousBetting)
                 BettingBranch = new SimultaneousNode(this, Spent, Pot, Phase);
             else
-                BettingBranch = new FirstActionNode(this, InitiallyActivePlayer, Spent, Pot);
-            
+            {
+                if (Phase == BettingPhase.PreFlop)
+                    BettingBranch = new FirstActionNode_PreFlop(this, InitiallyActivePlayer, Spent, Pot);
+                else
+                    BettingBranch = new FirstActionNode_PostFlop(this, InitiallyActivePlayer, Spent, Pot);
+            }
+
             Branches = new List<Node>(1);
             Branches.Add(BettingBranch);
         }
@@ -88,20 +93,11 @@ namespace Poker
             return BettingBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
         }
 
-        /*
-        public override bool NewCollision(Pocket p)
+        public override Node AdvanceHead(PlayerAction action)
         {
-            return MyCommunity.NewCollision(p);
-        }
+            Assert.That(action == PlayerAction.Nothing);
 
-        public override bool Collision(Pocket p)
-        {
-            return MyCommunity.Collision(p);
+            return BettingBranch;
         }
-
-        public override bool Contains(int card)
-        {
-            return MyCommunity.Contains(card);
-        }*/
     }
 }

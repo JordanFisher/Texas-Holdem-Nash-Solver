@@ -19,7 +19,7 @@ namespace Poker
         //public const int Vals = 5;
         //public const int Suits = 4;
 
-        public const int Vals = 7;
+        public const int Vals = 5;
         public const int Suits = 2;
 
         public const int N = Vals * Suits;
@@ -75,7 +75,8 @@ namespace Poker
             return str;
         }
 
-        public static void Print(int[] Cards)
+        public static void PrintCards(params int[] Cards) { PrintArray(Cards); }
+        public static void PrintArray(int[] Cards)
         {
             for (int i = 0; i < Cards.Length; i++)
             {
@@ -88,10 +89,12 @@ namespace Poker
         {
             return ToString(Cards, Style);
         }
-        public static string ToString(int[] Cards, OutputStyle Style)
+        public static string ToString(int[] Cards, OutputStyle Style, int StartIndex = 0, int EndIndex = -1)
         {
+            if (EndIndex < 0) EndIndex = Cards.Length;
+
             string s = "";
-            for (int i = 0; i < Cards.Length; i++)
+            for (int i = StartIndex; i < EndIndex; i++)
             {
                 if (i > 0) s += " ";
                 s += new Card(Cards[i]).ToString(Style);
@@ -100,12 +103,32 @@ namespace Poker
             return s;
         }
 
+        public static bool ColorCardNum = true;
+        public static bool ColorCards = true;
         public void Print()
         {
-            Console.Write(ValChar[Value]);
-            Console.ForegroundColor = Color[Suit];
-            Console.Write(SuitChar[Suit]);
-            Console.ForegroundColor = ConsoleColor.Gray;
+            if (ColorCards)
+            {
+                if (ColorCardNum)
+                {
+                    Console.ForegroundColor = Color[Suit];
+                    Console.Write(ValChar[Value]);
+                    Console.Write(SuitChar[Suit]);
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
+                else
+                {
+                    Console.Write(ValChar[Value]);
+                    Console.ForegroundColor = Color[Suit];
+                    Console.Write(SuitChar[Suit]);
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
+            }
+            else
+            {
+                Console.Write(ValChar[Value]);
+                Console.Write(SuitChar[Suit]);
+            }
         }
 
         public override string ToString()

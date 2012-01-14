@@ -111,9 +111,13 @@ namespace Poker
                         RiverCommunity.SummedChance_OneCardFixed[c2];
 
                     Correction = RiverCommunity.MassAfterExclusion(PocketP, p);
-                    ChanceToWin /= Correction;
+                    if (Correction == 0)
+                        ChanceToWin = 0;
+                    else
+                        ChanceToWin /= Correction;
 
                     EV[p] = ChanceToWin * Pot;
+                    Assert.IsNum(EV[p]);
                 }
 
                 // Total the probability mass of our opponent having a hand with equal value
@@ -165,9 +169,13 @@ namespace Poker
                         RiverCommunity.SummedChance_OneCardFixed[c2];
 
                     Correction = RiverCommunity.MassAfterExclusion(PocketP, p);
-                    ChanceToLose /= Correction;
+                    if (Correction < Tools.eps)
+                        ChanceToLose = 0;
+                    else
+                        ChanceToLose /= Correction;
 
                     EV[p] -= ChanceToLose * Pot;
+                    Assert.IsNum(EV[p]);
                 }
 
                 // Total the probability mass of our opponent having a hand with equal value

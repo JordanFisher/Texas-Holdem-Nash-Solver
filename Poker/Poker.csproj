@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NAIVE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -48,6 +48,10 @@
     <Compile Include="Cards\Flop.cs" />
     <Compile Include="Cards\Pocket.cs" />
     <Compile Include="Data\RaiseCallFoldData.cs" />
+    <Compile Include="Game\StrategyPlayer.cs" />
+    <Compile Include="Game\HumanPlayer.cs" />
+    <Compile Include="Game\Game.cs" />
+    <Compile Include="Game\PlayerImplementation.cs" />
     <Compile Include="Node\BetNodes\BetNode.cs" />
     <Compile Include="Node\BetNodes\CallFoldNode.cs" />
     <Compile Include="Node\BetNodes\SimultaneousNode.cs" />

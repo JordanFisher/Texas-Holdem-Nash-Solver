@@ -300,7 +300,8 @@ namespace Poker
                 TotalMass_OneCardFixed[c2] +
                     pdf[ExcludedPocketIndex];
 
-            return Chance / Mass;
+            if (Mass < Tools.eps) return 0;
+            else return Chance / Mass;
         }
 
         public RiverCommunity(Flop flop, int turn, int river)

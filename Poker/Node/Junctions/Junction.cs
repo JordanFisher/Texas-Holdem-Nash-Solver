@@ -131,6 +131,11 @@ namespace Poker
             return Branch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset + 1);
         }
 
+        public override Node AdvanceHead(int index)
+        {
+            return BranchesByIndex[index].AdvanceHead(PlayerAction.Nothing);
+        }
+
         public override string ToString()
         {
             Assert.That(Pot == Spent);

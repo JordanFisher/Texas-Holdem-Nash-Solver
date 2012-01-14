@@ -26,7 +26,7 @@ namespace Poker
 
             S = new PocketData();
             B = new PocketData();
-            Hold = new PocketData();
+            if (MakeHold) Hold = new PocketData();
 
             CreateBranches();
         }
@@ -138,6 +138,13 @@ namespace Poker
             Assert.IsNum(EV);
 
             return EV;
+        }
+
+        public override Node AdvanceHead(PlayerAction action)
+        {
+            Assert.That(action == PlayerAction.Raise || action == PlayerAction.Fold);
+
+            return RaiseBranch;
         }
     }
 }

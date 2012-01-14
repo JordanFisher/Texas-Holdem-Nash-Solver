@@ -8,6 +8,27 @@ using HoldemHand;
 
 namespace Poker
 {
+    class FirstActionNode_PostFlop : RaiseCheckNode
+    {
+        public FirstActionNode_PostFlop(Node parent, Player ActivePlayer, int Spent, int Pot)
+            : base(parent, ActivePlayer, Spent, Pot, 0)
+        {
+        }
+
+        protected override void CreateBranches()
+        {
+            if (NumRaises + 1 == AllowedRaises)
+                RaiseBranch = new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+            else
+                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+            CheckBranch = new RaiseCheckNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot, NumRaises);
+
+            Branches = new List<Node>(2);
+            Branches.Add(RaiseBranch);
+            Branches.Add(CheckBranch);
+        }
+    }
+
     class RaiseCheckNode : BetNode
     {
         protected Node RaiseBranch, CheckBranch;
@@ -15,6 +36,7 @@ namespace Poker
         public RaiseCheckNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises)
             : base(parent, ActivePlayer, Spent, Pot, NumRaises)
         {
+            Assert.That(Spent == Pot);
             Initialize();
         }
 
@@ -25,7 +47,7 @@ namespace Poker
 
             S = new PocketData();
             B = new PocketData();
-            //Hold = new PocketData();
+            if (MakeHold) Hold = new PocketData();
 
             CreateBranches();
         }
@@ -42,9 +64,9 @@ namespace Poker
         protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
-                RaiseBranch =      new CallFoldNode(this, NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
             else
-                RaiseBranch = new RaiseCallFoldNode(this, NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
 
             if (Phase == BettingPhase.River)
                 CheckBranch = new ShowdownNode(this, Pot);
@@ -125,6 +147,14 @@ namespace Poker
             Assert.IsNum(EV);
 
             return EV;
+        }
+
+        public override Node AdvanceHead(PlayerAction action)
+        {
+            Assert.That(action == PlayerAction.Raise || action == PlayerAction.Call);
+
+            if (action == PlayerAction.Raise) return RaiseBranch;
+            else return CheckBranch;
         }
     }
 }

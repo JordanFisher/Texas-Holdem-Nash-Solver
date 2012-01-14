@@ -19,6 +19,7 @@ namespace Poker
 
         protected int Spent, Pot;
 
+        public static bool MakeHold = true;
         public PocketData S, B, Hold;
         public PocketData PocketP, EV;
 
@@ -127,7 +128,7 @@ namespace Poker
             if (S != null)
             {
                 for (int i = 0; i < Pocket.N; i++)
-                    S[i] = PocketMod(i);
+                    S[i] = Tools.Restrict(PocketMod(i));
             }
 
             if (Branches != null) foreach (Node node in Branches)
@@ -406,6 +407,15 @@ namespace Poker
                 s += branch._PrintOut(p, v);
 
             return s;
+        }
+
+        public virtual Node AdvanceHead(PlayerAction action)
+        {
+            return null;
+        }
+        public virtual Node AdvanceHead(int index)
+        {
+            return null;
         }
     }
 }

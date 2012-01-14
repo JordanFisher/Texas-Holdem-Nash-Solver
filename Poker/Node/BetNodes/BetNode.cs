@@ -22,7 +22,7 @@ namespace Poker
 
         protected Player ActivePlayer;
 
-        protected int RaiseVal = 2;
+        protected int RaiseVal = Ante.RaiseAmount;
 
         public BetNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises)
             : base(parent, Spent, Pot)
@@ -72,16 +72,6 @@ namespace Poker
 
         protected virtual void CalculateBest_Active(Player Opponent) { }
         protected virtual void CalculateBest_Inactive(Player Opponent) { }
-
-        protected Player NextPlayer(Player CurrentPlayer)
-        {
-            switch (CurrentPlayer)
-            {
-                case Player.Button: return Player.Dealer;
-                case Player.Dealer: return Player.Button;
-                default: return Player.Undefined;
-            }
-        }
 
         public override string ToString()
         {

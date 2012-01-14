@@ -10,6 +10,8 @@ namespace Poker
 {
     class PocketRoot : PhaseRoot
     {
+        public static PocketRoot Root;
+
         public const int InitialSpent = BetNode.SimultaneousBetting ? Ante.PreDeal : Ante.LittleBlind;
         public const int InitialBet = BetNode.SimultaneousBetting ? Ante.PreDeal : Ante.BigBlind;
         public PocketRoot()

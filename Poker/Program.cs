@@ -4,7 +4,7 @@ namespace Poker
 {
     class Ante
     {
-        public const int LittleBlind = 1, BigBlind = 2;
+        public const int LittleBlind = 1, BigBlind = 2, RaiseAmount = 2;
 
         //public const int PreDeal = 1, PreFlop = 1, Flop = 1, Turn = 1, River = 250;
         public const int PreDeal = 1, PreFlop = 1, Flop = 2, Turn = 2, River = 4;
@@ -99,50 +99,30 @@ namespace Poker
             Flop.InitFlops();
 
             CommunityRoot.Root = new CommunityRoot();
+            PocketRoot.Root = root = new PocketRoot();
 
             Console.WriteLine("Init done.");
 
+            Game.Init();
 
-            root = new PocketRoot();
+            B_Test();
+
+            //var game = new Game(new HumanPlayer(), new HumanPlayer(), true);
+            //var game = new Game(new HumanPlayer(), new StrategyPlayer(Node.VarS), true);
+            //var game = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed:0);
+            //double result = game.Round(2000000000);
+            //Console.WriteLine("Result = {0}", result);
+
+/*
+
+            
 #if DEBUG
             Console.WriteLine("#(PocketDatas) = {0}", PocketData.InstanceCount);
             Console.WriteLine("#(BetNodes) = {0}", BetNode.InstanceCount);
             Console.WriteLine("#(ShowdownNodes) = {0}", ShowdownNode.InstanceCount);
 #endif
             root.Process(i => 1);
-            //root.Process(i => Math.Cos(i));
-            //root.Process(Node.VarS, (n, i) => n.Depth <= 1 ? .5 : .8);
-            //root.PrintOut(Node.VarS);
-            //EV = Simulation(Node.VarS, Node.VarS);
-            //Console.WriteLine("Simulated EV = {0}", EV);
-
-
-            ////root.BestAgainstS();
-            ////root.HarmonicAlg(2);
-            ////root.PrintOut(Node.VarB);
-            ////root.PrintOut(Node.VarS);
-            ////root.BestAgainstS();
-            ////Console.WriteLine("");
-            ////root.PrintOut(Node.VarB);
-            //////EV = Simulation(Node.VarB, Node.VarS);
-            //////Console.WriteLine("Simulated EV = {0}", EV);
-            ////Console.WriteLine("");
-            //////root.PrintOut(Node.VarB);
-
-
-
             
-            //root.Process(i => Math.Abs(Math.Cos(i)));
-            //root.Process(i => .5f);
-            //Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
-            
-            t = Tools.Benchmark(() => root.BestAgainstS(), 3);
-            Console.WriteLine("Time = {0}.", t);
-            Tools.Nothing();
-            //root.BestAgainstS();
-            //Console.WriteLine("Best done! {0} ops.", ShowdownNode.OpCount);
-            
-
             // Harmonic
             for (int i = 0; i < 1000000; i++)
             {
@@ -171,24 +151,54 @@ namespace Poker
             }
             
             
-            /*
-            // BiHarmonic
-            for (int i = 0; i < 1000; i++)
-            {
-                ev1 = root.BestAgainstS();
-                Console.WriteLine("Hash = {0}.", root.Hash(Node.VarB));
+            
+            //// BiHarmonic
+            //for (int i = 0; i < 1000; i++)
+            //{
+            //    ev1 = root.BestAgainstS();
+            //    Console.WriteLine("Hash = {0}.", root.Hash(Node.VarB));
 
-                root.CopyTo(Node.VarS, Node.VarHold);
-                root.CopyTo(Node.VarB, Node.VarS);
-                ev2 = root.BestAgainstS();
-                Console.WriteLine("Hash = {0}.", root.Hash(Node.VarB));
+            //    root.CopyTo(Node.VarS, Node.VarHold);
+            //    root.CopyTo(Node.VarB, Node.VarS);
+            //    ev2 = root.BestAgainstS();
+            //    Console.WriteLine("Hash = {0}.", root.Hash(Node.VarB));
 
-                root.BiHarmonicAlg(i + 2, ev1, ev2);
-                Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
-                Console.WriteLine("----------------");
-            }
+            //    root.BiHarmonicAlg(i + 2, ev1, ev2);
+            //    Console.WriteLine("Hash = {0}.", root.Hash(Node.VarS));
+            //    Console.WriteLine("----------------");
+            //}
             */
             Console.Read();
+        }
+
+        /// <summary>
+        /// Given S and B = B(S), verify that B is the best strategy against S.
+        /// Procedure: Verify EV(~B, S) < EV(B, S) for all other strategies ~B.
+        /// </summary>
+        private static void B_Test()
+        {
+            double EV;
+            Assert.That(Node.MakeHold);
+
+            // Strategy S
+            //root.Process(i => .5);
+            root.Process(i => Math.Cos(i));
+            //root.Process(Node.VarB, (n, i) => Math.Sin(i));
+
+            // Strategy B = Hold = B(S). Must have Hold data initialized.
+            EV = root.BestAgainstS();
+            root.CopyTo(Node.VarB, Node.VarHold);
+
+            // Calculate EV(~B, S) for many ~B
+            double Min = double.MaxValue;
+            for (int k = 0; k < 10000; k++)
+            {
+                root.CopyTo(Node.VarHold, Node.VarB);
+                root.Process(Node.VarB, (n, i) => n.B[i] + (Tools.Rnd.NextDouble() - .5f) * .01f);
+                double ModdedEV = Simulation(Node.VarB, Node.VarS);
+                Min = Math.Min(Min, EV - ModdedEV);
+                Console.WriteLine("Difference = {0}, min = {1}", EV - ModdedEV, Min);
+            }
         }
     }
 }
