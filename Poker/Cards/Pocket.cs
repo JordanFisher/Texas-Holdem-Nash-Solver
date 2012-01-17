@@ -59,6 +59,11 @@ namespace Poker
             return Cards[0] == c || Cards[1] == c;
         }
 
+        public bool Overlaps(int p)
+        {
+            return Overlaps(Pocket.Pockets[p]);
+        }
+
         public bool Overlaps(Pocket p)
         {
             return p.Contains(Cards[0]) || p.Contains(Cards[1]);

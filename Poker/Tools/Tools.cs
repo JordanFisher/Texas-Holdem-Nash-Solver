@@ -45,6 +45,13 @@ namespace Poker
                 Tools.Raise("Not a probability!");
 #endif
         }
+        public static void AlmostEqual(double x, double y)
+        {
+#if DEBUG
+            if (!Tools.Equals(x, y))
+                Tools.Raise("Not equal!");
+#endif
+        }
         public static void IsNum(double x)
         {
 #if DEBUG

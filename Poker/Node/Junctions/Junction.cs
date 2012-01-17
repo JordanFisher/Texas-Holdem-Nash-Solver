@@ -68,6 +68,73 @@ namespace Poker
 
         public override void CalculateBestAgainst(Player Opponent)
         {
+#if NAIVE
+            CalculateBestAgainst_Naive(Opponent);
+#else
+            if (Phase == BettingPhase.Turn || Phase == BettingPhase.Flop)
+                CalculateBestAgainst_SingleCardOptimized(Opponent);
+            else
+                CalculateBestAgainst_Naive(Opponent);
+#endif
+        }
+
+        static double[] IntersectP = new double[Card.N];
+        public void CalculateBestAgainst_SingleCardOptimized(Player Opponent)
+        {
+            // First decide strategy for children nodes.
+            foreach (Node node in Branches)
+                node.CalculateBestAgainst(Opponent);
+
+            // Calculate P(Opponent pocket intersects a given card)
+            for (int c = 0; c < Card.N; c++)
+            {
+                if (BranchesByIndex[c] == null) continue;
+
+                IntersectP[c] = 0;
+                for (int c2 = 0; c2 < Card.N; c2++)
+                {
+                    if (c == c2) continue;
+
+                    int p = Game.PocketLookup[c, c2];
+                    if (double.IsNaN(PocketP[p])) continue;
+
+                    IntersectP[c] += PocketP[p];
+                }
+            }
+
+            RiverCommunity.ProbabilityPrecomputation(PocketP);
+
+            // For each pocket we might have, calculate what we should do.
+            PocketData UpdatedP = new PocketData();
+            for (int p1 = 0; p1 < Pocket.N; p1++)
+            {
+                if (double.IsNaN(PocketP[p1])) continue;
+
+                double BranchEV = 0;
+                for (int c = 0; c < Card.N; c++)
+                {
+                    Node Branch = BranchesByIndex[c];
+                    if (Branch == null) continue;
+                    if (Branch.MyCommunity.NewCollision(p1)) continue;
+
+                    // Find opponent pockets that intersect our pocket and the community card c
+                    var Pocket1 = Pocket.Pockets[p1];
+                    int p2_1 = Game.PocketLookup[Pocket1.Cards[0], c];
+                    int p2_2 = Game.PocketLookup[Pocket1.Cards[1], c];
+
+                    double Pr = RiverCommunity.MassAfterExclusion(PocketP, p1) - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
+                    Pr /= RiverCommunity.MassAfterExclusion(PocketP, p1);
+                    
+                    BranchEV += Branch.EV[p1] * Pr * Branch.Weight;
+                }
+
+                EV[p1] = BranchEV;
+                Assert.IsNum(EV[p1]);
+            }
+        }
+
+        void CalculateBestAgainst_Naive(Player Opponent)
+        {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
                 node.CalculateBestAgainst(Opponent);
