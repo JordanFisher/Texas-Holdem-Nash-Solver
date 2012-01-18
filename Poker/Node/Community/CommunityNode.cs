@@ -23,6 +23,8 @@ namespace Poker
         public BettingPhase Phase = BettingPhase.NotSet;
         public Player InitiallyActivePlayer = Player.Undefined;
 
+        public bool[] AvailablePocket, AvailableCard;
+
         public CommunityNode()
         {
 #if DEBUG
@@ -33,6 +35,29 @@ namespace Poker
 
         protected virtual void CreateBranches()
         {
+        }
+
+        protected void ClassifyAvailability()
+        {
+            // Classify pockets as colliding or not colliding with community cards
+            AvailablePocket = new bool[Pocket.N];
+            for (int p = 0; p < Pocket.N; p++)
+            {
+                if (Collision(p))
+                    AvailablePocket[p] = false;
+                else
+                    AvailablePocket[p] = true;
+            }
+
+            // Classify cards as colliding or not colliding with community cards
+            AvailableCard = new bool[Card.N];
+            for (int c = 0; c < Card.N; c++)
+            {
+                if (Contains(c))
+                    AvailableCard[c] = false;
+                else
+                    AvailableCard[c] = true;
+            }
         }
 
         public virtual bool NewCollision(Pocket p)

@@ -16,6 +16,7 @@ namespace Poker
             : base()
         {
             MyFlop = flop;
+            ClassifyAvailability();
 
             Weight = 1f / Counting.Choose(Card.N - 4, 3);
             Phase = BettingPhase.Flop;
@@ -32,7 +33,8 @@ namespace Poker
             for (int turn = 0; turn < Card.N; turn++)
             {
                 CommunityNode NewBranch;
-                if (!Contains(turn))
+                //if (!Contains(turn))
+                if (AvailableCard[turn])
                 {
                     NewBranch = new TurnCommunity(MyFlop, turn);
                     Branches.Add(NewBranch);

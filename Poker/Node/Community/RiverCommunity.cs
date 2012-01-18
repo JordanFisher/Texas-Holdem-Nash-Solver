@@ -54,6 +54,7 @@ namespace Poker
             for (int p = 0; p < Pocket.N; p++)
             {
                 if (double.IsNaN(pdf[p])) continue;
+                //if (AvailablePocket[p]) continue;
 
                 mass = pdf[p];
                 TotalMass += mass;
@@ -130,6 +131,7 @@ namespace Poker
             MyFlop = flop;
             MyTurn = turn;
             MyRiver = river;
+            ClassifyAvailability();
 
             Weight = 1f / (Card.N - 4 - 3 - 1);
             Phase = BettingPhase.River;
@@ -139,10 +141,14 @@ namespace Poker
             PocketValue = new uint[Pocket.N];
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (Collision(p))
-                    PocketValue[p] = 0;//uint.MaxValue;
-                else
+                //if (Collision(p))
+                //    PocketValue[p] = 0;//uint.MaxValue;
+                //else
+                //    PocketValue[p] = Value.Eval(MyFlop, MyTurn, MyRiver, Pocket.Pockets[p]);
+                if (AvailablePocket[p])
                     PocketValue[p] = Value.Eval(MyFlop, MyTurn, MyRiver, Pocket.Pockets[p]);
+                else
+                    PocketValue[p] = 0;//uint.MaxValue;
             }
 
             // Sort pockets

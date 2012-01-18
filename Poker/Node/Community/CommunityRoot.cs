@@ -13,6 +13,8 @@ namespace Poker
         public CommunityRoot()
             : base()
         {
+            ClassifyAvailability();
+
             Phase = BettingPhase.PreFlop;
             InitiallyActivePlayer = Player.Button;
 

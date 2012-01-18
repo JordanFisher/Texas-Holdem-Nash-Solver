@@ -76,10 +76,14 @@ namespace Poker
                 {
                     if (double.IsNaN(PocketP[p])) continue;
 
-                    if (MyCommunity.NewCollision(p))
-                        PocketP[p] = double.NaN;
-                    else
+                    //if (MyCommunity.NewCollision(p))
+                    //    PocketP[p] = double.NaN;
+                    //else
+                    //    NewTotalMass += PocketP[p];
+                    if (MyCommunity.AvailablePocket[p])
                         NewTotalMass += PocketP[p];
+                    else
+                        PocketP[p] = double.NaN;
                 }
                 Assert.AlmostPos(NewTotalMass);
 

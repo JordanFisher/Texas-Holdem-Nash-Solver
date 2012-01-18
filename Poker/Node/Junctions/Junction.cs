@@ -127,14 +127,16 @@ namespace Poker
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) continue;
+                //if (double.IsNaN(PocketP[p1])) continue;
+                if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 double BranchEV = 0;
                 for (int c = 0; c < Card.N; c++)
                 {
                     Node Branch = BranchesByIndex[c];
                     if (Branch == null) continue;
-                    if (Branch.MyCommunity.NewCollision(p1)) continue;
+                    //if (Branch.MyCommunity.NewCollision(p1)) continue;
+                    if (!Branch.MyCommunity.AvailablePocket[p1]) continue;
 
                     // Find opponent pockets that intersect our pocket and the community card c
                     var Pocket1 = Pocket.Pockets[p1];
@@ -222,7 +224,8 @@ namespace Poker
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) continue;
+                //if (double.IsNaN(PocketP[p1])) continue;
+                if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Update the opponent's pocket PDF using the new information,
                 // (which is that we now know which pocket we have).
@@ -235,14 +238,16 @@ namespace Poker
                 double[] BranchPDF = new double[Branches.Count];
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    if (double.IsNaN(UpdatedP[p2])) continue;
+                    //if (double.IsNaN(UpdatedP[p2])) continue;
+                    if (!MyCommunity.AvailablePocket[p2]) continue;
 
                     // All branches not overlapping our pocket or the opponent's pocket are equally likely.
                     int b = 0;
                     foreach (Node Branch in Branches)
                     {
                         b++;
-                        if (Branch.MyCommunity.NewCollision(p1) || Branch.MyCommunity.NewCollision(p2)) continue;
+                        //if (Branch.MyCommunity.NewCollision(p1) || Branch.MyCommunity.NewCollision(p2)) continue;
+                        if (!Branch.MyCommunity.AvailablePocket[p1] || !Branch.MyCommunity.AvailablePocket[p2]) continue;
 
                         double Weight = Branch.Weight;
                         BranchEV += UpdatedP[p2] * Weight * Branch.EV[p1];
