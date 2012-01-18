@@ -10,6 +10,28 @@ namespace Poker
 {
     public enum BettingPhase { NotSet, PreFlop, Flop, Turn, River };
 
+    class FlopRoot : PhaseRoot
+    {
+        public FlopRoot Representative;
+        public Flop MyFlop;
+
+        public FlopRoot(Node Parent, CommunityNode Community, int Spent, int Pot)
+            : base(Parent, Community, Spent, Pot)
+        {
+            MyFlop = ((FlopCommunity)MyCommunity).MyFlop;
+        }
+
+#if SUIT_REDUCE
+        public void FindRepresentative()
+        {
+            // Find representative flop root
+            Flop rep = MyFlop.Representative;
+
+            Representative = (FlopRoot)Parent.BranchesByIndex[Game.FlopLookup[rep.c1, rep.c2, rep.c3]];
+        }
+#endif
+    }
+
     class PhaseRoot : Node
     {
         protected Node BettingBranch;

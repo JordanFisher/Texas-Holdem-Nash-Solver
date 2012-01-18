@@ -96,14 +96,17 @@ namespace Poker
             Counting.Test();
 
             Pocket.InitPockets();
+            Game.InitPocketLookup();
+            
             Flop.InitFlops();
+            Game.InitFlopLookup();
+
 
             CommunityRoot.Root = new CommunityRoot();
             PocketRoot.Root = root = new PocketRoot();
 
             Console.WriteLine("Init done.");
 
-            Game.Init();
 
             //B_Test();
 
@@ -125,14 +128,20 @@ namespace Poker
             Console.WriteLine("#(ShowdownNodes) = {0}", ShowdownNode.InstanceCount);
 #endif
             root.Process(i => 1);
+
+            /*
+            t = Tools.Benchmark(() => root.BestAgainstS(), 5);
+            Console.WriteLine(t);
+            */
+
             
             // Harmonic
             for (int i = 0; i < 1000000; i++)
             {
                 root.BestAgainstS();
 
-                EV = Simulation(Node.VarB, Node.VarS);
-                Console.WriteLine("Simulated EV = {0}", EV);
+                //EV = Simulation(Node.VarB, Node.VarS);
+                //Console.WriteLine("Simulated EV = {0}", EV);
 
                 //root.Process(Node.VarHold, (n, j) => double.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
                 //EV = Simulation(Node.VarHold, Node.VarS);
@@ -152,7 +161,7 @@ namespace Poker
 
                 root.HarmonicAlg(i + 2);
             }
-/*            
+/*
             
             
             //// BiHarmonic

@@ -224,6 +224,14 @@ namespace Poker
             return val;
         }
 
+        public static int Permute(int n, int r)
+        {
+            int val = 1;
+            for (int i = n - r + 1; i <= n; i++) val *= i;
+
+            return val;
+        }
+
         public static void Test()
         {
             // Choose

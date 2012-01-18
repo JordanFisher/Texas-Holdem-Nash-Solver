@@ -24,7 +24,7 @@ namespace Poker
         public PocketData PocketP, EV;
 
         protected List<Node> Branches;
-        protected List<Node> BranchesByIndex;
+        public List<Node> BranchesByIndex;
 
         public int Depth;
 

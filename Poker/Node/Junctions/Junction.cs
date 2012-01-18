@@ -36,12 +36,27 @@ namespace Poker
 
                 if (community != null)
                 {
-                    NewRoot = new PhaseRoot(this, community, Spent, Pot);
+                    if (Phase == BettingPhase.PreFlop)
+                        NewRoot = new FlopRoot(this, community, Spent, Pot);
+                    else
+                        NewRoot = new PhaseRoot(this, community, Spent, Pot);
                     Branches.Add(NewRoot);
                 }
 
                 BranchesByIndex.Add(NewRoot);
             }
+
+#if SUIT_REDUCE
+            // If our branches are flop roots,
+            if (Phase == BettingPhase.PreFlop)
+            {
+                // Then find each roots representative
+                foreach (Node Branch in Branches)
+                {
+                    ((FlopRoot)Branch).FindRepresentative();
+                }
+            }
+#endif
         }
 
         //public static Node GetJunction(BettingPhase Phase, Node parent, int Spent, int Pot)
@@ -74,12 +89,16 @@ namespace Poker
             if (Phase == BettingPhase.Turn || Phase == BettingPhase.Flop)
                 CalculateBestAgainst_SingleCardOptimized(Opponent);
             else
+#if SUIT_REDUCE
+                CalculateBestAgainst_FlopSuitReduced(Opponent);
+#else
                 CalculateBestAgainst_Naive(Opponent);
+#endif
 #endif
         }
 
         static double[] IntersectP = new double[Card.N];
-        public void CalculateBestAgainst_SingleCardOptimized(Player Opponent)
+        void CalculateBestAgainst_SingleCardOptimized(Player Opponent)
         {
             // First decide strategy for children nodes.
             foreach (Node node in Branches)
@@ -133,6 +152,66 @@ namespace Poker
             }
         }
 
+#if SUIT_REDUCE
+        void CalculateBestAgainst_FlopSuitReduced(Player Opponent)
+        {
+            // First decide strategy for children nodes.
+            foreach (Node node in Branches)
+                node.CalculateBestAgainst(Opponent);
+
+            // For each pocket we might have, calculate what we should do.
+            PocketData UpdatedP = new PocketData();
+            for (int p1 = 0; p1 < Pocket.N; p1++)
+            {
+                if (double.IsNaN(PocketP[p1])) continue;
+
+                // Update the opponent's pocket PDF using the new information,
+                // (which is that we now know which pocket we have).
+                UpdateOnExclusion(PocketP, UpdatedP, p1);
+
+                // Calculate the EV assuming we proceed to a branch.
+                // Loop through each possible opponent pocket and then each possible branch,
+                // summing up the EV of each branch times the probability of arriving there.
+                double TotalWeight = 0, BranchEV = 0;
+                double[] BranchPDF = new double[Branches.Count];
+                for (int p2 = 0; p2 < Pocket.N; p2++)
+                {
+                    if (double.IsNaN(UpdatedP[p2])) continue;
+
+                    // All branches not overlapping our pocket or the opponent's pocket are equally likely.
+                    int b = 0;
+                    foreach (Node Branch in Branches)
+                    {
+                        b++;
+                        if (Branch.MyCommunity.NewCollision(p1) || Branch.MyCommunity.NewCollision(p2)) continue;
+
+                        FlopRoot _Branch = ((FlopRoot)Branch).Representative;
+                        int _p1 = _Branch.MyFlop.PocketMap[p1];
+
+                        //Assert.AlmostEqual(Branch.EV[p1], Branch.EV[_p1]);
+
+
+                        double Weight = _Branch.Weight;
+                        BranchEV += UpdatedP[p2] * Weight * Branch.EV[_p1];
+                        TotalWeight += UpdatedP[p2] * Weight;
+                        BranchPDF[b - 1] += UpdatedP[p2] * Weight;
+                    }
+                }
+                Assert.ZeroOrOne(BranchPDF.Sum());
+                Assert.ZeroOrOne(TotalWeight);
+                Assert.That(BranchEV >= -Ante.MaxPot - Tools.eps && BranchEV <= Ante.MaxPot + Tools.eps);
+
+                // Optimize: the above loop is always the same, except for a different constant
+                // multiplicative factor, and except for a few exclusions of some branches.
+                // Do the full sum, no exclusions, and then go back and subtract the ones we don't need,
+                // then correct for the multiplicative factor (which comes from renormalizing P
+                // conditioned on knowing our pocket).
+
+                EV[p1] = BranchEV;
+                Assert.IsNum(EV[p1]);
+            }
+        }
+#endif
         void CalculateBestAgainst_Naive(Player Opponent)
         {
             // First decide strategy for children nodes.

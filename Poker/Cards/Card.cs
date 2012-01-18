@@ -35,6 +35,11 @@ namespace Poker
 
         public int Value, Suit, Number;
 
+        public static int GetSuit(int c)
+        {
+            return c / Vals;
+        }
+
         public Card(int x)
         {
             Number = x;
@@ -48,6 +53,12 @@ namespace Poker
             this.Suit = Suit;
 
             Number = Value + Suit * Vals;
+        }
+
+        public int CalculateNumber()
+        {
+            Number = Value + Suit * Vals;
+            return Number;
         }
 
         public static string CommunityToString(Flop flop, int turn = -1, int river = -1)

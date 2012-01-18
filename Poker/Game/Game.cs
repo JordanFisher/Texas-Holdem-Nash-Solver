@@ -10,14 +10,8 @@ namespace Poker
 {
     class Game
     {
-        public static void Init()
-        {
-            InitPocketLookup();
-            InitFlopLookup();
-        }
-
         public static int[,] PocketLookup;
-        static void InitPocketLookup()
+        public static void InitPocketLookup()
         {
             PocketLookup = new int[Card.N, Card.N];
             
@@ -40,7 +34,7 @@ namespace Poker
         }
 
         public static int[,,] FlopLookup;
-        static void InitFlopLookup()
+        public static void InitFlopLookup()
         {
             FlopLookup = new int[Card.N, Card.N, Card.N];
 

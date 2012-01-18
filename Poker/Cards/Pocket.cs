@@ -77,6 +77,7 @@ namespace Poker
         public override string ToString()
         {
             return ToString(Card.DefaultStyle);
+            //return ToString(Card.OutputStyle.Pretty);
         }
 
         public string ToString(Card.OutputStyle Style)
