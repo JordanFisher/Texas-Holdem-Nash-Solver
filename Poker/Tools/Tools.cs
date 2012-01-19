@@ -83,6 +83,8 @@ namespace Poker
 #endif
         }
 
+        public const double NaN = -1000000;
+
         public const double eps = .0001f;
         public static bool Equals(double x, double y, double tolerance = eps)
         {

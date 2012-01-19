@@ -169,12 +169,18 @@ namespace Poker
             double ChanceToProceed = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (double.IsNaN(PreviousPDF[p]) || double.IsNaN(Strategy[p]))
-                {
-                    Destination[p] = double.NaN;
-                    continue;
-                }
-                ChanceToProceed += PreviousPDF[p] * Strategy[p];
+                //if (double.IsNaN(PreviousPDF[p]) || double.IsNaN(Strategy[p]))
+                //if (PreviousPDF[p] < 0 || Strategy[p] < 0)
+                //{
+                //    Destination[p] = double.NaN;
+                //    continue;
+                //}
+                //ChanceToProceed += PreviousPDF[p] * Strategy[p];
+
+                if (MyCommunity.AvailablePocket[p])
+                    ChanceToProceed += PreviousPDF[p] * Strategy[p];
+                else
+                    Destination[p] = Tools.NaN;
             }
 
             Assert.AlmostPos(ChanceToProceed);
@@ -217,8 +223,10 @@ namespace Poker
             double weight = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (double.IsNaN(pdf[p])) continue;
-                if (double.IsNaN(chance[p])) continue;
+                //if (double.IsNaN(pdf[p])) continue;
+                //if (double.IsNaN(chance[p])) continue;
+
+                if (!MyCommunity.AvailablePocket[p]) continue;
                 if (PocketPocketOverlap(p, ExcludePocketIndex)) continue;
 
                 weight += pdf[p];
@@ -246,7 +254,8 @@ namespace Poker
             double TotalWeight = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                if (double.IsNaN(P[p])) { UpdatedP[p] = P[p]; continue; }
+                //if (double.IsNaN(P[p])) { UpdatedP[p] = P[p]; continue; }
+                if (!MyCommunity.AvailablePocket[p]) continue;
 
                 // If this pocket overlaps with the excluded pocket,
                 // then the probability of seeing it is 0.
@@ -305,7 +314,9 @@ namespace Poker
         {
             double _t1, _t2;
 
-            if (S != null && B != null && !double.IsNaN(S[p]) && !double.IsNaN(B[p]))
+            //if (S != null && B != null && !double.IsNaN(S[p]) && !double.IsNaN(B[p]))
+            if (S != null && B != null &&
+                MyCommunity.AvailablePocket[p])
             {
                 double normalize = (t1 * S[p] + t2 * B[p]);
                 _t1 = t1 * S[p] / normalize;
@@ -333,7 +344,9 @@ namespace Poker
 
             double _t1, _t2, _t3;
 
-            if (S1 != null && S2 != null && S3 != null && !double.IsNaN(S1[p]) && !double.IsNaN(S2[p]) && !double.IsNaN(S3[p]))
+            //if (S1 != null && S2 != null && S3 != null && !double.IsNaN(S1[p]) && !double.IsNaN(S2[p]) && !double.IsNaN(S3[p]))
+            if (S1 != null && S2 != null && S3 != null &&
+                MyCommunity.AvailablePocket[p])
             {
                 double normalize = (t1 * S1[p] + t2 * S2[p] + t3 * S3[p]);
                 Assert.That(normalize != 0);
