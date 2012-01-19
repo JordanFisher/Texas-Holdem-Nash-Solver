@@ -16,7 +16,7 @@ namespace Poker
         public static int InstanceCount = 0;
 #endif
 
-        public const bool SimultaneousBetting = true;
+        public const bool SimultaneousBetting = false;
         public const int AllowedRaises = 1;
         protected int NumRaises;
 

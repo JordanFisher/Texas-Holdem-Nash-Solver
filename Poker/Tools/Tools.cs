@@ -55,7 +55,7 @@ namespace Poker
         public static void IsNum(double x)
         {
 #if DEBUG
-            if (double.IsNaN(x) || double.IsInfinity(x))
+            if (double.IsNaN(x) || double.IsInfinity(x) || x <= Tools.NaN)
                 Tools.Raise("Unreal number!");
 #endif
         }
@@ -85,7 +85,7 @@ namespace Poker
 
         public const double NaN = -1000000;
 
-        public const double eps = .0001f;
+        public const double eps = .00001f;
         public static bool Equals(double x, double y, double tolerance = eps)
         {
             return Math.Abs(x - y) < tolerance;

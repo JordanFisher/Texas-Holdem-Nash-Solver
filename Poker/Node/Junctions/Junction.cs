@@ -144,9 +144,17 @@ namespace Poker
                     int p2_1 = Game.PocketLookup[Pocket1.Cards[0], c];
                     int p2_2 = Game.PocketLookup[Pocket1.Cards[1], c];
 
-                    double Pr = Optimize.MassAfterExclusion(PocketP, p1) - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
-                    Pr /= Optimize.MassAfterExclusion(PocketP, p1);
-                    
+                    double Correction = Optimize.MassAfterExclusion(PocketP, p1);
+                    double Pr = Correction - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
+                    if (Pr <= Tools.eps) continue;
+                    //if (Correction < Tools.eps) { Assert.That(Pr < Tools.eps); continue; }
+                    Assert.That(Correction > Tools.eps);
+                    Pr /= Correction;
+
+                    Assert.AlmostProbability(Pr);
+                    Assert.That(Branch.Weight > 0);
+                    Assert.IsNum(Pr);
+                    Pr = Tools.Restrict(Pr);
                     BranchEV += Branch.EV[p1] * Pr * Branch.Weight;
                 }
 
