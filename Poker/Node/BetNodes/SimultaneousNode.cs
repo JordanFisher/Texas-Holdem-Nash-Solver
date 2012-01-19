@@ -69,7 +69,8 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
+                //if (double.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
+                if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
 
                 // Calculate the chance the opponent will raise/fold
                 double RaiseChance = TotalChance(PocketP, S, p1);
@@ -96,13 +97,14 @@ namespace Poker
 #else
             /* Optimal implementation. O(N^2) */
             // For each pocket we might have, calculate what we should do.
-            RiverCommunity.ChanceToActPrecomputation(PocketP, S);
+            Optimize.ChanceToActPrecomputation(PocketP, S, MyCommunity);
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
+                //if (double.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
+                if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
 
                 // Calculate the chance the opponent will raise/fold
-                double RaiseChance = RiverCommunity.ChanceToActWithExclusion(PocketP, S, p1);
+                double RaiseChance = Optimize.ChanceToActWithExclusion(PocketP, S, p1);
                 double FoldChance = 1 - RaiseChance;
                 Assert.IsNum(RaiseChance);
 

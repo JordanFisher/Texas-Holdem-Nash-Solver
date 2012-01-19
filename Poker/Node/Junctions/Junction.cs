@@ -115,13 +115,14 @@ namespace Poker
                     if (c == c2) continue;
 
                     int p = Game.PocketLookup[c, c2];
-                    if (double.IsNaN(PocketP[p])) continue;
+                    //if (double.IsNaN(PocketP[p])) continue;
+                    if (!MyCommunity.AvailablePocket[p]) continue;
 
                     IntersectP[c] += PocketP[p];
                 }
             }
 
-            RiverCommunity.ProbabilityPrecomputation(PocketP);
+            Optimize.ProbabilityPrecomputation(PocketP, MyCommunity);
 
             // For each pocket we might have, calculate what we should do.
             PocketData UpdatedP = new PocketData();
@@ -143,8 +144,8 @@ namespace Poker
                     int p2_1 = Game.PocketLookup[Pocket1.Cards[0], c];
                     int p2_2 = Game.PocketLookup[Pocket1.Cards[1], c];
 
-                    double Pr = RiverCommunity.MassAfterExclusion(PocketP, p1) - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
-                    Pr /= RiverCommunity.MassAfterExclusion(PocketP, p1);
+                    double Pr = Optimize.MassAfterExclusion(PocketP, p1) - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
+                    Pr /= Optimize.MassAfterExclusion(PocketP, p1);
                     
                     BranchEV += Branch.EV[p1] * Pr * Branch.Weight;
                 }
@@ -165,7 +166,8 @@ namespace Poker
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) continue;
+                //if (double.IsNaN(PocketP[p1])) continue;
+                if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Update the opponent's pocket PDF using the new information,
                 // (which is that we now know which pocket we have).
@@ -178,7 +180,8 @@ namespace Poker
                 double[] BranchPDF = new double[Branches.Count];
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    if (double.IsNaN(UpdatedP[p2])) continue;
+                    //if (double.IsNaN(UpdatedP[p2])) continue;
+                    if (!MyCommunity.AvailablePocket[p2]) continue;
 
                     // All branches not overlapping our pocket or the opponent's pocket are equally likely.
                     int b = 0;

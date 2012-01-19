@@ -48,7 +48,8 @@ namespace Poker
             uint PocketValue1, PocketValue2;
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) continue;
+                //if (double.IsNaN(PocketP[p1])) continue;
+                if (!MyCommunity.AvailablePocket[p1]) continue;
                 PocketValue1 = PocketValue[p1];
                 Assert.That(PocketValue1 < uint.MaxValue);
 
@@ -60,7 +61,8 @@ namespace Poker
                 double ShowdownEV = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    if (double.IsNaN(UpdatedP[p2])) continue;
+                    //if (double.IsNaN(UpdatedP[p2])) continue;
+                    if (!MyCommunity.AvailablePocket[p2]) continue;
                     PocketValue2 = PocketValue[p2];
                     Assert.That(PocketValue2 < uint.MaxValue);
 
@@ -77,18 +79,19 @@ namespace Poker
 #else
             /* Assymptotically optimal implementation. O(N^2) */
             RiverCommunity River = (RiverCommunity)MyCommunity;
-            RiverCommunity.ProbabilityPrecomputation(PocketP);
+            Optimize.ProbabilityPrecomputation(PocketP, MyCommunity);
             double Correction;
             int _p1;
 
             // For each pocket we might have, calculate the chance to win.
-            RiverCommunity.ResetSummed();
+            Optimize.ResetSummed();
 
             _p1 = 0;
             while (_p1 < Pocket.N)
             {
                 int p1 = River.SortedPockets[_p1];
-                if (double.IsNaN(PocketP[p1])) { _p1++; continue; }
+                //if (double.IsNaN(PocketP[p1])) { _p1++; continue; }
+                if (!MyCommunity.AvailablePocket[p1]) { _p1++; continue; }
 
                 // Find next highest pocket
                 int NextHighest = _p1 + 1;
@@ -100,17 +103,18 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket < NextHighest; EqualValuedPocket++)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    if (double.IsNaN(PocketP[p])) continue;
+                    //if (double.IsNaN(PocketP[p])) continue;
+                    if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
                     double ChanceToWin =
-                    RiverCommunity.SummedChance -
-                        RiverCommunity.SummedChance_OneCardFixed[c1] -
-                        RiverCommunity.SummedChance_OneCardFixed[c2];
+                    Optimize.SummedChance -
+                        Optimize.SummedChance_OneCardFixed[c1] -
+                        Optimize.SummedChance_OneCardFixed[c2];
 
-                    Correction = RiverCommunity.MassAfterExclusion(PocketP, p);
+                    Correction = Optimize.MassAfterExclusion(PocketP, p);
                     if (Correction == 0)
                         ChanceToWin = 0;
                     else
@@ -124,29 +128,31 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket < NextHighest; EqualValuedPocket++)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    if (double.IsNaN(PocketP[p])) continue;
+                    //if (double.IsNaN(PocketP[p])) continue;
+                    if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1]; 
                     
                     double P = PocketP[p];
 
-                    RiverCommunity.SummedChance += P;
-                    RiverCommunity.SummedChance_OneCardFixed[c1] += P;
-                    RiverCommunity.SummedChance_OneCardFixed[c2] += P;
+                    Optimize.SummedChance += P;
+                    Optimize.SummedChance_OneCardFixed[c1] += P;
+                    Optimize.SummedChance_OneCardFixed[c2] += P;
                 }
 
                 _p1 = NextHighest;
             }
 
             // For each pocket we might have, calculate the chance to lose.
-            RiverCommunity.ResetSummed();
+            Optimize.ResetSummed();
 
             _p1 = Pocket.N - 1;
             while (_p1 > 0)
             {
                 int p1 = River.SortedPockets[_p1];
-                if (double.IsNaN(PocketP[p1])) { _p1--; continue; }
+                //if (double.IsNaN(PocketP[p1])) { _p1--; continue; }
+                if (!MyCommunity.AvailablePocket[p1]) { _p1--; continue; }
 
                 // Find next highest pocket
                 int NextLowest = _p1 - 1;
@@ -158,17 +164,18 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket > NextLowest; EqualValuedPocket--)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    if (double.IsNaN(PocketP[p])) continue;
+                    //if (double.IsNaN(PocketP[p])) continue;
+                    if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
                     double ChanceToLose =
-                    RiverCommunity.SummedChance -
-                        RiverCommunity.SummedChance_OneCardFixed[c1] -
-                        RiverCommunity.SummedChance_OneCardFixed[c2];
+                    Optimize.SummedChance -
+                        Optimize.SummedChance_OneCardFixed[c1] -
+                        Optimize.SummedChance_OneCardFixed[c2];
 
-                    Correction = RiverCommunity.MassAfterExclusion(PocketP, p);
+                    Correction = Optimize.MassAfterExclusion(PocketP, p);
                     if (Correction < Tools.eps)
                         ChanceToLose = 0;
                     else
@@ -182,16 +189,17 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket > NextLowest; EqualValuedPocket--)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    if (double.IsNaN(PocketP[p])) continue;
+                    //if (double.IsNaN(PocketP[p])) continue;
+                    if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
                     double P = PocketP[p];
 
-                    RiverCommunity.SummedChance += P;
-                    RiverCommunity.SummedChance_OneCardFixed[c1] += P;
-                    RiverCommunity.SummedChance_OneCardFixed[c2] += P;
+                    Optimize.SummedChance += P;
+                    Optimize.SummedChance_OneCardFixed[c1] += P;
+                    Optimize.SummedChance_OneCardFixed[c2] += P;
                 }
 
                 _p1 = NextLowest;

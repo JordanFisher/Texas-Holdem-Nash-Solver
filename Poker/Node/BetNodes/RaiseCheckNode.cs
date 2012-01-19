@@ -87,7 +87,8 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) continue;
+                //if (double.IsNaN(PocketP[p1])) continue;
+                if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get EV for raising/Checking/folding.
                 double RaiseEV = RaiseBranch.EV[p1];
@@ -117,7 +118,8 @@ namespace Poker
             // For each pocket we might have, calculate what we expect to happen.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) continue;
+                //if (double.IsNaN(PocketP[p1])) continue;
+                if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get likelihoods for opponent raising/Checking/folding.
                 double RaiseChance = TotalChance(PocketP, S, p1);

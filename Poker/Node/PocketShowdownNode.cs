@@ -32,7 +32,8 @@ namespace Poker
             int PocketValue1, PocketValue2;
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                if (double.IsNaN(PocketP[p1])) continue;
+                //if (double.IsNaN(PocketP[p1])) continue;
+                if (!MyCommunity.AvailablePocket[p1]) continue;
                 PocketValue1 = p1;
 
                 // Update the opponent's pocket PDF using the new information,
@@ -43,7 +44,8 @@ namespace Poker
                 double PocketShowdownEV = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    if (double.IsNaN(UpdatedP[p2])) continue;
+                    //if (double.IsNaN(UpdatedP[p2])) continue;
+                    if (!MyCommunity.AvailablePocket[p2]) continue;
                     PocketValue2 = p2;
 
                     if (PocketValue1 == PocketValue2) continue;

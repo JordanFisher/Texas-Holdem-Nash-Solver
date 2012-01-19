@@ -74,7 +74,7 @@ namespace Poker
                 double NewTotalMass = 0f;
                 for (int p = 0; p < Pocket.N; p++)
                 {
-                    if (double.IsNaN(PocketP[p])) continue;
+                    //if (double.IsNaN(PocketP[p])) continue;
 
                     //if (MyCommunity.NewCollision(p))
                     //    PocketP[p] = double.NaN;
