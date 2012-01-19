@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class ShowdownNode : Node
     {
 #if DEBUG
@@ -48,7 +56,7 @@ namespace Poker
             uint PocketValue1, PocketValue2;
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (decimal.IsNaN(PocketP[p1])) continue;
+                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
                 PocketValue1 = PocketValue[p1];
                 Assert.That(PocketValue1 < uint.MaxValue);
@@ -58,10 +66,10 @@ namespace Poker
                 UpdateOnExclusion(PocketP, UpdatedP, p1);
                 OpCount++;
 
-                decimal ShowdownEV = 0;
+                number ShowdownEV = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    //if (decimal.IsNaN(UpdatedP[p2])) continue;
+                    //if (number.IsNaN(UpdatedP[p2])) continue;
                     if (!MyCommunity.AvailablePocket[p2]) continue;
                     PocketValue2 = PocketValue[p2];
                     Assert.That(PocketValue2 < uint.MaxValue);
@@ -80,7 +88,7 @@ namespace Poker
             /* Assymptotically optimal implementation. O(N^2) */
             RiverCommunity River = (RiverCommunity)MyCommunity;
             Optimize.ProbabilityPrecomputation(PocketP, MyCommunity);
-            decimal Correction;
+            number Correction;
             int _p1;
 
             // For each pocket we might have, calculate the chance to win.
@@ -90,7 +98,7 @@ namespace Poker
             while (_p1 < Pocket.N)
             {
                 int p1 = River.SortedPockets[_p1];
-                //if (decimal.IsNaN(PocketP[p1])) { _p1++; continue; }
+                //if (number.IsNaN(PocketP[p1])) { _p1++; continue; }
                 if (!MyCommunity.AvailablePocket[p1]) { _p1++; continue; }
 
                 // Find next highest pocket
@@ -103,13 +111,13 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket < NextHighest; EqualValuedPocket++)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    //if (decimal.IsNaN(PocketP[p])) continue;
+                    //if (number.IsNaN(PocketP[p])) continue;
                     if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
-                    decimal ChanceToWin =
+                    number ChanceToWin =
                     Optimize.SummedChance -
                         Optimize.SummedChance_OneCardFixed[c1] -
                         Optimize.SummedChance_OneCardFixed[c2];
@@ -128,13 +136,13 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket < NextHighest; EqualValuedPocket++)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    //if (decimal.IsNaN(PocketP[p])) continue;
+                    //if (number.IsNaN(PocketP[p])) continue;
                     if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1]; 
                     
-                    decimal P = PocketP[p];
+                    number P = PocketP[p];
 
                     Optimize.SummedChance += P;
                     Optimize.SummedChance_OneCardFixed[c1] += P;
@@ -151,7 +159,7 @@ namespace Poker
             while (_p1 > 0)
             {
                 int p1 = River.SortedPockets[_p1];
-                //if (decimal.IsNaN(PocketP[p1])) { _p1--; continue; }
+                //if (number.IsNaN(PocketP[p1])) { _p1--; continue; }
                 if (!MyCommunity.AvailablePocket[p1]) { _p1--; continue; }
 
                 // Find next highest pocket
@@ -164,13 +172,13 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket > NextLowest; EqualValuedPocket--)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    //if (decimal.IsNaN(PocketP[p])) continue;
+                    //if (number.IsNaN(PocketP[p])) continue;
                     if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
-                    decimal ChanceToLose =
+                    number ChanceToLose =
                     Optimize.SummedChance -
                         Optimize.SummedChance_OneCardFixed[c1] -
                         Optimize.SummedChance_OneCardFixed[c2];
@@ -189,13 +197,13 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket > NextLowest; EqualValuedPocket--)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    //if (decimal.IsNaN(PocketP[p])) continue;
+                    //if (number.IsNaN(PocketP[p])) continue;
                     if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
-                    decimal P = PocketP[p];
+                    number P = PocketP[p];
 
                     Optimize.SummedChance += P;
                     Optimize.SummedChance_OneCardFixed[c1] += P;
@@ -207,7 +215,7 @@ namespace Poker
 #endif
         }
 
-        public override decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             uint PocketValue1 = PocketValue[p1];
             uint PocketValue2 = PocketValue[p2];

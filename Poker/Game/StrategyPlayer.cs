@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class StrategyPlayer : PlayerImplementation
     {
         Var Strategy;
@@ -35,7 +43,7 @@ namespace Poker
         {
             PocketData Data = Strategy(Head);
 
-            decimal d = MyGame.Rand();
+            number d = MyGame.Rand();
             PlayerAction action = PlayerAction.Nothing;
             if (d < Data[Pocket])
                 action = PlayerAction.Raise;
@@ -50,7 +58,7 @@ namespace Poker
         {
             PocketData Data = Strategy(Head);
 
-            decimal d = MyGame.Rand();
+            number d = MyGame.Rand();
 
             PlayerAction action = PlayerAction.Nothing;
 

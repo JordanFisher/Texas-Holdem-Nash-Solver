@@ -5,11 +5,19 @@ using System.Linq;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     delegate PocketData Var(Node node);
 
     class Node
     {
-        public decimal Weight;
+        public number Weight;
 
         public PhaseRoot MyPhaseRoot;
         public CommunityNode MyCommunity;
@@ -75,29 +83,29 @@ namespace Poker
             if (Branches != null) foreach (Node node in Branches) node.CopyTo(Source, Destination);
         }
 
-        public void BiHarmonicAlg(int n, decimal ev1, decimal ev2)
+        public void BiHarmonicAlg(int n, number ev1, number ev2)
         {
             n++;
-            decimal t = ((decimal)1) / n;
-            decimal s = ((decimal)1) - t;
+            number t = ((number)1) / n;
+            number s = ((number)1) - t;
 
-            decimal _ev1 = n - 1, _ev2 = ((decimal)1), _ev3 = ((decimal)1) * _ev2;
-            //decimal _ev1 = 1f / ev1 + n, _ev2 = 1f / ev2, _ev3 = .5f * _ev2;
+            number _ev1 = n - 1, _ev2 = ((number)1), _ev3 = ((number)1) * _ev2;
+            //number _ev1 = 1f / ev1 + n, _ev2 = 1f / ev2, _ev3 = .5f * _ev2;
 
             double power = 1; //1.2f;
-            _ev1 = (decimal)Math.Pow((double)_ev1, power);
-            _ev2 = (decimal)Math.Pow((double)_ev2, power);
-            _ev3 = (decimal)Math.Pow((double)_ev3, power);
+            _ev1 = (number)Math.Pow((double)_ev1, power);
+            _ev2 = (number)Math.Pow((double)_ev2, power);
+            _ev3 = (number)Math.Pow((double)_ev3, power);
 
-            decimal total = _ev1 + _ev2 + _ev3;
+            number total = _ev1 + _ev2 + _ev3;
             CombineStrats(_ev1 / total, _ev2 / total, _ev3 / total);
         }
 
         public void HarmonicAlg(int n)
         {
             n++;
-            decimal t = ((decimal)1) / n;
-            decimal s = ((decimal)1) - t;
+            number t = ((number)1) / n;
+            number s = ((number)1) - t;
 
             //CombineStrats(s, t);
             NaiveCombine(Node.VarS, s, Node.VarB, t, Node.VarS);
@@ -123,7 +131,7 @@ namespace Poker
                 node.Process(PocketMod);
         }
 
-        public void Process(Func<int, decimal> PocketMod)
+        public void Process(Func<int, number> PocketMod)
         {
             if (S != null)
             {
@@ -135,7 +143,7 @@ namespace Poker
                 node.Process(PocketMod);
         }
 
-        public void Process(Var Variable, Func<Node, int, decimal> PocketMod)
+        public void Process(Var Variable, Func<Node, int, number> PocketMod)
         {
             PocketData data = Variable(this);
 
@@ -166,13 +174,13 @@ namespace Poker
 
         public void Update(PocketData PreviousPDF, PocketData Strategy, PocketData Destination)
         {
-            decimal ChanceToProceed = 0;
+            number ChanceToProceed = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (decimal.IsNaN(PreviousPDF[p]) || decimal.IsNaN(Strategy[p]))
+                //if (number.IsNaN(PreviousPDF[p]) || number.IsNaN(Strategy[p]))
                 //if (PreviousPDF[p] < 0 || Strategy[p] < 0)
                 //{
-                //    Destination[p] = decimal.NaN;
+                //    Destination[p] = number.NaN;
                 //    continue;
                 //}
                 //ChanceToProceed += PreviousPDF[p] * Strategy[p];
@@ -199,9 +207,9 @@ namespace Poker
         /// <param name="pdf">The PDF of pockets.</param>
         /// <param name="chance">The chance to act for each pocket.</param>
         /// <returns>The overall chance to act.</returns>
-        public decimal TotalChance(PocketData pdf, PocketData chance)
+        public number TotalChance(PocketData pdf, PocketData chance)
         {
-            decimal RaiseChance = 0;
+            number RaiseChance = 0;
             for (int p = 0; p < Pocket.N; p++)
                 RaiseChance += pdf[p] * chance[p];
 
@@ -217,14 +225,14 @@ namespace Poker
         /// <param name="chance">The chance to act for each pocket.</param>
         /// <param name="ExcludePocketIndex">Index of a pre-existing pocket. Exclude all pockets overlapping this pocket.</param>
         /// <returns>The overall chance to act.</returns>
-        public decimal TotalChance(PocketData pdf, PocketData chance, int ExcludePocketIndex)
+        public number TotalChance(PocketData pdf, PocketData chance, int ExcludePocketIndex)
         {
-            decimal RaiseChance = 0;
-            decimal weight = 0;
+            number RaiseChance = 0;
+            number weight = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (decimal.IsNaN(pdf[p])) continue;
-                //if (decimal.IsNaN(chance[p])) continue;
+                //if (number.IsNaN(pdf[p])) continue;
+                //if (number.IsNaN(chance[p])) continue;
 
                 if (!MyCommunity.AvailablePocket[p]) continue;
                 if (PocketPocketOverlap(p, ExcludePocketIndex)) continue;
@@ -251,10 +259,10 @@ namespace Poker
         /// <param name="ExcludePocketIndex">The index of the excluded pocket.</param>
         public void UpdateOnExclusion(PocketData P, PocketData UpdatedP, int ExcludePocketIndex)
         {
-            decimal TotalWeight = 0;
+            number TotalWeight = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (decimal.IsNaN(P[p])) { UpdatedP[p] = P[p]; continue; }
+                //if (number.IsNaN(P[p])) { UpdatedP[p] = P[p]; continue; }
                 if (!MyCommunity.AvailablePocket[p]) continue;
 
                 // If this pocket overlaps with the excluded pocket,
@@ -300,26 +308,26 @@ namespace Poker
         public bool Collision(int p) { return Collision(Pocket.Pockets[p]); }
         public virtual bool Contains(int card) { return false; }
         */
-        public virtual decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public virtual number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
-            //return decimal.NaN;
+            //return number.NaN;
             return 0;
         }
 
-        public void CombineStrats(decimal t1, decimal t2)
+        public void CombineStrats(number t1, number t2)
         {
             for (int p = 0; p < Pocket.N; p++)
                 _CombineStrats(p, t1, t2);
         }
-        void _CombineStrats(int p, decimal t1, decimal t2)
+        void _CombineStrats(int p, number t1, number t2)
         {
-            decimal _t1, _t2;
+            number _t1, _t2;
 
-            //if (S != null && B != null && !decimal.IsNaN(S[p]) && !decimal.IsNaN(B[p]))
+            //if (S != null && B != null && !number.IsNaN(S[p]) && !number.IsNaN(B[p]))
             if (S != null && B != null &&
                 MyCommunity.AvailablePocket[p])
             {
-                decimal normalize = (t1 * S[p] + t2 * B[p]);
+                number normalize = (t1 * S[p] + t2 * B[p]);
                 _t1 = t1 * S[p] / normalize;
                 _t2 = t2 * B[p] / normalize;
 
@@ -334,22 +342,22 @@ namespace Poker
                     node._CombineStrats(p, _t1, _t2);
         }
 
-        public void CombineStrats(decimal t1, decimal t2, decimal t3)
+        public void CombineStrats(number t1, number t2, number t3)
         {
             for (int p = 0; p < Pocket.N; p++)
                 _CombineStrats(p, t1, t2, t3);
         }
-        void _CombineStrats(int p, decimal t1, decimal t2, decimal t3)
+        void _CombineStrats(int p, number t1, number t2, number t3)
         {
             PocketData S1 = Hold, S2 = S, S3 = B;
 
-            decimal _t1, _t2, _t3;
+            number _t1, _t2, _t3;
 
-            //if (S1 != null && S2 != null && S3 != null && !decimal.IsNaN(S1[p]) && !decimal.IsNaN(S2[p]) && !decimal.IsNaN(S3[p]))
+            //if (S1 != null && S2 != null && S3 != null && !number.IsNaN(S1[p]) && !number.IsNaN(S2[p]) && !number.IsNaN(S3[p]))
             if (S1 != null && S2 != null && S3 != null &&
                 MyCommunity.AvailablePocket[p])
             {
-                decimal normalize = (t1 * S1[p] + t2 * S2[p] + t3 * S3[p]);
+                number normalize = (t1 * S1[p] + t2 * S2[p] + t3 * S3[p]);
                 Assert.That(normalize != 0);
                 _t1 = t1 * S1[p] / normalize;
                 _t2 = t2 * S2[p] / normalize;
@@ -366,7 +374,7 @@ namespace Poker
                     node._CombineStrats(p, _t1, _t2, _t3);
         }
 
-        void NaiveCombine(Var S1, decimal t1, Var S2, decimal t2, Var Destination)
+        void NaiveCombine(Var S1, number t1, Var S2, number t2, Var Destination)
         {
             PocketData s1 = S1(this), s2 = S2(this), destination = Destination(this);
 
@@ -381,10 +389,10 @@ namespace Poker
                     node.NaiveCombine(S1, t1, S2, t2, Destination);
         }
 
-        public decimal Hash(Var v)
+        public number Hash(Var v)
         {
             PocketData data = v(this);
-            decimal hash;
+            number hash;
 
             if (data != null && !(this is SimultaneousNode))
                 Tools.Nothing();

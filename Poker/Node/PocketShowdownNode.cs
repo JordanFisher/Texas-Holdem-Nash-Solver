@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class PocketShowdownNode : Node
     {
         public PocketShowdownNode(Node parent, int Pot)
@@ -32,7 +40,7 @@ namespace Poker
             int PocketValue1, PocketValue2;
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (decimal.IsNaN(PocketP[p1])) continue;
+                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
                 PocketValue1 = p1;
 
@@ -41,10 +49,10 @@ namespace Poker
                 UpdateOnExclusion(PocketP, UpdatedP, p1);
                 OpCount++;
 
-                decimal PocketShowdownEV = 0;
+                number PocketShowdownEV = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    //if (decimal.IsNaN(UpdatedP[p2])) continue;
+                    //if (number.IsNaN(UpdatedP[p2])) continue;
                     if (!MyCommunity.AvailablePocket[p2]) continue;
                     PocketValue2 = p2;
 
@@ -60,7 +68,7 @@ namespace Poker
             }
         }
 
-        public override decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             int PocketValue1 = p1;
             int PocketValue2 = p2;

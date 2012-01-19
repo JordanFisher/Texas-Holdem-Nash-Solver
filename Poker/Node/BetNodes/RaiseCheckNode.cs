@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class FirstActionNode_PostFlop : RaiseCheckNode
     {
         public FirstActionNode_PostFlop(Node parent, Player ActivePlayer, int Spent, int Pot)
@@ -87,12 +95,12 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (decimal.IsNaN(PocketP[p1])) continue;
+                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get EV for raising/Checking/folding.
-                decimal RaiseEV = RaiseBranch.EV[p1];
-                decimal CheckEV = CheckBranch.EV[p1];
+                number RaiseEV = RaiseBranch.EV[p1];
+                number CheckEV = CheckBranch.EV[p1];
 
                 // Decide strategy based on which action is better.
                 if (RaiseEV >= CheckEV)
@@ -118,16 +126,16 @@ namespace Poker
             // For each pocket we might have, calculate what we expect to happen.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (decimal.IsNaN(PocketP[p1])) continue;
+                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get likelihoods for opponent raising/Checking/folding.
-                decimal RaiseChance = TotalChance(PocketP, S, p1);
-                decimal CheckChance = 1 - RaiseChance;
+                number RaiseChance = TotalChance(PocketP, S, p1);
+                number CheckChance = 1 - RaiseChance;
 
                 // Get EV assuming opponent raising/Checking/folding.
-                decimal RaiseEV = RaiseBranch.EV[p1];
-                decimal CheckEV = CheckBranch.EV[p1];
+                number RaiseEV = RaiseBranch.EV[p1];
+                number CheckEV = CheckBranch.EV[p1];
 
                 // Calculate total EV
                 EV[p1] = RaiseChance * RaiseEV +
@@ -136,15 +144,15 @@ namespace Poker
             }
         }
 
-        public override decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             PocketData Data = (ActivePlayer == Player.Button ? S1 : S2)(this);
             int pocket = ActivePlayer == Player.Button ? p1 : p2;
 
-            decimal RaiseEV = RaiseBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
-            decimal CheckEV = CheckBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
+            number RaiseEV = RaiseBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
+            number CheckEV = CheckBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
 
-            decimal EV = Data[pocket] * RaiseEV +
+            number EV = Data[pocket] * RaiseEV +
                         (1 - Data[pocket]) * CheckEV;
             Assert.IsNum(EV);
 

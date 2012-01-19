@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class SimultaneousNode : Node
     {
         protected Node RaiseBranch;
@@ -69,18 +77,18 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (decimal.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
+                //if (number.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
                 //if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Calculate the chance the opponent will raise/fold
-                decimal RaiseChance = TotalChance(PocketP, S, p1);
-                decimal FoldChance = 1 - RaiseChance;
+                number RaiseChance = TotalChance(PocketP, S, p1);
+                number FoldChance = 1 - RaiseChance;
                 Assert.IsNum(RaiseChance);
 
                 // Calculate EV for raising and folding.
-                decimal RaiseEV = FoldChance * Pot + RaiseChance * RaiseBranch.EV[p1];
-                decimal FoldEV = RaiseChance * (-Spent);
+                number RaiseEV = FoldChance * Pot + RaiseChance * RaiseBranch.EV[p1];
+                number FoldEV = RaiseChance * (-Spent);
 
                 // Decide strategy based on which action is better.
                 if (RaiseEV >= FoldEV)
@@ -101,18 +109,18 @@ namespace Poker
             Optimize.ChanceToActPrecomputation(PocketP, S, MyCommunity);
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (decimal.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
+                //if (number.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
                 //if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Calculate the chance the opponent will raise/fold
-                decimal RaiseChance = Optimize.ChanceToActWithExclusion(PocketP, S, p1);
-                decimal FoldChance = 1 - RaiseChance;
+                number RaiseChance = Optimize.ChanceToActWithExclusion(PocketP, S, p1);
+                number FoldChance = 1 - RaiseChance;
                 Assert.IsNum(RaiseChance);
 
                 // Calculate EV for raising and folding.
-                decimal RaiseEV = FoldChance * Pot + RaiseChance * RaiseBranch.EV[p1];
-                decimal FoldEV = RaiseChance * (-Spent);
+                number RaiseEV = FoldChance * Pot + RaiseChance * RaiseBranch.EV[p1];
+                number FoldEV = RaiseChance * (-Spent);
 
                 // Decide strategy based on which action is better.
                 if (RaiseEV >= FoldEV)
@@ -130,13 +138,13 @@ namespace Poker
 #endif
         }
 
-        public override decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             PocketData Data1 = S1(this), Data2 = S2(this);
 
-            decimal BranchEV = RaiseBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
+            number BranchEV = RaiseBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
 
-            decimal EV =
+            number EV =
                 Data1[p1] * (Data2[p2] * BranchEV + (1 - Data2[p2]) * Pot) +
                 (1 - Data1[p1]) * (Data2[p2] * (-Spent) + (1 - Data2[p2]) * 0);
             Assert.IsNum(EV);

@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class Game
     {
         public static int[,] PocketLookup;
@@ -76,7 +84,7 @@ namespace Poker
         BettingPhase Phase;
 
         Random Rnd = new Random();
-        public decimal Rand() { return (decimal)Rnd.NextDouble(); }
+        public number Rand() { return (number)Rnd.NextDouble(); }
 
         public Game(PlayerImplementation PlayerA, PlayerImplementation PlayerB, bool Output = false, int Seed = -1)
         {
@@ -463,13 +471,13 @@ namespace Poker
         }
 
         public int RoundNumber;
-        public decimal Round(int NumberOfRounds)
+        public number Round(int NumberOfRounds)
         {
             for (int i = 0; i < NumberOfRounds; i++)
             {
                 // Do one round, swapping player roles if necessary
                 if (!BetNode.SimultaneousBetting && RoundNumber % 2 == 1) SwapPlayers();
-                decimal outcome = Round();
+                number outcome = Round();
                 if (!BetNode.SimultaneousBetting && RoundNumber % 2 == 1) SwapPlayers();
 
                 // Update totals and averages
@@ -486,8 +494,8 @@ namespace Poker
 
                 RoundNumber++;
                 Average = Total / RoundNumber;
-                Average_1vs2 = Total_1vs2 / (RoundNumber / ((decimal)2));
-                Average_2vs1 = Total_2vs1 / (RoundNumber / ((decimal)2));
+                Average_1vs2 = Total_1vs2 / (RoundNumber / ((number)2));
+                Average_2vs1 = Total_2vs1 / (RoundNumber / ((number)2));
 
                 // Display averages
                 if (i % 100 == 0)
@@ -502,8 +510,8 @@ namespace Poker
             return Average;
         }
 
-        public decimal Total_1vs2 = 0, Total_2vs1 = 0, Total = 0;
-        public decimal Average_1vs2 = 0, Average_2vs1 = 0, Average = 0;
+        public number Total_1vs2 = 0, Total_2vs1 = 0, Total = 0;
+        public number Average_1vs2 = 0, Average_2vs1 = 0, Average = 0;
         void SwapPlayers()
         {
             PlayerImplementation Hold = PlayerA;
@@ -511,8 +519,8 @@ namespace Poker
             PlayerB = Hold;
         }
 
-        decimal Outcome;
-        decimal Round()
+        number Outcome;
+        number Round()
         {
             PlayerA.Reset();
             PlayerB.Reset();

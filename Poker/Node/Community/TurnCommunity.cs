@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class TurnCommunity : CommunityNode
     {
         public Flop MyFlop;
@@ -20,7 +28,7 @@ namespace Poker
             MyTurn = turn;
             ClassifyAvailability();
 
-            Weight = ((decimal)1) / (Card.N - 4 - 3);
+            Weight = ((number)1) / (Card.N - 4 - 3);
             Phase = BettingPhase.Turn;
             InitiallyActivePlayer = Player.Dealer;
 

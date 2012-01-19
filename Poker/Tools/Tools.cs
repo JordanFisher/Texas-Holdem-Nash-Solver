@@ -8,51 +8,59 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class Assert
     {
-        public static void AlmostPos(decimal x)
+        public static void AlmostPos(number x)
         {
 #if DEBUG
             if (x < -Tools.eps || Tools.IsNaN(x))
                 Tools.Raise("Negative number!");
 #endif
         }
-        public static void AlmostOne(decimal x)
+        public static void AlmostOne(number x)
         {
 #if DEBUG
             if (Math.Abs(x - 1) > Tools.eps || Tools.IsNaN(x))
                 Tools.Raise("Not equal to 1!");
 #endif
         }
-        public static void ZeroOrOne(decimal x)
+        public static void ZeroOrOne(number x)
         {
 #if DEBUG
             if ((Math.Abs(x - 1) > Tools.eps && x > 0) || Tools.IsNaN(x))
                 Tools.Raise("Not 0 or 1!");
 #endif
         }
-        public static void IsProbability(decimal x)
+        public static void IsProbability(number x)
         {
 #if DEBUG
             if (Tools.IsNaN(x) || x < 0 || x > 1)
                 Tools.Raise("Not a probability!");
 #endif
         }
-        public static void AlmostProbability(decimal x)
+        public static void AlmostProbability(number x)
         {
 #if DEBUG
             if (Tools.IsNaN(x) || x < -Tools.eps || x > 1 + Tools.eps)
                 Tools.Raise("Not a probability!");
 #endif
         }
-        public static void AlmostEqual(decimal x, decimal y)
+        public static void AlmostEqual(number x, number y)
         {
 #if DEBUG
             if (!Tools.Equals(x, y))
                 Tools.Raise("Not equal!");
 #endif
         }
-        public static void IsNum(decimal x)
+        public static void IsNum(number x)
         {
 #if DEBUG
             if (Tools.IsNaN(x))
@@ -83,16 +91,16 @@ namespace Poker
 #endif
         }
 
-        public const decimal Big = 1000000;
-        public const decimal NaN = -Big;
+        public const number Big = 1000000;
+        public const number NaN = -Big;
 
-        public static bool IsNaN(decimal x)
+        public static bool IsNaN(number x)
         {
             return x <= -Big || x >= Big;
         }
 
-        public const decimal eps = (decimal).00001;
-        public static bool Equals(decimal x, decimal y, decimal tolerance = eps)
+        public const number eps = (number).00001;
+        public static bool Equals(number x, number y, number tolerance = eps)
         {
             return Math.Abs(x - y) < tolerance;
         }
@@ -119,7 +127,7 @@ namespace Poker
         /// <summary>
         /// Returns the restriction of a number between 0 and 1.
         /// </summary>
-        public static decimal Restrict(decimal p)
+        public static number Restrict(number p)
         {
             if (p > 1) return 1;
             else if (p < 0) return 0;

@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class CommunityNode
     {
 #if DEBUG
@@ -19,7 +27,7 @@ namespace Poker
         public List<CommunityNode> Branches;
         public List<CommunityNode> BranchesByIndex;
 
-        public decimal Weight;
+        public number Weight;
         public BettingPhase Phase = BettingPhase.NotSet;
         public Player InitiallyActivePlayer = Player.Undefined;
 

@@ -8,6 +8,14 @@ using HoldemHand;
 
 namespace Poker
 {
+#if SINGLE
+	using number = Single;
+#elif DOUBLE
+	using number = Double;
+#elif DECIMAL
+	using number = Decimal;
+#endif
+
     class FirstActionNode_PreFlop : RaiseCallFoldNode
     {
         public FirstActionNode_PreFlop(Node parent, Player ActivePlayer, int Spent, int Pot)
@@ -90,13 +98,13 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (decimal.IsNaN(PocketP[p1])) continue;
+                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get EV for raising/calling/folding.
-                decimal RaiseEV = RaiseBranch.EV[p1];
-                decimal CallEV = CallBranch.EV[p1];
-                decimal FoldEV = -Spent;
+                number RaiseEV = RaiseBranch.EV[p1];
+                number CallEV = CallBranch.EV[p1];
+                number FoldEV = -Spent;
 
                 // Decide strategy based on which action is better.
                 if (RaiseEV >= CallEV && RaiseEV >= FoldEV)
@@ -131,18 +139,18 @@ namespace Poker
             // For each pocket we might have, calculate what we expect to happen.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (decimal.IsNaN(PocketP[p1])) continue;
+                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get likelihoods for opponent raising/calling/folding.
-                decimal RaiseChance = TotalChance(PocketP, _S.Raise, p1);
-                decimal CallChance  = TotalChance(PocketP, _S.Call, p1);
-                decimal FoldChance = ((decimal)1) - RaiseChance - CallChance;
+                number RaiseChance = TotalChance(PocketP, _S.Raise, p1);
+                number CallChance  = TotalChance(PocketP, _S.Call, p1);
+                number FoldChance = ((number)1) - RaiseChance - CallChance;
 
                 // Get EV assuming opponent raising/calling/folding.
-                decimal RaiseEV = RaiseBranch.EV[p1];
-                decimal CallEV = CallBranch.EV[p1];
-                decimal FoldEV = Spent;
+                number RaiseEV = RaiseBranch.EV[p1];
+                number CallEV = CallBranch.EV[p1];
+                number FoldEV = Spent;
 
                 // Calculate total EV
                 EV[p1] = RaiseChance * RaiseEV +
@@ -152,16 +160,16 @@ namespace Poker
             }
         }
 
-        public override decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             RaiseCallFoldData Data = (ActivePlayer == Player.Button ? S1 : S2)(this) as RaiseCallFoldData;
             int pocket = ActivePlayer == Player.Button ? p1 : p2;
 
-            decimal RaiseEV = RaiseBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
-            decimal CallEV = CallBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
-            decimal FoldEV = ActivePlayer == Player.Button ? -Spent : Spent;
+            number RaiseEV = RaiseBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
+            number CallEV = CallBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
+            number FoldEV = ActivePlayer == Player.Button ? -Spent : Spent;
 
-            decimal EV = Data.Raise[pocket] * RaiseEV +
+            number EV = Data.Raise[pocket] * RaiseEV +
                         Data.Call[pocket]  * CallEV  +
                         Data.Fold(pocket)  * FoldEV;
             Assert.IsNum(EV);
