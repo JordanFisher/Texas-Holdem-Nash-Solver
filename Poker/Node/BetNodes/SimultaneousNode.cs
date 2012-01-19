@@ -70,7 +70,8 @@ namespace Poker
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
                 //if (double.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
-                if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
+                //if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
+                if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Calculate the chance the opponent will raise/fold
                 double RaiseChance = TotalChance(PocketP, S, p1);
@@ -101,7 +102,8 @@ namespace Poker
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
                 //if (double.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
-                if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
+                //if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
+                if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Calculate the chance the opponent will raise/fold
                 double RaiseChance = Optimize.ChanceToActWithExclusion(PocketP, S, p1);

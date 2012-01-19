@@ -28,7 +28,7 @@ namespace Poker
             : base(parent, Spent, Pot)
         {
             Phase = MyPhaseRoot.Phase;
-            Weight = double.NaN;
+            Weight = 0;
 
             this.ActivePlayer = ActivePlayer;
             this.NumRaises = NumRaises;

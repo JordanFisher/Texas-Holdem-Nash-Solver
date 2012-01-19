@@ -82,8 +82,8 @@ namespace Poker
                     //    NewTotalMass += PocketP[p];
                     if (MyCommunity.AvailablePocket[p])
                         NewTotalMass += PocketP[p];
-                    else
-                        PocketP[p] = double.NaN;
+                    //else
+                    //    PocketP[p] = double.NaN;
                 }
                 Assert.AlmostPos(NewTotalMass);
 

@@ -13,35 +13,35 @@ namespace Poker
         public static void AlmostPos(double x)
         {
 #if DEBUG
-            if (x < -Tools.eps || double.IsNaN(x) || double.IsInfinity(x))
+            if (x < -Tools.eps || Tools.IsNaN(x))
                 Tools.Raise("Negative number!");
 #endif
         }
         public static void AlmostOne(double x)
         {
 #if DEBUG
-            if (Math.Abs(x - 1) > Tools.eps || double.IsNaN(x) || double.IsInfinity(x))
+            if (Math.Abs(x - 1) > Tools.eps || Tools.IsNaN(x))
                 Tools.Raise("Not equal to 1!");
 #endif
         }
         public static void ZeroOrOne(double x)
         {
 #if DEBUG
-            if ((Math.Abs(x - 1) > Tools.eps && x > 0) || double.IsNaN(x) || double.IsInfinity(x))
+            if ((Math.Abs(x - 1) > Tools.eps && x > 0) || Tools.IsNaN(x))
                 Tools.Raise("Not 0 or 1!");
 #endif
         }
         public static void IsProbability(double x)
         {
 #if DEBUG
-            if (double.IsNaN(x) || double.IsInfinity(x) || x < 0 || x > 1)
+            if (Tools.IsNaN(x) || x < 0 || x > 1)
                 Tools.Raise("Not a probability!");
 #endif
         }
         public static void AlmostProbability(double x)
         {
 #if DEBUG
-            if (double.IsNaN(x) || double.IsInfinity(x) || x < -Tools.eps || x > 1 + Tools.eps)
+            if (Tools.IsNaN(x) || x < -Tools.eps || x > 1 + Tools.eps)
                 Tools.Raise("Not a probability!");
 #endif
         }
@@ -55,7 +55,7 @@ namespace Poker
         public static void IsNum(double x)
         {
 #if DEBUG
-            if (double.IsNaN(x) || double.IsInfinity(x) || x <= Tools.NaN)
+            if (Tools.IsNaN(x))
                 Tools.Raise("Unreal number!");
 #endif
         }
@@ -83,7 +83,13 @@ namespace Poker
 #endif
         }
 
-        public const double NaN = -1000000;
+        public const double Big = 1000000;
+        public const double NaN = -Big;
+
+        public static bool IsNaN(double x)
+        {
+            return x <= -Big || x >= Big;
+        }
 
         public const double eps = .00001f;
         public static bool Equals(double x, double y, double tolerance = eps)

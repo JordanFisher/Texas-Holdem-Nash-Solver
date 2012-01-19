@@ -13,7 +13,7 @@ namespace Poker
         public Junction(Node parent, CommunityNode Community, int Spent, int Pot)
             : base(parent, Spent, Pot)
         {
-            Weight = double.NaN;
+            Weight = 0;
 
             this.Spent = Spent;
             this.Pot = Pot;

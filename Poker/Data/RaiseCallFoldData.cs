@@ -103,10 +103,12 @@ namespace Poker
             double hash = 0;
             for (int i = 0; i < Pocket.N; i++)
             {
-                if (double.IsNaN(Raise[i])) hash += -1f * (i + 1);
-                else hash += Raise[i] * (i + 1);
-                if (double.IsNaN(Call[i])) hash += -1f * (i + 1);
-                else hash += Call[i] * (i + 1);
+                //if (double.IsNaN(Raise[i])) hash += -1f * (i + 1);
+                //else hash += Raise[i] * (i + 1);
+                //if (double.IsNaN(Call[i])) hash += -1f * (i + 1);
+                //else hash += Call[i] * (i + 1);
+                hash += Raise[i] * (i + 1);
+                hash += Call[i] * (i + 1);
             }
 
             return hash;

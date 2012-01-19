@@ -179,8 +179,8 @@ namespace Poker
 
                 if (MyCommunity.AvailablePocket[p])
                     ChanceToProceed += PreviousPDF[p] * Strategy[p];
-                else
-                    Destination[p] = Tools.NaN;
+                //else
+                //    Destination[p] = Tools.NaN;
             }
 
             Assert.AlmostPos(ChanceToProceed);
@@ -302,7 +302,8 @@ namespace Poker
         */
         public virtual double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
-            return double.NaN;
+            //return double.NaN;
+            return 0;
         }
 
         public void CombineStrats(double t1, double t2)

@@ -28,13 +28,6 @@ namespace Poker
             }
         }
 
-        static double _MonteCarloSim(Var S1, Var S2)
-        {
-            int p1 = Tools.RandomPocket();
-            int p2 = Tools.RandomPocket(p1);
-            return double.NaN;
-        }
-
         static double _Simulation(Var S1, Var S2)
         {
             double EV = 0, TotalMass = 0;

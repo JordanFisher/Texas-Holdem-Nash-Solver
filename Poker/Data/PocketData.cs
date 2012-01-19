@@ -96,8 +96,9 @@ namespace Poker
             {
                 //hash++;
                 //if (double.IsNaN(data[i])) hash++;
-                if (double.IsNaN(data[i])) hash += -1f * (i + 1);
-                else hash += data[i] * (i + 1);
+                //if (double.IsNaN(data[i])) hash += -1f * (i + 1);
+                //else hash += data[i] * (i + 1);
+                hash += data[i] * (i + 1);
             }
 
             return hash;
