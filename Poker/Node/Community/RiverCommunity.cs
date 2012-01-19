@@ -25,7 +25,7 @@ namespace Poker
             MyRiver = river;
             ClassifyAvailability();
 
-            Weight = 1f / (Card.N - 4 - 3 - 1);
+            Weight = ((decimal)1) / (Card.N - 4 - 3 - 1);
             Phase = BettingPhase.River;
             InitiallyActivePlayer = Player.Dealer;
 

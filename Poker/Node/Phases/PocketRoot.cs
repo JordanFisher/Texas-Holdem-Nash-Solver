@@ -19,19 +19,19 @@ namespace Poker
         {
         }
 
-        public double BestAgainstS(Player Opponent)
+        public decimal BestAgainstS(Player Opponent)
         {
             //ClearWorkVariables();
             UpdateChildrensPDFs(Opponent);
             CalculateBestAgainst(Opponent);
 
-            double FinalEV = EV.Average();
+            decimal FinalEV = EV.Average();
             return FinalEV;
         }
 
-        public double BestAgainstS()
+        public decimal BestAgainstS()
         {
-            double FinalEV;
+            decimal FinalEV;
 
             if (BetNode.SimultaneousBetting)
             {
@@ -40,9 +40,9 @@ namespace Poker
             }
             else
             {
-                double EV_AgainstButton = BestAgainstS(Player.Button);
-                double EV_AgainstDealer = BestAgainstS(Player.Dealer);
-                FinalEV = .5f * (EV_AgainstButton + EV_AgainstDealer);
+                decimal EV_AgainstButton = BestAgainstS(Player.Button);
+                decimal EV_AgainstDealer = BestAgainstS(Player.Dealer);
+                FinalEV = ((decimal).5) * (EV_AgainstButton + EV_AgainstDealer);
                 Console.WriteLine("EV = {0} : {1} -> {2}", EV_AgainstButton, EV_AgainstDealer, FinalEV);
             }
 
@@ -52,14 +52,14 @@ namespace Poker
         protected override void UpdateChildrensPDFs(Player Opponent)
         {
             // Initially assume a uniform prior for which pockets opponent has.
-            double UniformP = 1f / Pocket.N;
+            decimal UniformP = ((decimal)1) / Pocket.N;
             for (int i = 0; i < Pocket.N; i++)
                 PocketP[i] = UniformP;
 
             base.UpdateChildrensPDFs(Opponent);
         }
 
-        public double Simulate(Var S1, Var S2, int p1, int p2, params int[] BranchIndex)
+        public decimal Simulate(Var S1, Var S2, int p1, int p2, params int[] BranchIndex)
         {
             return _Simulate(S1, S2, p1, p2, ref BranchIndex, 0);
         }

@@ -76,7 +76,7 @@ namespace Poker
         BettingPhase Phase;
 
         Random Rnd = new Random();
-        public double Rand() { return Rnd.NextDouble(); }
+        public decimal Rand() { return (decimal)Rnd.NextDouble(); }
 
         public Game(PlayerImplementation PlayerA, PlayerImplementation PlayerB, bool Output = false, int Seed = -1)
         {
@@ -463,13 +463,13 @@ namespace Poker
         }
 
         public int RoundNumber;
-        public double Round(int NumberOfRounds)
+        public decimal Round(int NumberOfRounds)
         {
             for (int i = 0; i < NumberOfRounds; i++)
             {
                 // Do one round, swapping player roles if necessary
                 if (!BetNode.SimultaneousBetting && RoundNumber % 2 == 1) SwapPlayers();
-                double outcome = Round();
+                decimal outcome = Round();
                 if (!BetNode.SimultaneousBetting && RoundNumber % 2 == 1) SwapPlayers();
 
                 // Update totals and averages
@@ -486,8 +486,8 @@ namespace Poker
 
                 RoundNumber++;
                 Average = Total / RoundNumber;
-                Average_1vs2 = Total_1vs2 / (RoundNumber / 2.0);
-                Average_2vs1 = Total_2vs1 / (RoundNumber / 2.0);
+                Average_1vs2 = Total_1vs2 / (RoundNumber / ((decimal)2));
+                Average_2vs1 = Total_2vs1 / (RoundNumber / ((decimal)2));
 
                 // Display averages
                 if (i % 100 == 0)
@@ -502,8 +502,8 @@ namespace Poker
             return Average;
         }
 
-        public double Total_1vs2 = 0, Total_2vs1 = 0, Total = 0;
-        public double Average_1vs2 = 0, Average_2vs1 = 0, Average = 0;
+        public decimal Total_1vs2 = 0, Total_2vs1 = 0, Total = 0;
+        public decimal Average_1vs2 = 0, Average_2vs1 = 0, Average = 0;
         void SwapPlayers()
         {
             PlayerImplementation Hold = PlayerA;
@@ -511,8 +511,8 @@ namespace Poker
             PlayerB = Hold;
         }
 
-        double Outcome;
-        double Round()
+        decimal Outcome;
+        decimal Round()
         {
             PlayerA.Reset();
             PlayerB.Reset();

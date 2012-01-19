@@ -14,27 +14,27 @@ namespace Poker
 
     class Program
     {
-        static double Simulation(Var S1, Var S2)
+        static decimal Simulation(Var S1, Var S2)
         {
             if (BetNode.SimultaneousBetting)
                 return _Simulation(S1, S2);
             else
             {
-                double EV1 = _Simulation(S1, S2);
-                double EV2 = -_Simulation(S2, S1);
-                double TotalEV = .5f * (EV1 + EV2);
+                decimal EV1 = _Simulation(S1, S2);
+                decimal EV2 = -_Simulation(S2, S1);
+                decimal TotalEV = ((decimal).5) * (EV1 + EV2);
                 Console.WriteLine("EV = {0} : {1} -> {2}", EV1, EV2, TotalEV);
                 return TotalEV;
             }
         }
 
-        static double _Simulation(Var S1, Var S2)
+        static decimal _Simulation(Var S1, Var S2)
         {
-            double EV = 0, TotalMass = 0;
+            decimal EV = 0, TotalMass = 0;
 
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                double PocketEV = 0, PocketTotalMass = 0;
+                decimal PocketEV = 0, PocketTotalMass = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
                     if (Pocket.Pockets[p1].Overlaps(Pocket.Pockets[p2])) continue;
@@ -59,7 +59,7 @@ namespace Poker
 
                                 //if (p1 > 40) Tools.Nothing();
 
-                                double ev = root.Simulate(S1, S2, p1, p2, flop, turn, river);
+                                decimal ev = root.Simulate(S1, S2, p1, p2, flop, turn, river);
 
                                 TotalMass += 1;
                                 EV += ev;
@@ -83,8 +83,8 @@ namespace Poker
         static PocketRoot root;
         static void Main(string[] args)
         {
-            double EV; double t;
-            double ev1, ev2;
+            decimal EV; decimal t;
+            decimal ev1, ev2;
 
             Counting.Test();
 
@@ -106,7 +106,7 @@ namespace Poker
             //var game = new Game(new HumanPlayer(), new HumanPlayer(), true);
             //var game = new Game(new HumanPlayer(), new StrategyPlayer(Node.VarS), true);
             //var game = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed:0);
-            //double result = game.Round(2000000000);
+            //decimal result = game.Round(2000000000);
             //Console.WriteLine("Result = {0}", result);
 
             //root.Process(i => 1);
@@ -136,7 +136,7 @@ namespace Poker
                 //EV = Simulation(Node.VarB, Node.VarS);
                 //Console.WriteLine("Simulated EV = {0}", EV);
 
-                //root.Process(Node.VarHold, (n, j) => double.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
+                //root.Process(Node.VarHold, (n, j) => decimal.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
                 //EV = Simulation(Node.VarHold, Node.VarS);
                 //Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
 
@@ -182,12 +182,12 @@ namespace Poker
         /// </summary>
         private static void B_Test()
         {
-            double EV;
+            decimal EV;
             Assert.That(Node.MakeHold);
 
             // Strategy S
             //root.Process(i => .5);
-            root.Process(i => Math.Cos(i));
+            root.Process(i => (decimal)Math.Cos(i));
             //root.Process(Node.VarB, (n, i) => Math.Sin(i));
 
             // Strategy B = Hold = B(S). Must have Hold data initialized.
@@ -195,12 +195,12 @@ namespace Poker
             root.CopyTo(Node.VarB, Node.VarHold);
 
             // Calculate EV(~B, S) for many ~B
-            double Min = double.MaxValue;
+            decimal Min = decimal.MaxValue;
             for (int k = 0; k < 10000; k++)
             {
                 root.CopyTo(Node.VarHold, Node.VarB);
-                root.Process(Node.VarB, (n, i) => n.B[i] + (Tools.Rnd.NextDouble() - .5f) * .01f);
-                double ModdedEV = Simulation(Node.VarB, Node.VarS);
+                root.Process(Node.VarB, (n, i) => n.B[i] + (decimal)((Tools.Rnd.NextDouble() - .5f) * .01f));
+                decimal ModdedEV = Simulation(Node.VarB, Node.VarS);
                 Min = Math.Min(Min, EV - ModdedEV);
                 Console.WriteLine("Difference = {0}, min = {1}", EV - ModdedEV, Min);
             }

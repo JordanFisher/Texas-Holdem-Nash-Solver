@@ -20,7 +20,7 @@ namespace Poker
             MyTurn = turn;
             ClassifyAvailability();
 
-            Weight = 1f / (Card.N - 4 - 3);
+            Weight = ((decimal)1) / (Card.N - 4 - 3);
             Phase = BettingPhase.Turn;
             InitiallyActivePlayer = Player.Dealer;
 

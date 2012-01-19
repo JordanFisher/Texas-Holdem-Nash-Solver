@@ -87,12 +87,12 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (double.IsNaN(PocketP[p1])) continue;
+                //if (decimal.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get EV for raising/Checking/folding.
-                double RaiseEV = RaiseBranch.EV[p1];
-                double CheckEV = CheckBranch.EV[p1];
+                decimal RaiseEV = RaiseBranch.EV[p1];
+                decimal CheckEV = CheckBranch.EV[p1];
 
                 // Decide strategy based on which action is better.
                 if (RaiseEV >= CheckEV)
@@ -118,16 +118,16 @@ namespace Poker
             // For each pocket we might have, calculate what we expect to happen.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (double.IsNaN(PocketP[p1])) continue;
+                //if (decimal.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get likelihoods for opponent raising/Checking/folding.
-                double RaiseChance = TotalChance(PocketP, S, p1);
-                double CheckChance = 1 - RaiseChance;
+                decimal RaiseChance = TotalChance(PocketP, S, p1);
+                decimal CheckChance = 1 - RaiseChance;
 
                 // Get EV assuming opponent raising/Checking/folding.
-                double RaiseEV = RaiseBranch.EV[p1];
-                double CheckEV = CheckBranch.EV[p1];
+                decimal RaiseEV = RaiseBranch.EV[p1];
+                decimal CheckEV = CheckBranch.EV[p1];
 
                 // Calculate total EV
                 EV[p1] = RaiseChance * RaiseEV +
@@ -136,15 +136,15 @@ namespace Poker
             }
         }
 
-        public override double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             PocketData Data = (ActivePlayer == Player.Button ? S1 : S2)(this);
             int pocket = ActivePlayer == Player.Button ? p1 : p2;
 
-            double RaiseEV = RaiseBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
-            double CheckEV = CheckBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
+            decimal RaiseEV = RaiseBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
+            decimal CheckEV = CheckBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
 
-            double EV = Data[pocket] * RaiseEV +
+            decimal EV = Data[pocket] * RaiseEV +
                         (1 - Data[pocket]) * CheckEV;
             Assert.IsNum(EV);
 

@@ -18,7 +18,7 @@ namespace Poker
             MyFlop = flop;
             ClassifyAvailability();
 
-            Weight = 1f / Counting.Choose(Card.N - 4, 3);
+            Weight = ((decimal)1) / Counting.Choose(Card.N - 4, 3);
             Phase = BettingPhase.Flop;
             InitiallyActivePlayer = Player.Dealer;
 

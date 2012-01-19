@@ -17,9 +17,9 @@ namespace Poker
             this.Call = new PocketData();
         }
 
-        public double Fold(int n) { return 1f - Raise[n] - Call[n]; }
+        public decimal Fold(int n) { return ((decimal)1) - Raise[n] - Call[n]; }
 
-        public void Set(int pocket, double r, double c)
+        public void Set(int pocket, decimal r, decimal c)
         {
             Assert.IsProbability(r);
             Assert.IsProbability(c);
@@ -70,13 +70,13 @@ namespace Poker
             Call.SwitchWith(_other.Call);
         }
 
-        public override void Linear(int pocket, double t1, PocketData data1, double t2, PocketData data2)
+        public override void Linear(int pocket, decimal t1, PocketData data1, decimal t2, PocketData data2)
         {
             base.Linear(pocket, t1, data1, t2, data2);
             Call.Linear(pocket, t1, ((RaiseCallFoldData)data1).Call, t2, ((RaiseCallFoldData)data2).Call);
         }
 
-        public override void Linear(int pocket, double t1, PocketData data1, double t2, PocketData data2, double t3, PocketData data3)
+        public override void Linear(int pocket, decimal t1, PocketData data1, decimal t2, PocketData data2, decimal t3, PocketData data3)
         {
             base.Linear(pocket, t1, data1, t2, data2, t3, data3);
             Call.Linear(pocket, t1, ((RaiseCallFoldData)data1).Call, t2, ((RaiseCallFoldData)data2).Call, t3, ((RaiseCallFoldData)data3).Call);
@@ -98,14 +98,14 @@ namespace Poker
             return base.ShortFormat(p) + "/" + Call.ShortFormat(p);
         }
 
-        public override double Hash()
+        public override decimal Hash()
         {
-            double hash = 0;
+            decimal hash = 0;
             for (int i = 0; i < Pocket.N; i++)
             {
-                //if (double.IsNaN(Raise[i])) hash += -1f * (i + 1);
+                //if (decimal.IsNaN(Raise[i])) hash += -1f * (i + 1);
                 //else hash += Raise[i] * (i + 1);
-                //if (double.IsNaN(Call[i])) hash += -1f * (i + 1);
+                //if (decimal.IsNaN(Call[i])) hash += -1f * (i + 1);
                 //else hash += Call[i] * (i + 1);
                 hash += Raise[i] * (i + 1);
                 hash += Call[i] * (i + 1);

@@ -97,7 +97,7 @@ namespace Poker
 #endif
         }
 
-        static double[] IntersectP = new double[Card.N];
+        static decimal[] IntersectP = new decimal[Card.N];
         void CalculateBestAgainst_SingleCardOptimized(Player Opponent)
         {
             // First decide strategy for children nodes.
@@ -115,7 +115,7 @@ namespace Poker
                     if (c == c2) continue;
 
                     int p = Game.PocketLookup[c, c2];
-                    //if (double.IsNaN(PocketP[p])) continue;
+                    //if (decimal.IsNaN(PocketP[p])) continue;
                     if (!MyCommunity.AvailablePocket[p]) continue;
 
                     IntersectP[c] += PocketP[p];
@@ -128,10 +128,10 @@ namespace Poker
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (double.IsNaN(PocketP[p1])) continue;
+                //if (decimal.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
-                double BranchEV = 0;
+                decimal BranchEV = 0;
                 for (int c = 0; c < Card.N; c++)
                 {
                     Node Branch = BranchesByIndex[c];
@@ -144,8 +144,8 @@ namespace Poker
                     int p2_1 = Game.PocketLookup[Pocket1.Cards[0], c];
                     int p2_2 = Game.PocketLookup[Pocket1.Cards[1], c];
 
-                    double Correction = Optimize.MassAfterExclusion(PocketP, p1);
-                    double Pr = Correction - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
+                    decimal Correction = Optimize.MassAfterExclusion(PocketP, p1);
+                    decimal Pr = Correction - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
                     if (Pr <= Tools.eps) continue;
                     //if (Correction < Tools.eps) { Assert.That(Pr < Tools.eps); continue; }
                     Assert.That(Correction > Tools.eps);
@@ -174,7 +174,7 @@ namespace Poker
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (double.IsNaN(PocketP[p1])) continue;
+                //if (decimal.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Update the opponent's pocket PDF using the new information,
@@ -184,11 +184,11 @@ namespace Poker
                 // Calculate the EV assuming we proceed to a branch.
                 // Loop through each possible opponent pocket and then each possible branch,
                 // summing up the EV of each branch times the probability of arriving there.
-                double TotalWeight = 0, BranchEV = 0;
-                double[] BranchPDF = new double[Branches.Count];
+                decimal TotalWeight = 0, BranchEV = 0;
+                decimal[] BranchPDF = new decimal[Branches.Count];
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    //if (double.IsNaN(UpdatedP[p2])) continue;
+                    //if (decimal.IsNaN(UpdatedP[p2])) continue;
                     if (!MyCommunity.AvailablePocket[p2]) continue;
 
                     // All branches not overlapping our pocket or the opponent's pocket are equally likely.
@@ -204,7 +204,7 @@ namespace Poker
                         //Assert.AlmostEqual(Branch.EV[p1], Branch.EV[_p1]);
 
 
-                        double Weight = _Branch.Weight;
+                        decimal Weight = _Branch.Weight;
                         BranchEV += UpdatedP[p2] * Weight * Branch.EV[_p1];
                         TotalWeight += UpdatedP[p2] * Weight;
                         BranchPDF[b - 1] += UpdatedP[p2] * Weight;
@@ -235,7 +235,7 @@ namespace Poker
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (double.IsNaN(PocketP[p1])) continue;
+                //if (decimal.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Update the opponent's pocket PDF using the new information,
@@ -245,11 +245,11 @@ namespace Poker
                 // Calculate the EV assuming we proceed to a branch.
                 // Loop through each possible opponent pocket and then each possible branch,
                 // summing up the EV of each branch times the probability of arriving there.
-                double TotalWeight = 0, BranchEV = 0;
-                double[] BranchPDF = new double[Branches.Count];
+                decimal TotalWeight = 0, BranchEV = 0;
+                decimal[] BranchPDF = new decimal[Branches.Count];
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    //if (double.IsNaN(UpdatedP[p2])) continue;
+                    //if (decimal.IsNaN(UpdatedP[p2])) continue;
                     if (!MyCommunity.AvailablePocket[p2]) continue;
 
                     // All branches not overlapping our pocket or the opponent's pocket are equally likely.
@@ -260,7 +260,7 @@ namespace Poker
                         //if (Branch.MyCommunity.NewCollision(p1) || Branch.MyCommunity.NewCollision(p2)) continue;
                         if (!Branch.MyCommunity.AvailablePocket[p1] || !Branch.MyCommunity.AvailablePocket[p2]) continue;
 
-                        double Weight = Branch.Weight;
+                        decimal Weight = Branch.Weight;
                         BranchEV += UpdatedP[p2] * Weight * Branch.EV[p1];
                         TotalWeight += UpdatedP[p2] * Weight;
                         BranchPDF[b - 1] += UpdatedP[p2] * Weight;
@@ -281,7 +281,7 @@ namespace Poker
             }
         }
 
-        public override double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             Node Branch = BranchesByIndex[BranchIndex[IndexOffset]];
             return Branch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset + 1);

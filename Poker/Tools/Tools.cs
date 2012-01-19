@@ -10,49 +10,49 @@ namespace Poker
 {
     class Assert
     {
-        public static void AlmostPos(double x)
+        public static void AlmostPos(decimal x)
         {
 #if DEBUG
             if (x < -Tools.eps || Tools.IsNaN(x))
                 Tools.Raise("Negative number!");
 #endif
         }
-        public static void AlmostOne(double x)
+        public static void AlmostOne(decimal x)
         {
 #if DEBUG
             if (Math.Abs(x - 1) > Tools.eps || Tools.IsNaN(x))
                 Tools.Raise("Not equal to 1!");
 #endif
         }
-        public static void ZeroOrOne(double x)
+        public static void ZeroOrOne(decimal x)
         {
 #if DEBUG
             if ((Math.Abs(x - 1) > Tools.eps && x > 0) || Tools.IsNaN(x))
                 Tools.Raise("Not 0 or 1!");
 #endif
         }
-        public static void IsProbability(double x)
+        public static void IsProbability(decimal x)
         {
 #if DEBUG
             if (Tools.IsNaN(x) || x < 0 || x > 1)
                 Tools.Raise("Not a probability!");
 #endif
         }
-        public static void AlmostProbability(double x)
+        public static void AlmostProbability(decimal x)
         {
 #if DEBUG
             if (Tools.IsNaN(x) || x < -Tools.eps || x > 1 + Tools.eps)
                 Tools.Raise("Not a probability!");
 #endif
         }
-        public static void AlmostEqual(double x, double y)
+        public static void AlmostEqual(decimal x, decimal y)
         {
 #if DEBUG
             if (!Tools.Equals(x, y))
                 Tools.Raise("Not equal!");
 #endif
         }
-        public static void IsNum(double x)
+        public static void IsNum(decimal x)
         {
 #if DEBUG
             if (Tools.IsNaN(x))
@@ -83,16 +83,16 @@ namespace Poker
 #endif
         }
 
-        public const double Big = 1000000;
-        public const double NaN = -Big;
+        public const decimal Big = 1000000;
+        public const decimal NaN = -Big;
 
-        public static bool IsNaN(double x)
+        public static bool IsNaN(decimal x)
         {
             return x <= -Big || x >= Big;
         }
 
-        public const double eps = .00001f;
-        public static bool Equals(double x, double y, double tolerance = eps)
+        public const decimal eps = (decimal).00001;
+        public static bool Equals(decimal x, decimal y, decimal tolerance = eps)
         {
             return Math.Abs(x - y) < tolerance;
         }
@@ -119,7 +119,7 @@ namespace Poker
         /// <summary>
         /// Returns the restriction of a number between 0 and 1.
         /// </summary>
-        public static double Restrict(double p)
+        public static decimal Restrict(decimal p)
         {
             if (p > 1) return 1;
             else if (p < 0) return 0;

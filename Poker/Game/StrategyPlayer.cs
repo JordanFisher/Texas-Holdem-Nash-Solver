@@ -35,7 +35,7 @@ namespace Poker
         {
             PocketData Data = Strategy(Head);
 
-            double d = MyGame.Rand();
+            decimal d = MyGame.Rand();
             PlayerAction action = PlayerAction.Nothing;
             if (d < Data[Pocket])
                 action = PlayerAction.Raise;
@@ -50,7 +50,7 @@ namespace Poker
         {
             PocketData Data = Strategy(Head);
 
-            double d = MyGame.Rand();
+            decimal d = MyGame.Rand();
 
             PlayerAction action = PlayerAction.Nothing;
 

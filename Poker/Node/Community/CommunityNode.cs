@@ -19,7 +19,7 @@ namespace Poker
         public List<CommunityNode> Branches;
         public List<CommunityNode> BranchesByIndex;
 
-        public double Weight;
+        public decimal Weight;
         public BettingPhase Phase = BettingPhase.NotSet;
         public Player InitiallyActivePlayer = Player.Undefined;
 

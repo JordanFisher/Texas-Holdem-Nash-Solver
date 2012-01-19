@@ -10,13 +10,13 @@ namespace Poker
 {
     class Optimize
     {
-        public static double SummedChance;
-        public static double[] SummedChance_OneCardFixed = new double[Card.N];
+        public static decimal SummedChance;
+        public static decimal[] SummedChance_OneCardFixed = new decimal[Card.N];
 
-        public static double TotalChance;
-        public static double[] TotalChance_OneCardFixed = new double[Card.N];
-        public static double TotalMass;
-        public static double[] TotalMass_OneCardFixed = new double[Card.N];
+        public static decimal TotalChance;
+        public static decimal[] TotalChance_OneCardFixed = new decimal[Card.N];
+        public static decimal TotalMass;
+        public static decimal[] TotalMass_OneCardFixed = new decimal[Card.N];
 
         public static void ResetSummed()
         {
@@ -42,11 +42,11 @@ namespace Poker
         {
             ResetMass();
 
-            double mass;
+            decimal mass;
             Pocket pocket;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (double.IsNaN(pdf[p])) continue;
+                //if (decimal.IsNaN(pdf[p])) continue;
                 if (!community.AvailablePocket[p]) continue;
 
                 mass = pdf[p];
@@ -59,12 +59,12 @@ namespace Poker
             }
         }
 
-        public static double MassAfterExclusion(PocketData pdf, int ExcludedPocketIndex)
+        public static decimal MassAfterExclusion(PocketData pdf, int ExcludedPocketIndex)
         {
             var pocket = Pocket.Pockets[ExcludedPocketIndex];
             int c1 = pocket.Cards[0], c2 = pocket.Cards[1];
 
-            double Mass =
+            decimal Mass =
             TotalMass -
                 TotalMass_OneCardFixed[c1] -
                 TotalMass_OneCardFixed[c2] +
@@ -77,11 +77,11 @@ namespace Poker
         {
             ResetTotal();
 
-            double val, mass;
+            decimal val, mass;
             Pocket pocket;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (double.IsNaN(pdf[p])) continue;
+                //if (decimal.IsNaN(pdf[p])) continue;
                 if (!community.AvailablePocket[p]) continue;
 
                 mass = pdf[p];
@@ -98,18 +98,18 @@ namespace Poker
             }
         }
 
-        public static double ChanceToActWithExclusion(PocketData pdf, PocketData chance, int ExcludedPocketIndex)
+        public static decimal ChanceToActWithExclusion(PocketData pdf, PocketData chance, int ExcludedPocketIndex)
         {
             var pocket = Pocket.Pockets[ExcludedPocketIndex];
             int c1 = pocket.Cards[0], c2 = pocket.Cards[1];
 
-            double Chance =
+            decimal Chance =
             TotalChance -
                 TotalChance_OneCardFixed[c1] -
                 TotalChance_OneCardFixed[c2] +
                     pdf[ExcludedPocketIndex] * chance[ExcludedPocketIndex];
 
-            double Mass =
+            decimal Mass =
             TotalMass -
                 TotalMass_OneCardFixed[c1] -
                 TotalMass_OneCardFixed[c2] +

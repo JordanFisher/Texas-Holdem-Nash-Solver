@@ -14,17 +14,17 @@ namespace Poker
         public static int InstanceCount = 0;
 #endif
 
-        public double[] data;
+        public decimal[] data;
         public PocketData()
         {
-            data = new double[Pocket.N];
+            data = new decimal[Pocket.N];
 
 #if DEBUG
             InstanceCount++;
 #endif
         }
 
-        public double this[int n]
+        public decimal this[int n]
         {
             get { return data[n]; }
             set { data[n] = value; }
@@ -40,7 +40,7 @@ namespace Poker
         {
             for (int i = 0; i < Pocket.N; i++)
             {
-                double temp = other[i];
+                decimal temp = other[i];
                 other[i] = data[i];
                 data[i] = temp;
             }
@@ -55,20 +55,20 @@ namespace Poker
         public virtual void InverseOf(PocketData Source)
         {
             for (int i = 0; i < Pocket.N; i++)
-                data[i] = 1f - Source[i];
+                data[i] = ((decimal)1) - Source[i];
         }
 
-        public double Average()
+        public decimal Average()
         {
             return data.Sum() / Pocket.N;
         }
 
-        public virtual void Linear(int pocket, double t1, PocketData data1, double t2, PocketData data2)
+        public virtual void Linear(int pocket, decimal t1, PocketData data1, decimal t2, PocketData data2)
         {
             this[pocket] = t1 * data1[pocket] + t2 * data2[pocket];
         }
 
-        public virtual void Linear(int pocket, double t1, PocketData data1, double t2, PocketData data2, double t3, PocketData data3)
+        public virtual void Linear(int pocket, decimal t1, PocketData data1, decimal t2, PocketData data2, decimal t3, PocketData data3)
         {
             this[pocket] = t1 * data1[pocket] + t2 * data2[pocket] + t3 * data3[pocket];
         }
@@ -89,14 +89,14 @@ namespace Poker
             return data[p].ToString("0.0");
         }
 
-        public virtual double Hash()
+        public virtual decimal Hash()
         {
-            double hash = 0;
+            decimal hash = 0;
             for (int i = 0; i < Pocket.N; i++)
             {
                 //hash++;
-                //if (double.IsNaN(data[i])) hash++;
-                //if (double.IsNaN(data[i])) hash += -1f * (i + 1);
+                //if (decimal.IsNaN(data[i])) hash++;
+                //if (decimal.IsNaN(data[i])) hash += -1f * (i + 1);
                 //else hash += data[i] * (i + 1);
                 hash += data[i] * (i + 1);
             }

@@ -71,19 +71,19 @@ namespace Poker
                 PocketP.CopyFrom(Parent.PocketP);
 
                 // Pocket can't have cards that are in this flop
-                double NewTotalMass = 0f;
+                decimal NewTotalMass = 0;
                 for (int p = 0; p < Pocket.N; p++)
                 {
-                    //if (double.IsNaN(PocketP[p])) continue;
+                    //if (decimal.IsNaN(PocketP[p])) continue;
 
                     //if (MyCommunity.NewCollision(p))
-                    //    PocketP[p] = double.NaN;
+                    //    PocketP[p] = decimal.NaN;
                     //else
                     //    NewTotalMass += PocketP[p];
                     if (MyCommunity.AvailablePocket[p])
                         NewTotalMass += PocketP[p];
                     //else
-                    //    PocketP[p] = double.NaN;
+                    //    PocketP[p] = decimal.NaN;
                 }
                 Assert.AlmostPos(NewTotalMass);
 
@@ -114,7 +114,7 @@ namespace Poker
             Branches.Add(BettingBranch);
         }
 
-        public override double _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
+        public override decimal _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             return BettingBranch._Simulate(S1, S2, p1, p2, ref BranchIndex, IndexOffset);
         }
