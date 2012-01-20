@@ -120,6 +120,7 @@ namespace Poker
 #if SUIT_REDUCE
         public Flop Representative;
         static Flop CurrentRepresentative = null;
+        public bool IsRepresentative() { return this == Representative; }
 
         static int[] SuitMap = new int[Card.Suits];
         static int SuitMapSum = 0;

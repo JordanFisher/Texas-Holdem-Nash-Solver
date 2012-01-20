@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;!NAIVE !SUIT_REDUCE DOUBLE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NAIVE !SUIT_REDUCE DECIMAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -63,6 +63,7 @@
     <Compile Include="Node\Community\RiverCommunity.cs" />
     <Compile Include="Node\Community\TurnCommunity.cs" />
     <Compile Include="Node\Community\FlopCommunity.cs" />
+    <Compile Include="Node\Phases\FlopRoot.cs" />
     <Compile Include="Node\PocketShowdownNode.cs" />
     <Compile Include="Node\ShowdownNode.cs" />
     <Compile Include="Node\Junctions\Junction.cs" />

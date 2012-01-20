@@ -53,10 +53,10 @@ namespace Poker
                 Tools.Raise("Not a probability!");
 #endif
         }
-        public static void AlmostEqual(number x, number y)
+        public static void AlmostEqual(number x, number y, number eps = Tools.eps)
         {
 #if DEBUG
-            if (!Tools.Equals(x, y))
+            if (!Tools.Equals(x, y, eps))
                 Tools.Raise("Not equal!");
 #endif
         }
@@ -99,7 +99,14 @@ namespace Poker
             return x <= -Big || x >= Big;
         }
 
-        public const number eps = (number).00001;
+#if SINGLE
+        public const float eps = .001f;
+#elif DOUBLE
+        public const double eps = .00001;
+#elif DECIMAL
+        public const decimal eps = .000001M;
+#endif
+
         public static bool Equals(number x, number y, number tolerance = eps)
         {
             return Math.Abs(x - y) < tolerance;

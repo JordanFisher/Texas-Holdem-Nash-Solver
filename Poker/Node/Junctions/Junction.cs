@@ -53,18 +53,6 @@ namespace Poker
 
                 BranchesByIndex.Add(NewRoot);
             }
-
-#if SUIT_REDUCE
-            // If our branches are flop roots,
-            if (Phase == BettingPhase.PreFlop)
-            {
-                // Then find each roots representative
-                foreach (Node Branch in Branches)
-                {
-                    ((FlopRoot)Branch).FindRepresentative();
-                }
-            }
-#endif
         }
 
         //public static Node GetJunction(BettingPhase Phase, Node parent, int Spent, int Pot)
@@ -206,14 +194,14 @@ namespace Poker
                         b++;
                         if (Branch.MyCommunity.NewCollision(p1) || Branch.MyCommunity.NewCollision(p2)) continue;
 
-                        FlopRoot _Branch = ((FlopRoot)Branch).Representative;
-                        int _p1 = _Branch.MyFlop.PocketMap[p1];
+                        FlopRoot FlopBranch = (FlopRoot)Branch;
+                        FlopRoot _Branch = FlopBranch.Representative;
+                        int _p1 = FlopBranch.MyFlop.PocketMap[p1];
 
-                        //Assert.AlmostEqual(Branch.EV[p1], Branch.EV[_p1]);
-
+                        //Assert.AlmostEqual(Branch.EV[p1], _Branch.EV[_p1], .05);
 
                         number Weight = _Branch.Weight;
-                        BranchEV += UpdatedP[p2] * Weight * Branch.EV[_p1];
+                        BranchEV += UpdatedP[p2] * Weight * _Branch.EV[_p1];
                         TotalWeight += UpdatedP[p2] * Weight;
                         BranchPDF[b - 1] += UpdatedP[p2] * Weight;
                     }
