@@ -56,7 +56,6 @@ namespace Poker
             uint PocketValue1, PocketValue2;
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
                 PocketValue1 = PocketValue[p1];
                 Assert.That(PocketValue1 < uint.MaxValue);
@@ -69,7 +68,6 @@ namespace Poker
                 number ShowdownEV = 0;
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    //if (number.IsNaN(UpdatedP[p2])) continue;
                     if (!MyCommunity.AvailablePocket[p2]) continue;
                     PocketValue2 = PocketValue[p2];
                     Assert.That(PocketValue2 < uint.MaxValue);
@@ -87,18 +85,17 @@ namespace Poker
 #else
             /* Assymptotically optimal implementation. O(N^2) */
             RiverCommunity River = (RiverCommunity)MyCommunity;
-            Optimize.ProbabilityPrecomputation(PocketP, MyCommunity);
+            Optimize.Data.ProbabilityPrecomputation(PocketP, MyCommunity);
             number Correction;
             int _p1;
 
             // For each pocket we might have, calculate the chance to win.
-            Optimize.ResetSummed();
+            Optimize.Data.ResetSummed();
 
             _p1 = 0;
             while (_p1 < Pocket.N)
             {
                 int p1 = River.SortedPockets[_p1];
-                //if (number.IsNaN(PocketP[p1])) { _p1++; continue; }
                 if (!MyCommunity.AvailablePocket[p1]) { _p1++; continue; }
 
                 // Find next highest pocket
@@ -111,18 +108,17 @@ namespace Poker
                 for (int EqualValuedPocket = _p1; EqualValuedPocket < NextHighest; EqualValuedPocket++)
                 {
                     int p = River.SortedPockets[EqualValuedPocket];
-                    //if (number.IsNaN(PocketP[p])) continue;
                     if (!MyCommunity.AvailablePocket[p]) continue;
 
                     var pocket1 = Pocket.Pockets[p];
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
                     number ChanceToWin =
-                    Optimize.SummedChance -
-                        Optimize.SummedChance_OneCardFixed[c1] -
-                        Optimize.SummedChance_OneCardFixed[c2];
+                    Optimize.Data.SummedChance -
+                        Optimize.Data.SummedChance_OneCardFixed[c1] -
+                        Optimize.Data.SummedChance_OneCardFixed[c2];
 
-                    Correction = Optimize.MassAfterExclusion(PocketP, p);
+                    Correction = Optimize.Data.MassAfterExclusion(PocketP, p);
                     if (Correction == 0)
                         ChanceToWin = 0;
                     else
@@ -144,16 +140,16 @@ namespace Poker
                     
                     number P = PocketP[p];
 
-                    Optimize.SummedChance += P;
-                    Optimize.SummedChance_OneCardFixed[c1] += P;
-                    Optimize.SummedChance_OneCardFixed[c2] += P;
+                    Optimize.Data.SummedChance += P;
+                    Optimize.Data.SummedChance_OneCardFixed[c1] += P;
+                    Optimize.Data.SummedChance_OneCardFixed[c2] += P;
                 }
 
                 _p1 = NextHighest;
             }
 
             // For each pocket we might have, calculate the chance to lose.
-            Optimize.ResetSummed();
+            Optimize.Data.ResetSummed();
 
             _p1 = Pocket.N - 1;
             while (_p1 > 0)
@@ -179,11 +175,11 @@ namespace Poker
                     int c1 = pocket1.Cards[0], c2 = pocket1.Cards[1];
 
                     number ChanceToLose =
-                    Optimize.SummedChance -
-                        Optimize.SummedChance_OneCardFixed[c1] -
-                        Optimize.SummedChance_OneCardFixed[c2];
+                    Optimize.Data.SummedChance -
+                        Optimize.Data.SummedChance_OneCardFixed[c1] -
+                        Optimize.Data.SummedChance_OneCardFixed[c2];
 
-                    Correction = Optimize.MassAfterExclusion(PocketP, p);
+                    Correction = Optimize.Data.MassAfterExclusion(PocketP, p);
                     if (Correction < Tools.eps)
                         ChanceToLose = 0;
                     else
@@ -205,9 +201,9 @@ namespace Poker
 
                     number P = PocketP[p];
 
-                    Optimize.SummedChance += P;
-                    Optimize.SummedChance_OneCardFixed[c1] += P;
-                    Optimize.SummedChance_OneCardFixed[c2] += P;
+                    Optimize.Data.SummedChance += P;
+                    Optimize.Data.SummedChance_OneCardFixed[c1] += P;
+                    Optimize.Data.SummedChance_OneCardFixed[c2] += P;
                 }
 
                 _p1 = NextLowest;

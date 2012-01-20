@@ -39,6 +39,7 @@ namespace Poker
 
         public static double Best_LastTime, Best_AverageTime = 0, Best_TotalTime = 0;
         public static int Best_NumCalls = 0;
+        public static string Result;
         public number BestAgainstS()
         {
             // Start timer
@@ -50,14 +51,14 @@ namespace Poker
             if (BetNode.SimultaneousBetting)
             {
                 FinalEV = BestAgainstS(Player.Undefined);
-                Console.WriteLine("EV = {0}", FinalEV);
+                Result = string.Format("EV = {0}", FinalEV);
             }
             else
             {
                 number EV_AgainstButton = BestAgainstS(Player.Button);
                 number EV_AgainstDealer = BestAgainstS(Player.Dealer);
                 FinalEV = ((number).5) * (EV_AgainstButton + EV_AgainstDealer);
-                Console.WriteLine("EV = {0} : {1} -> {2}", EV_AgainstButton, EV_AgainstDealer, FinalEV);
+                Result = string.Format("EV = {0} : {1} -> {2}", EV_AgainstButton, EV_AgainstDealer, FinalEV);
             }
 
             // End timer, update statistics

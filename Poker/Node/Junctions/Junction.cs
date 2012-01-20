@@ -118,7 +118,7 @@ namespace Poker
                 }
             }
 
-            Optimize.ProbabilityPrecomputation(PocketP, MyCommunity);
+            Optimize.Data.ProbabilityPrecomputation(PocketP, MyCommunity);
 
             // For each pocket we might have, calculate what we should do.
             PocketData UpdatedP = new PocketData();
@@ -140,7 +140,7 @@ namespace Poker
                     int p2_1 = Game.PocketLookup[Pocket1.Cards[0], c];
                     int p2_2 = Game.PocketLookup[Pocket1.Cards[1], c];
 
-                    number Correction = Optimize.MassAfterExclusion(PocketP, p1);
+                    number Correction = Optimize.Data.MassAfterExclusion(PocketP, p1);
                     number Pr = Correction - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
                     if (Pr <= Tools.eps) continue;
                     //if (Correction < Tools.eps) { Assert.That(Pr < Tools.eps); continue; }

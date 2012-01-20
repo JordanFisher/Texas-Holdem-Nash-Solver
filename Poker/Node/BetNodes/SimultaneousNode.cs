@@ -72,49 +72,21 @@ namespace Poker
             foreach (Node node in Branches)
                 node.CalculateBestAgainst(Opponent);
 
+            // For each pocket we might have, calculate what we should do.
 #if NAIVE
-            /* Naive implementation. O(N^4) */
-            // For each pocket we might have, calculate what we should do.
-            for (int p1 = 0; p1 < Pocket.N; p1++)
-            {
-                //if (number.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
-                //if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
-                if (!MyCommunity.AvailablePocket[p1]) continue;
-
-                // Calculate the chance the opponent will raise/fold
-                number RaiseChance = TotalChance(PocketP, S, p1);
-                number FoldChance = 1 - RaiseChance;
-                Assert.IsNum(RaiseChance);
-
-                // Calculate EV for raising and folding.
-                number RaiseEV = FoldChance * Pot + RaiseChance * RaiseBranch.EV[p1];
-                number FoldEV = RaiseChance * (-Spent);
-
-                // Decide strategy based on which action is better.
-                if (RaiseEV >= FoldEV)
-                {
-                    B[p1] = 1;
-                    EV[p1] = RaiseEV;
-                }
-                else
-                {
-                    B[p1] = 0;
-                    EV[p1] = FoldEV;
-                }
-                Assert.IsNum(EV[p1]);
-            }
 #else
-            /* Optimal implementation. O(N^2) */
-            // For each pocket we might have, calculate what we should do.
-            Optimize.ChanceToActPrecomputation(PocketP, S, MyCommunity);
+            Optimize.Data.ChanceToActPrecomputation(PocketP, S, MyCommunity);
+#endif
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (number.IsNaN(PocketP[p1])) { B[p1] = float.NaN; continue; }
-                //if (!MyCommunity.AvailablePocket[p1]) { B[p1] = float.NaN; continue; }
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Calculate the chance the opponent will raise/fold
-                number RaiseChance = Optimize.ChanceToActWithExclusion(PocketP, S, p1);
+#if NAIVE
+                number RaiseChance = TotalChance(PocketP, S, p1);
+#else
+                number RaiseChance = Optimize.Data.ChanceToActWithExclusion(PocketP, S, p1);
+#endif
                 number FoldChance = 1 - RaiseChance;
                 Assert.IsNum(RaiseChance);
 
@@ -135,7 +107,6 @@ namespace Poker
                 }
                 Assert.IsNum(EV[p1]);
             }
-#endif
         }
 
         public override number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)

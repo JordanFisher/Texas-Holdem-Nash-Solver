@@ -92,6 +92,10 @@ namespace Poker
                 node.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we expect to happen.
+#if NAIVE
+#else
+            Optimize.Data.ChanceToActPrecomputation(PocketP, S, MyCommunity);
+#endif
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
                 //if (number.IsNaN(PocketP[p1])) continue;

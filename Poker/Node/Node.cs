@@ -30,7 +30,7 @@ namespace Poker
         public PocketData S, B, Hold;
         public PocketData PocketP, EV;
 
-        protected List<Node> Branches;
+        public List<Node> Branches;
         public List<Node> BranchesByIndex;
 
         public int Depth;
@@ -230,9 +230,6 @@ namespace Poker
             number weight = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (number.IsNaN(pdf[p])) continue;
-                //if (number.IsNaN(chance[p])) continue;
-
                 if (!MyCommunity.AvailablePocket[p]) continue;
                 if (PocketPocketOverlap(p, ExcludePocketIndex)) continue;
 

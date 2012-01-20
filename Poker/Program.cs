@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Poker
 {
@@ -89,6 +90,7 @@ namespace Poker
 
 
         static PocketRoot root;
+        static Dictionary<int, bool> HashNote = new Dictionary<int, bool>(100000);
         static void Main(string[] args)
         {
             number EV; number t;
@@ -137,11 +139,17 @@ namespace Poker
 
             
             // Harmonic
+            int col = 0;
             for (int i = 0; i < 1000000; i++)
             {
                 root.BestAgainstS();
-                Console.WriteLine("Hash = {0}", root.Hash(Node.VarB));
-                Console.WriteLine("Average time = {0}", PocketRoot.Best_AverageTime);
+                int hash = (int)root.Hash(Node.VarB) / 10;
+                if (!HashNote.ContainsKey((int)hash))
+                    HashNote.Add((int)hash, true);
+                else
+                    col++;
+                Console.WriteLine("{0,-36}, Hash = {1,-15}, S[~] = {2,-15}, #{3} {4}", PocketRoot.Result, hash, root.MyPhaseRoot.Branches[0].Branches[0].Branches[50].Branches[0].S[5], HashNote.Count, col);
+                //Console.WriteLine("Average time = {0}", PocketRoot.Best_AverageTime);
 
                 //EV = Simulation(Node.VarB, Node.VarS);
                 //Console.WriteLine("Simulated EV = {0}", EV);

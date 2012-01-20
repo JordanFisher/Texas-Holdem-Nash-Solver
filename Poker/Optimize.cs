@@ -18,35 +18,38 @@ namespace Poker
 
     class Optimize
     {
-        public static number SummedChance;
-        public static number[] SummedChance_OneCardFixed = new number[Card.N];
+        public static Optimize Data = new Optimize();
+        public static Optimize Data2 = new Optimize();
 
-        public static number TotalChance;
-        public static number[] TotalChance_OneCardFixed = new number[Card.N];
-        public static number TotalMass;
-        public static number[] TotalMass_OneCardFixed = new number[Card.N];
+        public number SummedChance;
+        public number[] SummedChance_OneCardFixed = new number[Card.N];
 
-        public static void ResetSummed()
+        public number TotalChance;
+        public number[] TotalChance_OneCardFixed = new number[Card.N];
+        public number TotalMass;
+        public number[] TotalMass_OneCardFixed = new number[Card.N];
+
+        public void ResetSummed()
         {
             SummedChance = 0;
             for (int i = 0; i < Card.N; i++)
                 SummedChance_OneCardFixed[i] = 0;
         }
-        public static void ResetTotal()
+        public void ResetTotal()
         {
             TotalChance = TotalMass = 0;
             for (int i = 0; i < Card.N; i++)
                 TotalMass_OneCardFixed[i] =
                 TotalChance_OneCardFixed[i] = 0;
         }
-        public static void ResetMass()
+        public void ResetMass()
         {
             TotalMass = 0;
             for (int i = 0; i < Card.N; i++)
                 TotalMass_OneCardFixed[i] = 0;
         }
 
-        public static void ProbabilityPrecomputation(PocketData pdf, CommunityNode community)
+        public void ProbabilityPrecomputation(PocketData pdf, CommunityNode community)
         {
             ResetMass();
 
@@ -67,7 +70,7 @@ namespace Poker
             }
         }
 
-        public static number MassAfterExclusion(PocketData pdf, int ExcludedPocketIndex)
+        public number MassAfterExclusion(PocketData pdf, int ExcludedPocketIndex)
         {
             var pocket = Pocket.Pockets[ExcludedPocketIndex];
             int c1 = pocket.Cards[0], c2 = pocket.Cards[1];
@@ -81,7 +84,7 @@ namespace Poker
             return Mass;
         }
 
-        public static void ChanceToActPrecomputation(PocketData pdf, PocketData chance, CommunityNode community)
+        public void ChanceToActPrecomputation(PocketData pdf, PocketData chance, CommunityNode community)
         {
             ResetTotal();
 
@@ -89,7 +92,6 @@ namespace Poker
             Pocket pocket;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (number.IsNaN(pdf[p])) continue;
                 if (!community.AvailablePocket[p]) continue;
 
                 mass = pdf[p];
@@ -106,7 +108,7 @@ namespace Poker
             }
         }
 
-        public static number ChanceToActWithExclusion(PocketData pdf, PocketData chance, int ExcludedPocketIndex)
+        public number ChanceToActWithExclusion(PocketData pdf, PocketData chance, int ExcludedPocketIndex)
         {
             var pocket = Pocket.Pockets[ExcludedPocketIndex];
             int c1 = pocket.Cards[0], c2 = pocket.Cards[1];
