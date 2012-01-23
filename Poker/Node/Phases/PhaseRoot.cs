@@ -23,7 +23,7 @@ namespace Poker
         protected Node BettingBranch;
         protected Player InitiallyActivePlayer = Player.Undefined;
 
-        public PhaseRoot(Node Parent, CommunityNode Community, int Spent, int Pot)
+        public PhaseRoot(Node Parent, CommunityNode Community, int Spent, int Pot, int RootCount)
             : base(Parent, Spent, Pot)
         {
             MyPhaseRoot = this;
@@ -33,20 +33,27 @@ namespace Poker
             Phase = MyCommunity.Phase;
             InitiallyActivePlayer = MyCommunity.InitiallyActivePlayer;
 
+            DataOffset = MaxDepth + RootCount;
+            if (Phase == BettingPhase.Turn) DataOffset += Flop.N;
+            if (Phase == BettingPhase.River) DataOffset += Flop.N + Card.N;
+
             Initialize();
         }
 
         protected override void Initialize()
         {
-            PocketP = new PocketData();
+            //PocketP = new PocketData();
 
             CreateBranches();
-            EV = BettingBranch.EV;
+            //EV = BettingBranch.EV;
+            //EV.CopyFrom(BettingBranch.EV);
         }
 
         public override void CalculateBestAgainst(Player Opponent)
         {
+            UpdateChildrensPDFs(Opponent);
             BettingBranch.CalculateBestAgainst(Opponent);
+            EV.CopyFrom(BettingBranch.EV);
         }
 
         protected override void UpdateChildrensPDFs(Player Opponent)
@@ -55,23 +62,15 @@ namespace Poker
 
             if (Parent != null)
             {
-                // Copy the parent node's post-raise pocket PDF
+                // Copy the parent node's pocket PDF
                 PocketP.CopyFrom(Parent.PocketP);
 
-                // Pocket can't have cards that are in this flop
+                // Pocket can't have cards that are in the community
                 number NewTotalMass = 0;
                 for (int p = 0; p < Pocket.N; p++)
                 {
-                    //if (number.IsNaN(PocketP[p])) continue;
-
-                    //if (MyCommunity.NewCollision(p))
-                    //    PocketP[p] = number.NaN;
-                    //else
-                    //    NewTotalMass += PocketP[p];
                     if (MyCommunity.AvailablePocket[p])
                         NewTotalMass += PocketP[p];
-                    //else
-                    //    PocketP[p] = number.NaN;
                 }
                 Assert.AlmostPos(NewTotalMass);
 

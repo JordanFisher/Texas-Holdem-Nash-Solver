@@ -20,8 +20,8 @@ namespace Poker
     {
         public Flop MyFlop;
 
-        public FlopRoot(Node Parent, CommunityNode Community, int Spent, int Pot)
-            : base(Parent, Community, Spent, Pot)
+        public FlopRoot(Node Parent, CommunityNode Community, int Spent, int Pot, int RootCount)
+            : base(Parent, Community, Spent, Pot, RootCount)
         {
         }
 

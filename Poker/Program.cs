@@ -103,6 +103,8 @@ namespace Poker
             
             Flop.InitFlops();
             Game.InitFlopLookup();
+            
+            Node.InitPocketData();
 
 
             CommunityRoot.Root = new CommunityRoot();

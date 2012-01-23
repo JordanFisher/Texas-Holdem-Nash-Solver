@@ -26,8 +26,8 @@ namespace Poker
 
         protected override void Initialize()
         {
-            PocketP = new PocketData();
-            EV = new PocketData();
+            ////PocketP = new PocketData();
+            ////EV = new PocketData();
 
             CreateBranches();
         }

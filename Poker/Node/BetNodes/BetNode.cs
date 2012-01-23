@@ -51,7 +51,6 @@ namespace Poker
         {
             Assert.That(ActivePlayer != Player.Undefined);
 
-            //if (ActivePlayer != Player.Button)
             if (ActivePlayer == Opponent)
                 CalculateBest_Inactive(Opponent);
             else

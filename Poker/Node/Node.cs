@@ -26,14 +26,33 @@ namespace Poker
 
         protected int Spent, Pot;
 
-        public static bool MakeHold = true;
+        public static bool MakeHold = false;
         public PocketData S, B, Hold;
-        public PocketData PocketP, EV;
+        //public PocketData PocketP, EV;
+        //public PocketData PocketP { get { return HoldPocketP[DataOffset]; } }
+        //public PocketData EV { get { return HoldEV[DataOffset]; } }
+        public PocketData PocketP = new PocketData();
+        public PocketData EV = new PocketData();
+
+        protected const int MaxDepth = 50;
+        static PocketData[] HoldEV, HoldPocketP;
+        public static void InitPocketData()
+        {
+            int NumData = MaxDepth + Flop.N + Card.N + Card.N;
+            HoldEV = new PocketData[];
+            HoldPocketP = new PocketData[MaxDepth + Flop.N];
+
+            for (int i = 0; i < MaxDepth + Flop.N; i++)
+            {
+                HoldEV[i] = new PocketData();
+                HoldPocketP[i] = new PocketData();
+            }
+        }
 
         public List<Node> Branches;
         public List<Node> BranchesByIndex;
 
-        public int Depth;
+        public int Depth, DataOffset;
 
         public Node(Node parent, int Spent, int Pot)
         {
@@ -52,6 +71,8 @@ namespace Poker
                 Depth = 0;                
             }
 
+            DataOffset = Depth;
+
             this.Spent = Spent;
             this.Pot = Pot;
         }
@@ -59,18 +80,6 @@ namespace Poker
         protected virtual void Initialize() { }
 
         protected virtual void CreateBranches() { }
-
-        /*
-        public void ClearWorkVariables()
-        {
-            if (B != null) B.Reset();
-
-            if (PocketP != null) PocketP.Reset();
-            EV.Reset();
-
-            if (Branches != null) foreach (Node node in Branches)
-                node.ClearWorkVariables();
-        }*/
 
         public void CopyTo(Var Source, Var Destination)
         {
@@ -166,9 +175,16 @@ namespace Poker
             Assert.NotReached();
         }
 
+        public void RecursiveBest(Player Opponent)
+        {
+            // Decide strategy for children nodes.
+            foreach (Node node in Branches)
+                node.CalculateBestAgainst(Opponent);
+        }
+
         protected virtual void UpdateChildrensPDFs(Player Opponent)
         {
-            if (Branches != null) foreach (Node branch in Branches) branch.UpdateChildrensPDFs(Opponent);
+            //if (Branches != null) foreach (Node branch in Branches) branch.UpdateChildrensPDFs(Opponent);
         }
 
         public void Update(PocketData PreviousPDF, PocketData Strategy, PocketData Destination)

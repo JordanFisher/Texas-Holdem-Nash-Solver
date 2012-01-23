@@ -23,14 +23,13 @@ namespace Poker
         public const int InitialSpent = BetNode.SimultaneousBetting ? Ante.PreDeal : Ante.LittleBlind;
         public const int InitialBet = BetNode.SimultaneousBetting ? Ante.PreDeal : Ante.BigBlind;
         public PocketRoot()
-            : base(null, CommunityNode.Root, InitialSpent, InitialBet)
+            : base(null, CommunityNode.Root, InitialSpent, InitialBet, 0)
         {
         }
 
         public number BestAgainstS(Player Opponent)
         {
-            //ClearWorkVariables();
-            UpdateChildrensPDFs(Opponent);
+            //UpdateChildrensPDFs(Opponent);
             CalculateBestAgainst(Opponent);
 
             number FinalEV = EV.Average();

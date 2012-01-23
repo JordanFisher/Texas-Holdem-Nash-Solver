@@ -29,8 +29,8 @@ namespace Poker
 
         protected override void Initialize()
         {
-            PocketP = new PocketData();
-            EV = new PocketData();
+            //PocketP = new PocketData();
+            //EV = new PocketData();
 
             S = new PocketData();
             B = new PocketData();
@@ -69,8 +69,8 @@ namespace Poker
         public override void CalculateBestAgainst(Player Opponent)
         {
             // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+            Update(PocketP, S, RaiseBranch.PocketP);
+            RaiseBranch.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we should do.
 #if NAIVE

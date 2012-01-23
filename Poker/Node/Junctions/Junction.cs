@@ -38,6 +38,7 @@ namespace Poker
             Branches = new List<Node>(MyCommunity.Branches.Count);
             BranchesByIndex = new List<Node>(MyCommunity.BranchesByIndex.Count);
 
+            int RootCount = 0;
             foreach (CommunityNode community in MyCommunity.BranchesByIndex)
             {
                 PhaseRoot NewRoot = null;
@@ -45,13 +46,14 @@ namespace Poker
                 if (community != null)
                 {
                     if (Phase == BettingPhase.PreFlop)
-                        NewRoot = new FlopRoot(this, community, Spent, Pot);
+                        NewRoot = new FlopRoot(this, community, Spent, Pot, RootCount);
                     else
-                        NewRoot = new PhaseRoot(this, community, Spent, Pot);
+                        NewRoot = new PhaseRoot(this, community, Spent, Pot, RootCount);
                     Branches.Add(NewRoot);
                 }
 
                 BranchesByIndex.Add(NewRoot);
+                RootCount++;
             }
         }
 
@@ -66,8 +68,8 @@ namespace Poker
 
         protected override void Initialize()
         {
-            PocketP = new PocketData();
-            EV = new PocketData();
+            //PocketP = new PocketData();
+            //EV = new PocketData();
 
             CreateBranches();
         }
@@ -96,9 +98,7 @@ namespace Poker
         static number[] IntersectP = new number[Card.N];
         void CalculateBestAgainst_SingleCardOptimized(Player Opponent)
         {
-            // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+            RecursiveBest(Opponent);
 
             // Calculate P(Opponent pocket intersects a given card)
             for (int c = 0; c < Card.N; c++)
@@ -111,7 +111,6 @@ namespace Poker
                     if (c == c2) continue;
 
                     int p = Game.PocketLookup[c, c2];
-                    //if (number.IsNaN(PocketP[p])) continue;
                     if (!MyCommunity.AvailablePocket[p]) continue;
 
                     IntersectP[c] += PocketP[p];
@@ -124,7 +123,6 @@ namespace Poker
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 number BranchEV = 0;
@@ -132,7 +130,6 @@ namespace Poker
                 {
                     Node Branch = BranchesByIndex[c];
                     if (Branch == null) continue;
-                    //if (Branch.MyCommunity.NewCollision(p1)) continue;
                     if (!Branch.MyCommunity.AvailablePocket[p1]) continue;
 
                     // Find opponent pockets that intersect our pocket and the community card c
@@ -143,7 +140,6 @@ namespace Poker
                     number Correction = Optimize.Data.MassAfterExclusion(PocketP, p1);
                     number Pr = Correction - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
                     if (Pr <= Tools.eps) continue;
-                    //if (Correction < Tools.eps) { Assert.That(Pr < Tools.eps); continue; }
                     Assert.That(Correction > Tools.eps);
                     Pr /= Correction;
 
@@ -170,7 +166,6 @@ namespace Poker
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Update the opponent's pocket PDF using the new information,
@@ -184,7 +179,6 @@ namespace Poker
                 number[] BranchPDF = new number[Branches.Count];
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    //if (number.IsNaN(UpdatedP[p2])) continue;
                     if (!MyCommunity.AvailablePocket[p2]) continue;
 
                     // All branches not overlapping our pocket or the opponent's pocket are equally likely.
@@ -209,13 +203,7 @@ namespace Poker
                 Assert.ZeroOrOne(BranchPDF.Sum());
                 Assert.ZeroOrOne(TotalWeight);
                 Assert.That(BranchEV >= -Ante.MaxPot - Tools.eps && BranchEV <= Ante.MaxPot + Tools.eps);
-
-                // Optimize: the above loop is always the same, except for a different constant
-                // multiplicative factor, and except for a few exclusions of some branches.
-                // Do the full sum, no exclusions, and then go back and subtract the ones we don't need,
-                // then correct for the multiplicative factor (which comes from renormalizing P
-                // conditioned on knowing our pocket).
-
+                
                 EV[p1] = BranchEV;
                 Assert.IsNum(EV[p1]);
             }
@@ -224,14 +212,12 @@ namespace Poker
         void CalculateBestAgainst_Naive(Player Opponent)
         {
             // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+            RecursiveBest(Opponent);
 
             // For each pocket we might have, calculate what we should do.
             PocketData UpdatedP = new PocketData();
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Update the opponent's pocket PDF using the new information,
@@ -265,12 +251,6 @@ namespace Poker
                 Assert.ZeroOrOne(BranchPDF.Sum());
                 Assert.ZeroOrOne(TotalWeight);
                 Assert.That(BranchEV >= -Ante.MaxPot - Tools.eps && BranchEV <= Ante.MaxPot + Tools.eps);
-
-                // Optimize: the above loop is always the same, except for a different constant
-                // multiplicative factor, and except for a few exclusions of some branches.
-                // Do the full sum, no exclusions, and then go back and subtract the ones we don't need,
-                // then correct for the multiplicative factor (which comes from renormalizing P
-                // conditioned on knowing our pocket).
 
                 EV[p1] = BranchEV;
                 Assert.IsNum(EV[p1]);
