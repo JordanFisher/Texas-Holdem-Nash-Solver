@@ -21,12 +21,6 @@ namespace Poker
         public enum OutputStyle { Text, Pretty, Number };
         public static OutputStyle DefaultStyle = OutputStyle.Number;
 
-        //public const int Vals = 13;
-        //public const int Suits = 4;
-
-        //public const int Vals = 5;
-        //public const int Suits = 4;
-
         public const int Vals = 5;
         public const int Suits = 2;
 

@@ -26,9 +26,9 @@ namespace Poker
         protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
-                RaiseBranch = new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch = new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             else
-                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             CheckBranch = new RaiseCheckNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot, NumRaises);
 
             Branches = new List<Node>(2);
@@ -89,8 +89,10 @@ namespace Poker
         protected override void CalculateBest_Active(Player Opponent)
         {
             // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+            RaiseBranch.PocketP.CopyFrom(PocketP);
+            RaiseBranch.CalculateBestAgainst(Opponent);
+            CheckBranch.PocketP.CopyFrom(PocketP);
+            CheckBranch.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
@@ -120,8 +122,11 @@ namespace Poker
         protected override void CalculateBest_Inactive(Player Opponent)
         {
             // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+            Update(PocketP, S, RaiseBranch.PocketP);
+            RaiseBranch.CalculateBestAgainst(Opponent);
+            Update(PocketP, NotS, CheckBranch.PocketP);
+            CheckBranch.CalculateBestAgainst(Opponent);
+            
 
             // For each pocket we might have, calculate what we expect to happen.
 #if NAIVE

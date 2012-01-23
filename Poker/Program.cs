@@ -150,7 +150,8 @@ namespace Poker
                     HashNote.Add((int)hash, true);
                 else
                     col++;
-                Console.WriteLine("{0,-36}, Hash = {1,-15}, S[~] = {2,-15}, #{3} {4}", PocketRoot.Result, hash, root.MyPhaseRoot.Branches[0].Branches[0].Branches[50].Branches[0].S[5], HashNote.Count, col);
+                //Console.WriteLine("{0,-36}, Hash = {1,-15}, S[~] = {2,-15}, #{3} {4}", PocketRoot.Result, hash, root.MyPhaseRoot.Branches[0].Branches[0].Branches[50].Branches[0].S[5], HashNote.Count, col);
+                Console.WriteLine("{0,-36}, Hash = {1,-15}", PocketRoot.Result, hash);
                 //Console.WriteLine("Average time = {0}", PocketRoot.Best_AverageTime);
 
                 //EV = Simulation(Node.VarB, Node.VarS);

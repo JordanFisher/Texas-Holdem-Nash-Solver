@@ -26,9 +26,9 @@ namespace Poker
         protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
-                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             else
-                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             CallBranch = new RaiseCheckNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot, NumRaises);
             
             Branches = new List<Node>(2);
@@ -41,8 +41,8 @@ namespace Poker
     {
         protected Node RaiseBranch, CallBranch;
 
-        public RaiseCallFoldNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises)
-            : base(parent, ActivePlayer, Spent, Pot, NumRaises)
+        public RaiseCallFoldNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
+            : base(parent, ActivePlayer, Spent, Pot, NumRaises, DataOffset)
         {
             Initialize();
         }
@@ -88,8 +88,10 @@ namespace Poker
         protected override void CalculateBest_Active(Player Opponent)
         {
             // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+            RaiseBranch.PocketP.CopyFrom(PocketP);
+            RaiseBranch.CalculateBestAgainst(Opponent);
+            CallBranch.PocketP.CopyFrom(PocketP);
+            CallBranch.CalculateBestAgainst(Opponent);
 
             RaiseCallFoldData _B = B as RaiseCallFoldData;
 
@@ -128,11 +130,13 @@ namespace Poker
 
         protected override void CalculateBest_Inactive(Player Opponent)
         {
-            // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
-
             RaiseCallFoldData _S = S as RaiseCallFoldData;
+
+            // First decide strategy for children nodes.
+            Update(PocketP, _S.Raise, RaiseBranch.PocketP);
+            RaiseBranch.CalculateBestAgainst(Opponent);
+            Update(PocketP, _S.Call, CallBranch.PocketP);
+            CallBranch.CalculateBestAgainst(Opponent);
 
             Assert.That(_S.IsValid());
 

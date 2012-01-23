@@ -24,7 +24,7 @@ namespace Poker
         public static int InstanceCount = 0;
 #endif
 
-        public const bool SimultaneousBetting = true;
+        public const bool SimultaneousBetting = false;
         public const int AllowedRaises = 1;
         protected int NumRaises;
 
@@ -32,7 +32,7 @@ namespace Poker
 
         protected int RaiseVal = Ante.RaiseAmount;
 
-        public BetNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises)
+        public BetNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
             : base(parent, Spent, Pot)
         {
             Phase = MyPhaseRoot.Phase;
@@ -41,6 +41,7 @@ namespace Poker
             this.ActivePlayer = ActivePlayer;
             this.NumRaises = NumRaises;
 
+            this.DataOffset += DataOffset;
 #if DEBUG
             InstanceCount++;
             //Console.WriteLine(this);

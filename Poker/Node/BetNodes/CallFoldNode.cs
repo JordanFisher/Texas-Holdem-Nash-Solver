@@ -20,8 +20,8 @@ namespace Poker
     {
         protected Node CallBranch;
 
-        public CallFoldNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises)
-            : base(parent, ActivePlayer, Spent, Pot, NumRaises)
+        public CallFoldNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
+            : base(parent, ActivePlayer, Spent, Pot, NumRaises, DataOffset)
         {
             Initialize();
         }
@@ -57,8 +57,8 @@ namespace Poker
         protected override void CalculateBest_Active(Player Opponent)
         {
             // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+            CallBranch.PocketP.CopyFrom(PocketP);
+            CallBranch.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
@@ -88,8 +88,8 @@ namespace Poker
         protected override void CalculateBest_Inactive(Player Opponent)
         {
             // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+            Update(PocketP, S, CallBranch.PocketP);
+            CallBranch.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we expect to happen.
 #if NAIVE

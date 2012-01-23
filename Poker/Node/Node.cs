@@ -34,15 +34,15 @@ namespace Poker
         public PocketData PocketP = new PocketData();
         public PocketData EV = new PocketData();
 
-        protected const int MaxDepth = 50;
+        protected const int MaxDepth = 100;
         static PocketData[] HoldEV, HoldPocketP;
         public static void InitPocketData()
         {
             int NumData = MaxDepth + Flop.N + Card.N + Card.N;
-            HoldEV = new PocketData[];
-            HoldPocketP = new PocketData[MaxDepth + Flop.N];
+            HoldEV = new PocketData[NumData];
+            HoldPocketP = new PocketData[NumData];
 
-            for (int i = 0; i < MaxDepth + Flop.N; i++)
+            for (int i = 0; i < NumData; i++)
             {
                 HoldEV[i] = new PocketData();
                 HoldPocketP[i] = new PocketData();
@@ -180,6 +180,15 @@ namespace Poker
             // Decide strategy for children nodes.
             foreach (Node node in Branches)
                 node.CalculateBestAgainst(Opponent);
+        }
+
+        public void RecursiveBestPlusUpdate(Player Opponent)
+        {
+            // Decide strategy for children nodes.
+            foreach (Node node in Branches)
+            {
+                node.CalculateBestAgainst(Opponent);
+            }
         }
 
         protected virtual void UpdateChildrensPDFs(Player Opponent)
