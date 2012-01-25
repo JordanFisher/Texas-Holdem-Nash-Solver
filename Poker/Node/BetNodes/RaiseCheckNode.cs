@@ -72,9 +72,9 @@ namespace Poker
         protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
-                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             else
-                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
 
             if (Phase == BettingPhase.River)
                 CheckBranch = new ShowdownNode(this, Pot);
@@ -122,9 +122,11 @@ namespace Poker
         protected override void CalculateBest_Inactive(Player Opponent)
         {
             // First decide strategy for children nodes.
+            NotS.InverseOf(S);
             Update(PocketP, S, RaiseBranch.PocketP);
-            RaiseBranch.CalculateBestAgainst(Opponent);
             Update(PocketP, NotS, CheckBranch.PocketP);
+
+            RaiseBranch.CalculateBestAgainst(Opponent);
             CheckBranch.CalculateBestAgainst(Opponent);
             
 

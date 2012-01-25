@@ -29,10 +29,15 @@ namespace Poker
         public static bool MakeHold = false;
         public PocketData S, B, Hold;
         //public PocketData PocketP, EV;
-        //public PocketData PocketP { get { return HoldPocketP[DataOffset]; } }
-        //public PocketData EV { get { return HoldEV[DataOffset]; } }
-        public PocketData PocketP = new PocketData();
-        public PocketData EV = new PocketData();
+
+        //protected virtual PocketData GetPocketP() { return HoldPocketP[DataOffset]; }
+        //protected virtual PocketData GetEV() { return HoldEV[DataOffset]; }
+        //public PocketData PocketP { get { return GetPocketP(); } }
+        //public PocketData EV { get { return GetEV(); } }
+        public PocketData PocketP { get { return HoldPocketP[DataOffset]; } }
+        public PocketData EV { get { return HoldEV[DataOffset]; } }
+        //public PocketData PocketP = new PocketData();
+        //public PocketData EV = new PocketData();
 
         protected const int MaxDepth = 100;
         static PocketData[] HoldEV, HoldPocketP;

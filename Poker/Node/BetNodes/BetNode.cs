@@ -24,6 +24,24 @@ namespace Poker
         public static int InstanceCount = 0;
 #endif
 
+        //public PocketData __PocketP = new PocketData();
+        //public PocketData __EV = new PocketData();
+        //protected override PocketData GetEV()
+        //{
+        //    if (this is RaiseCallFoldNode || this is RaiseCheckNode)
+        //        return base.GetEV();
+        //    else
+        //        return __EV;
+        //}
+        //protected override PocketData GetPocketP()
+        //{
+        //    if (this is RaiseCallFoldNode || this is RaiseCheckNode)
+        //        return base.GetPocketP();
+        //    else
+        //        return __PocketP;
+
+        //}
+
         public const bool SimultaneousBetting = false;
         public const int AllowedRaises = 1;
         protected int NumRaises;
@@ -42,6 +60,7 @@ namespace Poker
             this.NumRaises = NumRaises;
 
             this.DataOffset += DataOffset;
+            //Console.WriteLine("{0,-5} {1,-5}", Depth, this.DataOffset);
 #if DEBUG
             InstanceCount++;
             //Console.WriteLine(this);
@@ -51,6 +70,9 @@ namespace Poker
         public override void CalculateBestAgainst(Player Opponent)
         {
             Assert.That(ActivePlayer != Player.Undefined);
+
+            if (!(this is CallFoldNode))
+                UpdateChildrensPDFs(Opponent);
 
             if (ActivePlayer == Opponent)
                 CalculateBest_Inactive(Opponent);
@@ -62,7 +84,6 @@ namespace Poker
         {
             Assert.That(ActivePlayer != Player.Undefined);
 
-            //if (ActivePlayer != Player.Button)
             if (ActivePlayer == Opponent)
                 UpdateChildrensPDFs_Inactive();
             else

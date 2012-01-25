@@ -63,9 +63,9 @@ namespace Poker
         protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
-                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             else
-                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1);
+                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
 
             if (Phase == BettingPhase.River)
                 CallBranch = new ShowdownNode(this, Pot);
@@ -88,9 +88,9 @@ namespace Poker
         protected override void CalculateBest_Active(Player Opponent)
         {
             // First decide strategy for children nodes.
-            RaiseBranch.PocketP.CopyFrom(PocketP);
+            //RaiseBranch.PocketP.CopyFrom(PocketP);
             RaiseBranch.CalculateBestAgainst(Opponent);
-            CallBranch.PocketP.CopyFrom(PocketP);
+            //CallBranch.PocketP.CopyFrom(PocketP);
             CallBranch.CalculateBestAgainst(Opponent);
 
             RaiseCallFoldData _B = B as RaiseCallFoldData;
@@ -133,9 +133,9 @@ namespace Poker
             RaiseCallFoldData _S = S as RaiseCallFoldData;
 
             // First decide strategy for children nodes.
-            Update(PocketP, _S.Raise, RaiseBranch.PocketP);
+            //Update(PocketP, _S.Raise, RaiseBranch.PocketP);
             RaiseBranch.CalculateBestAgainst(Opponent);
-            Update(PocketP, _S.Call, CallBranch.PocketP);
+            //Update(PocketP, _S.Call, CallBranch.PocketP);
             CallBranch.CalculateBestAgainst(Opponent);
 
             Assert.That(_S.IsValid());

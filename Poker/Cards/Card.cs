@@ -22,7 +22,7 @@ namespace Poker
         public static OutputStyle DefaultStyle = OutputStyle.Number;
 
         public const int Vals = 5;
-        public const int Suits = 2;
+        public const int Suits = 3;
 
         public const int N = Vals * Suits;
 
