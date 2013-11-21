@@ -18,6 +18,10 @@ namespace Poker
 
     class FlopCommunity : CommunityNode
     {
+#if DEBUG
+		public new static int InstanceCount = 0;
+#endif
+
         public Flop MyFlop;
 
         public FlopCommunity(Flop flop)
@@ -31,6 +35,10 @@ namespace Poker
             InitiallyActivePlayer = Player.Dealer;
 
             CreateBranches();
+
+#if DEBUG
+			InstanceCount++;
+#endif
         }
 
         protected override void CreateBranches()
@@ -41,10 +49,14 @@ namespace Poker
             for (int turn = 0; turn < Card.N; turn++)
             {
                 CommunityNode NewBranch;
-                //if (!Contains(turn))
+
                 if (AvailableCard[turn])
                 {
-                    NewBranch = new TurnCommunity(MyFlop, turn);
+					if (MyFlop.IsRepresentative())
+						NewBranch = new TurnCommunity(MyFlop, turn);
+					else
+						NewBranch = null;
+
                     Branches.Add(NewBranch);
                 }
                 else

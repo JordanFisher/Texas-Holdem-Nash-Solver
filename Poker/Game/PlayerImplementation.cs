@@ -20,10 +20,16 @@ namespace Poker
     class PlayerImplementation
     {
         public Game MyGame;
+		public string Name;
 
         public PlayerImplementation()
         {
         }
+
+		public virtual void SetName(int PlayerNumber, PlayerImplementation Opponent)
+		{
+			Name = string.Format("Player {0}", PlayerNumber);
+		}
 
         public virtual PlayerAction GetAction() { return PlayerAction.Nothing; }
         public virtual void OpponentDoes(PlayerAction action) { }

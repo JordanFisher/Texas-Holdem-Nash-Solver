@@ -84,14 +84,20 @@ namespace Poker
 #if NAIVE
             CalculateBestAgainst_Naive(Opponent);
 #else
-            if (Phase == BettingPhase.Turn || Phase == BettingPhase.Flop)
-                CalculateBestAgainst_SingleCardOptimized(Opponent);
-            else
+			// If we're currently at the Flop or Turn, then next is the Turn or River, which is a single additional card.
+			if (Phase == BettingPhase.Turn || Phase == BettingPhase.Flop)
+			{
+				CalculateBestAgainst_SingleCardOptimized(Opponent);
+			}
+			// Otherwise we're preflop and the Flop is next, which requires a special suit reduce.
+			else
+			{
 #if SUIT_REDUCE
-                CalculateBestAgainst_FlopSuitReduced(Opponent);
+				CalculateBestAgainst_FlopSuitReduced(Opponent);
 #else
                 CalculateBestAgainst_Naive(Opponent);
 #endif
+			}
 #endif
         }
 
@@ -182,6 +188,7 @@ namespace Poker
                     if (!MyCommunity.AvailablePocket[p2]) continue;
 
                     // All branches not overlapping our pocket or the opponent's pocket are equally likely.
+					// However, because we have grouped some branches together we weight representative branches more heavily.
                     int b = 0;
                     foreach (Node Branch in Branches)
                     {

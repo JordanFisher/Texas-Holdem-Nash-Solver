@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Diagnostics;
 
@@ -22,7 +22,13 @@ namespace Poker
         public static int InstanceCount = 0;
 #endif
 
-        public number[] data;
+		public virtual void Serialize(BinaryWriter writer)
+		{
+			for (int i = 0; i < Pocket.N; i++)
+				writer.Write((float)data[i]);
+		}
+
+		public number[] data;
         public PocketData()
         {
             data = new number[Pocket.N];
@@ -69,6 +75,15 @@ namespace Poker
         public number Average()
         {
             return data.Sum() / Pocket.N;
+        }
+
+        public virtual void MultiLinear(int n, int pocket, double[] weight, PocketData[] data)
+        {
+            number result = 0;
+            for (int i = 0; i < n; i++)
+                result += (number)weight[i] * data[i][pocket];
+
+            this[pocket] = result;
         }
 
         public virtual void Linear(int pocket, number t1, PocketData data1, number t2, PocketData data2)

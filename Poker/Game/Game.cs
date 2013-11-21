@@ -18,6 +18,17 @@ namespace Poker
 
     class Game
     {
+		static void GamePrint(string format = "", params object[] args)
+		{
+			Console.WriteLine(format, args);
+			PrintDelay();
+		}
+
+		private static void PrintDelay()
+		{
+			System.Threading.Thread.Sleep(350);
+		}
+
         public static int[,] PocketLookup;
         public static void InitPocketLookup()
         {
@@ -90,10 +101,14 @@ namespace Poker
         {
             this.Output = Output;
 
+			// Store the players
             this.PlayerA = PlayerA;
-            PlayerA.MyGame = this;
             this.PlayerB = PlayerB;
-            PlayerB.MyGame = this;
+			PlayerA.MyGame = PlayerB.MyGame = this;
+
+			// Set the names of the players
+			PlayerA.SetName(1, PlayerB);
+			PlayerB.SetName(2, PlayerA);
 
             Cards = new int[9];
 
@@ -191,7 +206,7 @@ namespace Poker
                     SpentB += RaiseAmount;
 
                     if (Output)
-                        Console.WriteLine("Both players raised!");
+                        GamePrint("Both players raised!");
                 }
                 else
                 {
@@ -199,7 +214,7 @@ namespace Poker
                     InPlay = false;
 
                     if (Output)
-                        Console.WriteLine("Player 2 folds. Player 1 wins the hand!");
+                        GamePrint("{0} folds. {1} wins the hand!", PlayerB.Name, PlayerA.Name);
                 }
             }
             else
@@ -210,7 +225,7 @@ namespace Poker
                     InPlay = false;
 
                     if (Output)
-                        Console.WriteLine("Player 1 folds. Player 2 wins the hand!");
+                        GamePrint("{0} folds. {1} wins the hand!", PlayerA.Name, PlayerB.Name);
                 }
                 else
                 {
@@ -218,7 +233,7 @@ namespace Poker
                     InPlay = false;
 
                     if (Output)
-                        Console.WriteLine("Both players fold. Hand is a draw!");
+                        GamePrint("Both players fold. Hand is a draw!");
                 }
             }
         }
@@ -248,14 +263,14 @@ namespace Poker
                             ActiveSpent = Pot + RaiseAmount;
                             NumRaises++;
 
-                            if (Output) Console.WriteLine("The {0} raises by {1}.", Tools.PlayerName(ActivePlayerPosition), RaiseAmount);
+							if (Output) GamePrint("The {0} raises by {1}.", ActivePlayersQualifiedName(), RaiseAmount);
                         }
                         else if (action == PlayerAction.Call)
                         {
                             ActiveSpent = Pot;
                             Assert.That(SpentA == SpentB);
 
-                            if (Output) Console.WriteLine("The {0} calls.", Tools.PlayerName(ActivePlayerPosition));
+							if (Output) GamePrint("The {0} calls.", ActivePlayersQualifiedName());
                             if (CallEndsRound) MoreBetting = false;
                         }
                         else
@@ -266,7 +281,7 @@ namespace Poker
                                 Outcome += SpentB;
                             InPlay = false;
 
-                            if (Output) Console.WriteLine("The {0} folds.", Tools.PlayerName(ActivePlayerPosition));
+							if (Output) GamePrint("The {0} folds.", ActivePlayersQualifiedName());
                             MoreBetting = false;
                         }
                     }
@@ -280,7 +295,7 @@ namespace Poker
                             ActiveSpent = Pot;
                             Assert.That(SpentA == SpentB);
 
-                            if (Output) Console.WriteLine("The {0} calls.", Tools.PlayerName(ActivePlayerPosition));
+							if (Output) GamePrint("The {0} calls.", ActivePlayersQualifiedName());
                             if (CallEndsRound) MoreBetting = false;
                         }
                         else
@@ -291,7 +306,7 @@ namespace Poker
                                 Outcome += SpentB;
                             InPlay = false;
 
-                            if (Output) Console.WriteLine("The {0} folds.", Tools.PlayerName(ActivePlayerPosition));
+							if (Output) GamePrint("The {0} folds.", ActivePlayersQualifiedName());
                             MoreBetting = false;
                         }
                     }
@@ -307,15 +322,15 @@ namespace Poker
                         {
                             ActiveSpent = Pot + RaiseAmount;
                             NumRaises++;
-                            
-                            if (Output) Console.WriteLine("The {0} raises by {1}.", Tools.PlayerName(ActivePlayerPosition), RaiseAmount);
+
+							if (Output) GamePrint("The {0} raises by {1}.", ActivePlayersQualifiedName(), RaiseAmount);
                         }
                         else if (action == PlayerAction.Call)
                         {
                             ActiveSpent = Pot;
                             Assert.That(SpentA == SpentB);
 
-                            if (Output) Console.WriteLine("The {0} calls.", Tools.PlayerName(ActivePlayerPosition));
+							if (Output) GamePrint("The {0} calls.", ActivePlayersQualifiedName());
                             if (CallEndsRound) MoreBetting = false;
                         }
                     }
@@ -331,12 +346,17 @@ namespace Poker
             }              
         }
 
+		private string ActivePlayersQualifiedName()
+		{
+			return Tools.QualifiedName(ActivePlayerPosition, ActivePlayer);
+		}
+
         void DoPockets()
         {
             Phase = BettingPhase.PreFlop;
             AddCards(4);
 
-            if (Output) Console.WriteLine("\nBeginning of round.");
+            if (Output) GamePrint("\nBeginning of round.\n");
 
             PlayerA.SetPocket(Cards[0], Cards[1]);
             PlayerB.SetPocket(Cards[2], Cards[3]);
@@ -361,7 +381,7 @@ namespace Poker
             {
                 Console.Write("\nFlop:  ");
                 Card.PrintCards(Cards[4], Cards[5], Cards[6]);
-                Console.WriteLine();
+                GamePrint();
             }
 
             PlayerA.SetFlop(Cards[4], Cards[5], Cards[6]);
@@ -385,7 +405,7 @@ namespace Poker
             {
                 Console.Write("\nTurn:  ");
                 Card.PrintCards(Cards[4], Cards[5], Cards[6], Cards[7]);
-                Console.WriteLine();
+                GamePrint();
             }
 
             PlayerA.SetTurn(Cards[7]);
@@ -409,7 +429,7 @@ namespace Poker
             {
                 Console.Write("\nRiver: ");
                 Card.PrintCards(Cards[4], Cards[5], Cards[6], Cards[7], Cards[8]);
-                Console.WriteLine();
+                GamePrint();
             }
 
             PlayerA.SetRiver(Cards[8]);
@@ -431,15 +451,17 @@ namespace Poker
 
             if (Output)
             {
-                Console.WriteLine("\nShowdown:");
+                GamePrint("\nShowdown:");
 
-                Console.Write("Player 1: ");
+                Console.Write("{0}: ", PlayerA.Name);
                 Card.PrintCards(Cards[0], Cards[1]);
                 Console.Write(" -> {0}\n", BestHand1.Description);
+				PrintDelay();
 
-                Console.Write("Player 2: ");
+                Console.Write("{0}: ", PlayerB.Name);
                 Card.PrintCards(Cards[2], Cards[3]);
                 Console.Write(" -> {0}\n", BestHand2.Description);
+				PrintDelay();
             }
 
             uint Value1 = BestHand1.HandValue;
@@ -447,17 +469,17 @@ namespace Poker
 
             if (Value1 > Value2)
             {
-                if (Output) Console.WriteLine("Player 1 wins!\n");
+                if (Output) GamePrint("{0} wins!\n", PlayerA.Name);
                 Outcome = SpentB;
             }
             else if (Value2 > Value1)
             {
-                if (Output) Console.WriteLine("Player 2 wins!\n");
+                if (Output) GamePrint("{0} wins!\n", PlayerB.Name);
                 Outcome = -SpentA;
             }
             else
             {
-                if (Output) Console.WriteLine("Draw!\n");
+                if (Output) GamePrint("Draw!\n");
                 Outcome = 0;
             }
         }
@@ -471,7 +493,7 @@ namespace Poker
         }
 
         public int RoundNumber;
-        public number Round(int NumberOfRounds)
+		public double Round(int NumberOfRounds)
         {
             for (int i = 0; i < NumberOfRounds; i++)
             {
@@ -494,24 +516,42 @@ namespace Poker
 
                 RoundNumber++;
                 Average = Total / RoundNumber;
-                Average_1vs2 = Total_1vs2 / (RoundNumber / ((number)2));
-                Average_2vs1 = Total_2vs1 / (RoundNumber / ((number)2));
+                Average_1vs2 = Total_1vs2 / (RoundNumber / 2.0);
+				Average_2vs1 = Total_2vs1 / (RoundNumber / 2.0);
 
                 // Display averages
-                if (i % 100 == 0)
+                if (i % 1000000 == 0 && i > 0)
                 {
                     if (BetNode.SimultaneousBetting)
                         Console.WriteLine("{0} -> {1}", i, Average);
                     else
-                        Console.WriteLine("{0} -> {1}, {2} -> {3}", i, Average_1vs2, Average_2vs1, Average);
+						Console.WriteLine("{0} -> {1}, {2} -> {3}", i, Average_1vs2, Average_2vs1, Average);
                 }
+
+				// Display chips
+				if (Output)
+				{
+					PrintDelay();
+					GamePrint("");
+					GamePrint("{0} has {1} chips", PlayerA.Name, Total);
+					GamePrint("{0} has {1} chips", PlayerB.Name, -Total);
+					
+					PrintDelay();
+					PrintDelay();
+					PrintDelay();
+					PrintDelay();
+					PrintDelay();
+					PrintDelay();
+					GamePrint("\n\n");
+					PrintDelay();
+				}
             }
 
             return Average;
         }
 
-        public number Total_1vs2 = 0, Total_2vs1 = 0, Total = 0;
-        public number Average_1vs2 = 0, Average_2vs1 = 0, Average = 0;
+        public double Total_1vs2 = 0, Total_2vs1 = 0, Total = 0;
+		public double Average_1vs2 = 0, Average_2vs1 = 0, Average = 0;
         void SwapPlayers()
         {
             PlayerImplementation Hold = PlayerA;
@@ -536,8 +576,6 @@ namespace Poker
             DoTurn();    if (!InPlay) return Outcome;
             DoRiver();   if (!InPlay) return Outcome;
             DoShowdown();
-
-            if (Output) Console.WriteLine();
 
             return Outcome;
         }

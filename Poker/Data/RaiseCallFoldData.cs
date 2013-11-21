@@ -18,6 +18,12 @@ namespace Poker
 
     class RaiseCallFoldData : PocketData
     {
+		public override void Serialize(System.IO.BinaryWriter writer)
+		{
+			Raise.Serialize(writer);
+			Call.Serialize(writer);
+		}
+
         public PocketData Raise, Call;
         public RaiseCallFoldData()
         {

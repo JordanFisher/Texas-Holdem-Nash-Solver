@@ -18,6 +18,14 @@ namespace Poker
 
     class HumanPlayer : PlayerImplementation
     {
+		public override void SetName(int PlayerNumber, PlayerImplementation Opponent)
+		{
+			if (Opponent is HumanPlayer)
+				Name = string.Format("Player {0}", PlayerNumber);
+			else
+				Name = string.Format("You", PlayerNumber);
+		}
+
         public static bool EnterToConfirm = true;
         public override PlayerAction GetAction()
         {

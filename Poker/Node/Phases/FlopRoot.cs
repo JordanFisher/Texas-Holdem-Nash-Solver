@@ -18,11 +18,18 @@ namespace Poker
 
     class FlopRoot : PhaseRoot
     {
+#if DEBUG
+		public static int InstanceCount = 0;
+#endif
+
         public Flop MyFlop;
 
         public FlopRoot(Node Parent, CommunityNode Community, int Spent, int Pot, int RootCount)
             : base(Parent, Community, Spent, Pot, RootCount)
         {
+#if DEBUG
+			InstanceCount++;
+#endif
         }
 
         protected override void Initialize()
@@ -52,7 +59,8 @@ namespace Poker
             if (IsRepresentative())
                 Representative = this;
             else
-                Representative = (FlopRoot)Parent.BranchesByIndex[Game.FlopLookup[rep.c1, rep.c2, rep.c3]];
+                //Representative = (FlopRoot)Parent.BranchesByIndex[Game.FlopLookup[rep.c1, rep.c2, rep.c3]];
+				Representative = (FlopRoot)Parent.BranchesByIndex[Flop.IndexOf(rep)];
         }
 
         public override void CalculateBestAgainst(Player Opponent)

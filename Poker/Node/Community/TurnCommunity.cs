@@ -18,12 +18,20 @@ namespace Poker
 
     class TurnCommunity : CommunityNode
     {
+#if DEBUG
+		new public static int InstanceCount = 0;
+#endif
+
         public Flop MyFlop;
         public int MyTurn;
 
         public TurnCommunity(Flop flop, int turn)
             : base()
         {
+#if DEBUG
+			InstanceCount++;
+#endif
+
             MyFlop = flop;
             MyTurn = turn;
             ClassifyAvailability();

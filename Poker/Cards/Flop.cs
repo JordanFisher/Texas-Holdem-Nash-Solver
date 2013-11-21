@@ -122,9 +122,11 @@ namespace Poker
         static Flop CurrentRepresentative = null;
         public bool IsRepresentative() { return this == Representative; }
 
-        static int[] SuitMap = new int[Card.Suits];
-        static int SuitMapSum = 0;
-        public int[] PocketMap = new int[Pocket.N];
+        private static int[] SuitMap = new int[Card.Suits];
+        private static int SuitMapSum = 0;
+        
+		public int[] PocketMap = new int[Pocket.N];
+		public int[] CardMap = new int[Card.N];
 
         public int MapCard(int c, int[] map)
         {
@@ -142,6 +144,26 @@ namespace Poker
 
             return Game.PocketLookup[c1, c2];
         }
+#endif
+
+		/// <summary>
+		/// Get the index of a given flop in the Flop list.
+		/// </summary>
+		public static int IndexOf(Flop flop)
+		{
+			return Game.FlopLookup[flop.c1, flop.c2, flop.c3];
+		}
+
+#if SUIT_REDUCE
+		/// <summary>
+		/// Given the index of a flop, get the index of that flop's representative.
+		/// </summary>
+		/// <param name="flop"></param>
+		/// <returns></returns>
+		public static int RepresentativeOf(int flop)
+		{
+			return IndexOf(Flops[flop].Representative);
+		}
 #endif
 
         public Flop(int c1, int c2, int c3)
@@ -177,7 +199,10 @@ namespace Poker
             }
             Assert.That(SuitMap.Sum(s => 10 * s) == SuitMapSum);
 
-            // Use the suit map to determine the pocket mappings
+            // Use the suit map to determine the card mappings and the pocket mappings
+			for (int c = 0; c < Card.N; c++)
+				CardMap[c] = MapCard(c, SuitMap);
+
             for (int p = 0; p < Pocket.N; p++)
                 PocketMap[p] = MapPocket(p, SuitMap);
 #endif

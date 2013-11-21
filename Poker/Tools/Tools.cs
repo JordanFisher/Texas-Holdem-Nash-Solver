@@ -190,6 +190,12 @@ namespace Poker
                 default:            return "------";
             }
         }
+
+		public static string QualifiedName(Player position, PlayerImplementation player)
+		{
+			return string.Format("{0} ({1})", PlayerName(position), player.Name);
+		}
+
         public static Player NextPlayer(Player CurrentPlayer)
         {
             switch (CurrentPlayer)

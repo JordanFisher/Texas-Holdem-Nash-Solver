@@ -83,7 +83,7 @@ namespace Poker
                 Assert.IsNum(EV[p1]);
             }
 #else
-            /* Assymptotically optimal implementation. O(N^2) */
+            /* Asymptotically optimal implementation. O(N^2) */
             RiverCommunity River = (RiverCommunity)MyCommunity;
             Optimize.Data.ProbabilityPrecomputation(PocketP, MyCommunity);
             number Correction;

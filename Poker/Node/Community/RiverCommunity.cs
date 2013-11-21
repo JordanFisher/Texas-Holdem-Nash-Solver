@@ -18,6 +18,10 @@ namespace Poker
 
     class RiverCommunity : CommunityNode
     {
+#if DEBUG
+		new public static int InstanceCount = 0;
+#endif
+
         public Flop MyFlop;
         public int MyTurn, MyRiver;
 
@@ -28,6 +32,10 @@ namespace Poker
         public RiverCommunity(Flop flop, int turn, int river)
             : base()
         {
+#if DEBUG
+			InstanceCount++;
+#endif
+
             MyFlop = flop;
             MyTurn = turn;
             MyRiver = river;

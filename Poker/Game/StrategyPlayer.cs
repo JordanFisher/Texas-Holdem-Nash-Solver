@@ -18,6 +18,14 @@ namespace Poker
 
     class StrategyPlayer : PlayerImplementation
     {
+		public override void SetName(int PlayerNumber, PlayerImplementation Opponent)
+		{
+			if (Opponent is HumanPlayer)
+				Name = string.Format("Nash", PlayerNumber);
+			else
+				Name = string.Format("Computer {0}", PlayerNumber);
+		}
+
         Var Strategy;
         Node Head;
 
@@ -106,19 +114,41 @@ namespace Poker
             Head = Head.AdvanceHead(PlayerAction.Nothing);
         }
 
+		Flop TrueFlop;
+		int TruePocket, TrueTurn, TrueRiver;
+
         public override void SetFlop(int c1, int c2, int c3)
         {
-            int Flop = Game.FlopLookup[c1, c2, c3];
-            Head = Head.AdvanceHead(Flop);
-        }
+            int flop = Game.FlopLookup[c1, c2, c3];
+            
+#if SUIT_REDUCE
+			TrueFlop = Flop.Flops[flop];
+			flop = Flop.RepresentativeOf(flop);
+
+			TruePocket = Pocket;
+			Pocket = TrueFlop.PocketMap[Pocket];
+#endif
+
+			Head = Head.AdvanceHead(flop);
+		}
 
         public override void SetTurn(int c1)
         {
-            Head = Head.AdvanceHead(c1);
+#if SUIT_REDUCE
+			TrueTurn = c1;
+			c1 = TrueFlop.CardMap[c1];
+#endif
+
+			Head = Head.AdvanceHead(c1);
         }
 
         public override void SetRiver(int c1)
         {
+#if SUIT_REDUCE
+			TrueRiver = c1;
+			c1 = TrueFlop.CardMap[c1];
+#endif
+
             Head = Head.AdvanceHead(c1);
         }
     }

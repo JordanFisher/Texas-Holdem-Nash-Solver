@@ -49,16 +49,12 @@ namespace Poker
 
         protected override void Initialize()
         {
-            //PocketP = new PocketData();
-            //EV = new PocketData();
-
             S = new RaiseCallFoldData();
             B = new RaiseCallFoldData();
             if (MakeHold) Hold = new RaiseCallFoldData();
 
             CreateBranches();
         }
-
 
         protected override void CreateBranches()
         {

@@ -37,7 +37,6 @@ namespace Poker
         {
 #if DEBUG
             InstanceCount++;
-            //Console.WriteLine(this);
 #endif
         }
 
