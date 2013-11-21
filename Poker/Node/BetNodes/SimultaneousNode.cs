@@ -44,10 +44,10 @@ namespace Poker
             int NewPot = Pot;
             switch (Phase)
             {
-                case BettingPhase.PreFlop: NewPot += Ante.PreFlop; break;
-                case BettingPhase.Flop: NewPot += Ante.Flop; break;
-                case BettingPhase.Turn: NewPot += Ante.Turn; break;
-                case BettingPhase.River: NewPot += Ante.River; break;
+                case BettingPhase.PreFlop: NewPot += Setup.PreFlop; break;
+                case BettingPhase.Flop: NewPot += Setup.Flop; break;
+                case BettingPhase.Turn: NewPot += Setup.Turn; break;
+                case BettingPhase.River: NewPot += Setup.River; break;
             }
 
             if (Phase == BettingPhase.River)

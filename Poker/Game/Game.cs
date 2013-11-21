@@ -362,13 +362,13 @@ namespace Poker
             PlayerB.SetPocket(Cards[2], Cards[3]);
 
             if (BetNode.SimultaneousBetting)
-                DoBetting_Simultaneous(Ante.PreFlop);
+                DoBetting_Simultaneous(Setup.PreFlop);
             else
             {
                 ActivePlayerPosition = Player.Button;
-                SpentA = Ante.LittleBlind;
-                SpentB = Ante.BigBlind;
-                DoBetting_Complex(Ante.RaiseAmount);
+                SpentA = Setup.LittleBlind;
+                SpentB = Setup.BigBlind;
+                DoBetting_Complex(Setup.RaiseAmount);
             }
         }
 
@@ -388,11 +388,11 @@ namespace Poker
             PlayerB.SetFlop(Cards[4], Cards[5], Cards[6]);
 
             if (BetNode.SimultaneousBetting)
-                DoBetting_Simultaneous(Ante.Flop);
+                DoBetting_Simultaneous(Setup.Flop);
             else
             {
                 ActivePlayerPosition = Player.Dealer;
-                DoBetting_Complex(Ante.RaiseAmount);
+                DoBetting_Complex(Setup.RaiseAmount);
             }
         }
 
@@ -412,11 +412,11 @@ namespace Poker
             PlayerB.SetTurn(Cards[7]);
 
             if (BetNode.SimultaneousBetting)
-                DoBetting_Simultaneous(Ante.Turn);
+                DoBetting_Simultaneous(Setup.Turn);
             else
             {
                 ActivePlayerPosition = Player.Dealer;
-                DoBetting_Complex(Ante.RaiseAmount);
+                DoBetting_Complex(Setup.RaiseAmount);
             }
         }
 
@@ -436,11 +436,11 @@ namespace Poker
             PlayerB.SetRiver(Cards[8]);
 
             if (BetNode.SimultaneousBetting)
-                DoBetting_Simultaneous(Ante.River);
+                DoBetting_Simultaneous(Setup.River);
             else
             {
                 ActivePlayerPosition = Player.Dealer;
-                DoBetting_Complex(Ante.RaiseAmount);
+                DoBetting_Complex(Setup.RaiseAmount);
             }
         }
 
@@ -565,7 +565,7 @@ namespace Poker
             PlayerA.Reset();
             PlayerB.Reset();
             
-            SpentA = SpentB = Ante.PreDeal;
+            SpentA = SpentB = Setup.PreDeal;
 
             CardsOut = 0;
             Outcome = 0;

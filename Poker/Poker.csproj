@@ -73,7 +73,7 @@
     <Compile Include="Cards\Card.cs" />
     <Compile Include="Cards\Flop.cs" />
     <Compile Include="Cards\Pocket.cs" />
-    <Compile Include="LpSolve.cs" />
+    <Compile Include="Tests.cs" />
     <Compile Include="Data\RaiseCallFoldData.cs" />
     <Compile Include="Game\StrategyPlayer.cs" />
     <Compile Include="Game\HumanPlayer.cs" />

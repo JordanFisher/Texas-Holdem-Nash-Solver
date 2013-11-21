@@ -24,31 +24,12 @@ namespace Poker
         public static int InstanceCount = 0;
 #endif
 
-        //public PocketData __PocketP = new PocketData();
-        //public PocketData __EV = new PocketData();
-        //protected override PocketData GetEV()
-        //{
-        //    if (this is RaiseCallFoldNode || this is RaiseCheckNode)
-        //        return base.GetEV();
-        //    else
-        //        return __EV;
-        //}
-        //protected override PocketData GetPocketP()
-        //{
-        //    if (this is RaiseCallFoldNode || this is RaiseCheckNode)
-        //        return base.GetPocketP();
-        //    else
-        //        return __PocketP;
+        public const bool SimultaneousBetting = Setup.SimultaneousBetting;
+        public const int AllowedRaises = Setup.AllowedRaises;
 
-        //}
-
-        public const bool SimultaneousBetting = false;
-        public const int AllowedRaises = 1;
         protected int NumRaises;
-
         protected Player ActivePlayer;
-
-        protected int RaiseVal = Ante.RaiseAmount;
+        protected int RaiseVal = Setup.RaiseAmount;
 
         public BetNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
             : base(parent, Spent, Pot)
@@ -60,10 +41,9 @@ namespace Poker
             this.NumRaises = NumRaises;
 
             this.DataOffset += DataOffset;
-            //Console.WriteLine("{0,-5} {1,-5}", Depth, this.DataOffset);
+
 #if DEBUG
             InstanceCount++;
-            //Console.WriteLine(this);
 #endif
         }
 

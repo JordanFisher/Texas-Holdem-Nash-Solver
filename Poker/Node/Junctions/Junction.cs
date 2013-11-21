@@ -209,7 +209,7 @@ namespace Poker
                 }
                 Assert.ZeroOrOne(BranchPDF.Sum());
                 Assert.ZeroOrOne(TotalWeight);
-                Assert.That(BranchEV >= -Ante.MaxPot - Tools.eps && BranchEV <= Ante.MaxPot + Tools.eps);
+                Assert.That(BranchEV >= -Setup.MaxPot - Tools.eps && BranchEV <= Setup.MaxPot + Tools.eps);
                 
                 EV[p1] = BranchEV;
                 Assert.IsNum(EV[p1]);
@@ -257,7 +257,7 @@ namespace Poker
                 }
                 Assert.ZeroOrOne(BranchPDF.Sum());
                 Assert.ZeroOrOne(TotalWeight);
-                Assert.That(BranchEV >= -Ante.MaxPot - Tools.eps && BranchEV <= Ante.MaxPot + Tools.eps);
+                Assert.That(BranchEV >= -Setup.MaxPot - Tools.eps && BranchEV <= Setup.MaxPot + Tools.eps);
 
                 EV[p1] = BranchEV;
                 Assert.IsNum(EV[p1]);

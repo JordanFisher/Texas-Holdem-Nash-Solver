@@ -20,8 +20,8 @@ namespace Poker
     {
         public static PocketRoot Root;
 
-        public const int InitialSpent = BetNode.SimultaneousBetting ? Ante.PreDeal : Ante.LittleBlind;
-        public const int InitialBet = BetNode.SimultaneousBetting ? Ante.PreDeal : Ante.BigBlind;
+        public const int InitialSpent = BetNode.SimultaneousBetting ? Setup.PreDeal : Setup.LittleBlind;
+        public const int InitialBet = BetNode.SimultaneousBetting ? Setup.PreDeal : Setup.BigBlind;
         public PocketRoot()
             : base(null, CommunityNode.Root, InitialSpent, InitialBet, 0)
         {

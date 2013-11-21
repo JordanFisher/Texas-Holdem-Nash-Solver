@@ -24,6 +24,12 @@ namespace Poker
 			Call.Serialize(writer);
 		}
 
+		public override void Deserialize(System.IO.BinaryReader reader)
+		{
+			Raise.Deserialize(reader);
+			Call.Deserialize(reader);
+		}
+
         public PocketData Raise, Call;
         public RaiseCallFoldData()
         {

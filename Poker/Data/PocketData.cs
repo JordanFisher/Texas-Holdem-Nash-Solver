@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Diagnostics;
 
@@ -25,7 +26,17 @@ namespace Poker
 		public virtual void Serialize(BinaryWriter writer)
 		{
 			for (int i = 0; i < Pocket.N; i++)
+			{
 				writer.Write((float)data[i]);
+			}
+		}
+
+		public virtual void Deserialize(BinaryReader reader)
+		{
+			for (int i = 0; i < Pocket.N; i++)
+			{
+				data[i] = reader.ReadSingle();
+			}
 		}
 
 		public number[] data;

@@ -29,21 +29,8 @@ namespace Poker
         public static bool MakeHold = false;
         public PocketData S, B, Hold;
 
-        public PocketData[] PureList = new PocketData[100];
-
-        
-        
-        
-        //public PocketData PocketP, EV;
-
-        //protected virtual PocketData GetPocketP() { return HoldPocketP[DataOffset]; }
-        //protected virtual PocketData GetEV() { return HoldEV[DataOffset]; }
-        //public PocketData PocketP { get { return GetPocketP(); } }
-        //public PocketData EV { get { return GetEV(); } }
         public PocketData PocketP { get { return HoldPocketP[DataOffset]; } }
         public PocketData EV { get { return HoldEV[DataOffset]; } }
-        //public PocketData PocketP = new PocketData();
-        //public PocketData EV = new PocketData();
 
         protected const int MaxDepth = 100;
         static PocketData[] HoldEV, HoldPocketP;
@@ -92,12 +79,6 @@ namespace Poker
 
         protected virtual void CreateBranches() { }
 
-
-        public void CopyToList(int i)
-        {
-            MakeData((n, data) => n.PureList[i] = data);
-            CopyTo(VarS, n => n.PureList[i]);
-        }
         public void MakeData(Action<Node, PocketData> Set)
         {
             if (S != null)
@@ -437,52 +418,6 @@ namespace Poker
                     node.NaiveCombine(S1, t1, S2, t2, Destination);
         }
 
-        public void MultiCombine_Naive(int n, double[] weight)
-        {
-            if (S != null)
-            {
-                for (int p = 0; p < Pocket.N; p++)
-                    S.MultiLinear(n, p, weight, PureList);
-            }
-
-            if (Branches != null) foreach (Node node in Branches)
-                    node.MultiCombine_Naive(n, weight);
-        }
-
-        public void MultiCombine(int n, double[] weight)
-        {
-            for (int p = 0; p < Pocket.N; p++)
-                _MultiCombine(p, n, weight);
-        }
-        void _MultiCombine(int p, int n, double[] weight)
-        {
-            double[] _weight = new double[n];
-
-            if (S != null &&
-                MyCommunity.AvailablePocket[p])
-            {
-                double normalize = 0;
-                for (int i = 0; i < n; i++)
-                    normalize += weight[i] * PureList[i][p];
-
-                if (normalize == 0) normalize = 1;
-
-                for (int i = 0; i < n; i++)
-                    _weight[i] = weight[i] * PureList[i][p] / normalize;
-
-                S.MultiLinear(n, p, weight, PureList);
-            }
-            else
-            {
-                for (int i = 0; i < n; i++)
-                    _weight[i] = weight[i];
-            }
-
-            if (Branches != null) foreach (Node node in Branches)
-                    node._MultiCombine(p, n, _weight);
-        }
-
-
         public number Hash(Var v)
         {
             PocketData data = v(this);
@@ -505,7 +440,6 @@ namespace Poker
             VarS = n => n.S,
             VarB = n => n.B,
             VarHold = n => n.Hold;
-        public static Var Pure(int i) { return n => n.PureList[i]; }
 
         public void PrintOut(Var v)
         {
