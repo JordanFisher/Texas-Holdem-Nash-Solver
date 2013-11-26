@@ -31,9 +31,18 @@ namespace Poker
         protected Player ActivePlayer;
         protected int RaiseVal = Setup.RaiseAmount;
 
-        public BetNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
+		public BetNode(Node parent, PlayerAction ActionTaken, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
             : base(parent, Spent, Pot)
         {
+			switch (ActionTaken)
+			{
+				case PlayerAction.Raise:	BetCode += 'r'; break;
+				case PlayerAction.Call:		BetCode += 'c'; break;
+				
+				case PlayerAction.Fold:		Assert.NotReached(); break;
+				default:					BetCode += '/'; break;
+			}
+
             Phase = MyPhaseRoot.Phase;
             Weight = 0;
 

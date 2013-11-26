@@ -25,8 +25,8 @@ namespace Poker
         public Flop MyFlop;
         public int MyTurn;
 
-        public TurnCommunity(Flop flop, int turn)
-            : base()
+        public TurnCommunity(FlopCommunity Parent, Flop flop, int turn)
+			: base(Parent)
         {
 #if DEBUG
 			InstanceCount++;
@@ -40,8 +40,14 @@ namespace Poker
             Phase = BettingPhase.Turn;
             InitiallyActivePlayer = Player.Dealer;
 
+			MakeScratchSpace();
             CreateBranches();
         }
+
+		public override string FileString()
+		{
+			return FileString_Community(MyFlop, MyTurn);
+		}
 
         protected override void CreateBranches()
         {
@@ -54,7 +60,7 @@ namespace Poker
                 //if (!Contains(river))
                 if (AvailableCard[river])
                 {
-                    NewBranch = new RiverCommunity(MyFlop, MyTurn, river);
+                    NewBranch = new RiverCommunity(this, MyFlop, MyTurn, river);
                     Branches.Add(NewBranch);
                 }
                 else

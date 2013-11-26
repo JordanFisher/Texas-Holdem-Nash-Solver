@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,6 +17,11 @@ namespace Poker
 
     class Node
     {
+		/// <summary>
+		/// An identifier that encodes this node's betting history (all parent betting nodes).
+		/// </summary>
+		public string BetCode = null;
+
         public number Weight;
 
         public PhaseRoot MyPhaseRoot;
@@ -29,32 +35,219 @@ namespace Poker
         public static bool MakeHold = false;
         public PocketData S, B, Hold;
 
-        public PocketData PocketP { get { return HoldPocketP[DataOffset]; } }
-        public PocketData EV { get { return HoldEV[DataOffset]; } }
+		//public Optimize Data  { get { return Optimize.Data; } }
+		//public Optimize Data2 { get { return Optimize.Data2; } }
 
-        protected const int MaxDepth = 100;
+		public Optimize Data	{ get { return MyCommunity.Data; } }
+		public Optimize Data2	{ get { return MyCommunity.Data2; } }
+
+
+
+		//public PocketData PocketP { get { return HoldPocketP[DataOffset]; } }
+		//public PocketData EV		{ get { return HoldEV[DataOffset]; } }
+
+		// Use community scratch space (Doesn't work, trying to compress).
+		//public PocketData PocketP { get { return MyCommunity.HoldPocketP[Depth]; } }
+		//public PocketData EV { get { return MyCommunity.HoldEV[Depth]; } }
+
+		// Use community scratch space (Works. Too much extra).
+		public PocketData PocketP { get { return MyCommunity.HoldPocketP[DataOffset]; } }
+		public PocketData EV { get { return MyCommunity.HoldEV[DataOffset]; } }
+
+		//public PocketData PocketP { get { return _HoldPocketP; } }
+		//public PocketData EV { get { return _HoldEV; } }
+		//PocketData _HoldPocketP = new PocketData();
+		//PocketData _HoldEV = new PocketData();
+
+		/* If we are using one single static scratch space, we need this. Not possible if we are using thread-level parallelism.
         static PocketData[] HoldEV, HoldPocketP;
-        public static void InitPocketData()
-        {
-            int NumData = MaxDepth + Flop.N + Card.N + Card.N;
-            HoldEV = new PocketData[NumData];
-            HoldPocketP = new PocketData[NumData];
+		public static void InitPocketData()
+		{
+			int NumData = MaxDepth + Flop.N + Card.N + Card.N;
+			HoldEV = new PocketData[NumData];
+			HoldPocketP = new PocketData[NumData];
 
-            for (int i = 0; i < NumData; i++)
-            {
-                HoldEV[i] = new PocketData();
-                HoldPocketP[i] = new PocketData();
-            }
-        }
+			for (int i = 0; i < NumData; i++)
+			{
+				HoldEV[i] = new PocketData();
+				HoldPocketP[i] = new PocketData();
+			}
+		}
+		*/
+		protected const int MaxDepth = 100;
 
-        public List<Node> Branches;
-        public List<Node> BranchesByIndex;
+		public List<Node> Branches;
+		public List<Node> BranchesByIndex;
 
-        public int Depth, DataOffset;
+		public int Depth, DataOffset;
+
+		/// <summary>
+		/// Save the entire strategy into a single file.
+		/// </summary>
+		public string FullSave(int Iteration=0, float EvBest=float.NaN)
+		{
+			var file = FileString();
+			if (file != null)
+			{
+				Directory.CreateDirectory(file);
+				file += Tools.SimFileDescriptor(Iteration, EvBest);
+
+				using (var fs = new FileStream(file, FileMode.Create))
+				{
+					using (var bw = new BinaryWriter(fs))
+					{
+						FullSerialize(bw);
+					}
+				}
+			}
+
+			return file;
+		}
+
+		/// <summary>
+		/// Load the entire strategy into a single file.
+		/// </summary>
+		public void FullLoad(string file)
+		{
+			if (file != null)
+			{
+				using (var fs = new FileStream(file, FileMode.Open))
+				{
+					using (var br = new BinaryReader(fs))
+					{
+						FullDeserialize(br);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Recursively serialize the pocket data into the single strategy save file.
+		/// </summary>
+		void FullSerialize(BinaryWriter bw)
+		{
+			if (S != null)
+				S.Serialize(bw);
+			
+			if (Branches != null) foreach (Node node in Branches) node.FullSerialize(bw);
+		}
+
+		/// <summary>
+		/// Recursively deserialize the single strategy save file into the strategy's pocket data.
+		/// </summary>
+		void FullDeserialize(BinaryReader br)
+		{
+			if (S != null)
+				S.Deserialize(br);
+
+			if (Branches != null) foreach (Node node in Branches) node.FullDeserialize(br);
+		}
+
+
+		/// <summary>
+		/// More general strategy save function. Will save the strategy data into multiple files and directories.
+		/// </summary>
+		public virtual void Save()
+		{
+			if (S != null)
+			{
+				var file = FileString();
+				if (file != null)
+				{
+					Directory.CreateDirectory(file);
+					file += "data";
+
+					using (var fs = new FileStream(file, FileMode.Create))
+					{
+						using (var bw = new BinaryWriter(fs))
+						{
+							Serialize(bw);
+						}
+					}
+				}
+			}
+
+			if (Branches != null) foreach (Node node in Branches) node.Save();
+		}
+
+		public virtual void Load()
+		{
+			if (S != null)
+			{
+				var file = FileString();
+				if (file != null)
+				{
+					using (var fs = new FileStream(file, FileMode.Open))
+					{
+						using (var br = new BinaryReader(fs))
+						{
+							Deserialize(br);
+						}
+					}
+				}
+			}
+
+			if (Branches != null) foreach (Node node in Branches) node.Load();
+		}
+
+		protected virtual void Serialize(BinaryWriter bw)
+		{
+			S.Serialize(bw);
+		}
+
+		protected virtual void Deserialize(BinaryReader br)
+		{
+			S.Deserialize(br);
+		}
+
+		string FileString()
+		{
+			string file = Setup.SaveDir + BetCode;
+			
+			if (MyCommunity != null)
+			{
+				file += "/" + MyCommunity.FileString();
+			}
+
+			return file;
+		}
+
+		/* This code is for dynamically generating file strings at save/load time instead of always keeping the file names in memory.
+		protected string FileString()
+		{
+			var ParentString = Parent.FileString();
+			var MyAddtionalString = FileStringBit();
+
+			if (ParentString != null)
+			{
+				if (MyAddtionalString != null)
+					return ParentString + MyAddtionalString;
+				else
+					return ParentString;
+			}
+			else
+			{
+				if (MyAddtionalString != null)
+					return MyAddtionalString;
+				else
+					return null;
+			}
+		}
+
+		protected virtual string FileStringBit()
+		{
+			return null;
+		}
+		 * */
 
         public Node(Node parent, int Spent, int Pot)
         {
             Parent = parent;
+
+			if (Parent == null)
+				BetCode = null;
+			else
+				BetCode = Parent.BetCode;
 
             if (Parent != null)
             {

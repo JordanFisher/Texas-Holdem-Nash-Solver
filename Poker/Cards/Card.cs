@@ -18,22 +18,35 @@ namespace Poker
 
     struct Card
     {
-        public enum OutputStyle { Text, Pretty, Number };
+		// Print styles for cards
+        public enum OutputStyle 
+		{ 
+			Text,		// Used to communicate with the Hand Evaluator
+			Pretty,		// A nicely formatted style
+			Number,		// Strictly numeric
+		};
+
         public static OutputStyle DefaultStyle = OutputStyle.Number;
 
 		public const int Vals = Setup.Vals;
 		public const int Suits = Setup.Suits;
 
+		/// <summary>
+		/// This shifts the values of all cards, so that the highest possible card is an Ace.
+		/// This is useful for Royal Poker, turning a 6 into an Ace.
+		/// </summary>
+		const bool Royal = false;
+		const int ValOffset = Royal ? 13 - Vals : 0;
+
         public const int N = Vals * Suits;
 
-        //static char[] SuitChar = { '\u2660', '\u2661', '\u2662', '\u2663' };
         static char[] SuitChar = { '\u2660', '\u2665', '\u2666', '\u2663' };
         const ConsoleColor Black = ConsoleColor.Gray, Red = ConsoleColor.Red;
         static ConsoleColor[] Color = { Black, Red, Red, Black };
-        static string[] ValChar = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
+		static string[] ValChar = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
 
         static char[] _SuitChar = { 's', 'h', 'd', 'c' };
-        static string[] _ValChar = { "a", "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k" };
+		static string[] _ValChar = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k", "a" };
 
         public int Value, Suit, Number;
 
@@ -125,13 +138,13 @@ namespace Poker
                 if (ColorCardNum)
                 {
                     Console.ForegroundColor = Color[Suit];
-                    Console.Write(ValChar[Value]);
+					Console.Write(ValChar[Value + ValOffset]);
                     Console.Write(SuitChar[Suit]);
                     Console.ForegroundColor = ConsoleColor.Gray;
                 }
                 else
                 {
-                    Console.Write(ValChar[Value]);
+					Console.Write(ValChar[Value + ValOffset]);
                     Console.ForegroundColor = Color[Suit];
                     Console.Write(SuitChar[Suit]);
                     Console.ForegroundColor = ConsoleColor.Gray;
@@ -139,7 +152,7 @@ namespace Poker
             }
             else
             {
-                Console.Write(ValChar[Value]);
+				Console.Write(ValChar[Value + ValOffset]);
                 Console.Write(SuitChar[Suit]);
             }
         }
@@ -154,9 +167,9 @@ namespace Poker
             switch (Style)
             {
                 case OutputStyle.Pretty:
-                    return ValChar[Value] + SuitChar[Suit];
+                    return ValChar[Value + ValOffset] + SuitChar[Suit];
                 case OutputStyle.Text:
-                    return _ValChar[Value] + _SuitChar[Suit];
+					return _ValChar[Value + ValOffset] + _SuitChar[Suit];
                 case OutputStyle.Number:
                     return Number.ToString();
                 default:

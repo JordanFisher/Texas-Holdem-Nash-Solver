@@ -19,22 +19,28 @@ namespace Poker
     class CommunityRoot : CommunityNode
     {
         public CommunityRoot()
-            : base()
+            : base(null)
         {
             ClassifyAvailability();
 
             Phase = BettingPhase.PreFlop;
             InitiallyActivePlayer = Player.Button;
 
+			MakeScratchSpace();
             CreateBranches();
         }
+
+		public override string FileString()
+		{
+			return "";
+		}
 
         protected override void CreateBranches()
         {
             Branches = new List<CommunityNode>(Flop.N);
 
             foreach (Flop flop in Flop.Flops)
-                Branches.Add(new FlopCommunity(flop));
+                Branches.Add(new FlopCommunity(this, flop));
             BranchesByIndex = Branches;
         }
     }

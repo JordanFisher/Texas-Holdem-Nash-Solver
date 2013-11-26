@@ -18,8 +18,8 @@ namespace Poker
 
     class Optimize
     {
-        public static Optimize Data = new Optimize();
-        public static Optimize Data2 = new Optimize();
+		//public static Optimize Data = new Optimize();
+		//public static Optimize Data2 = new Optimize();
 
         public number SummedChance;
         public number[] SummedChance_OneCardFixed = new number[Card.N];

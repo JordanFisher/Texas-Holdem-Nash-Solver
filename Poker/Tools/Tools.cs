@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Diagnostics;
 
 using HoldemHand;
@@ -90,6 +91,39 @@ namespace Poker
             Console.WriteLine(message);
 #endif
         }
+
+		public static string SimFileDescriptor(int Iteration = 0, float EvBest = float.NaN)
+		{
+			string descriptor = string.Format("cards={1}x{2}_ev={4}_its={0}___{3}.strat", Iteration, Card.Suits, Card.Vals, Tools.LogStartTime, EvBest);
+			return descriptor;
+		}
+
+		public static string SimFileDescriptor()
+		{
+			string descriptor = string.Format("cards={0}x{1}____{2}.strat", Card.Suits, Card.Vals, Tools.LogStartTime);
+			return descriptor;
+		}
+
+		public static string LogName = null, LogStartTime = null;
+		public static void LogPrint(string format = "", params object[] args)
+		{
+			Console.WriteLine(format, args);
+
+			if (LogName == null)
+			{
+				LogStartTime = DateTime.Now.ToString("yy_mm_dd___HH_mm_ss");
+				LogName = string.Format("Log_from___{0}.txt", SimFileDescriptor());
+			}
+
+			using (var fs = new FileStream(LogName, FileMode.Append))
+			{
+				using (var sw = new StreamWriter(fs))
+				{
+					sw.WriteLine(format, args);
+				}
+			}
+		}
+
 
         public const number Big = 1000000;
         public const number NaN = -Big;

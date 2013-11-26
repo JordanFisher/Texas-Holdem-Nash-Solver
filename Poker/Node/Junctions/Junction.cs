@@ -101,7 +101,9 @@ namespace Poker
 #endif
         }
 
-        static number[] IntersectP = new number[Card.N];
+		number[] IntersectP { get { return MyCommunity.IntersectP; } }
+        //static number[] IntersectP = new number[Card.N];
+
         void CalculateBestAgainst_SingleCardOptimized(Player Opponent)
         {
             RecursiveBest(Opponent);
@@ -123,7 +125,7 @@ namespace Poker
                 }
             }
 
-            Optimize.Data.ProbabilityPrecomputation(PocketP, MyCommunity);
+            Data.ProbabilityPrecomputation(PocketP, MyCommunity);
 
             // For each pocket we might have, calculate what we should do.
             PocketData UpdatedP = new PocketData();
@@ -143,7 +145,7 @@ namespace Poker
                     int p2_1 = Game.PocketLookup[Pocket1.Cards[0], c];
                     int p2_2 = Game.PocketLookup[Pocket1.Cards[1], c];
 
-                    number Correction = Optimize.Data.MassAfterExclusion(PocketP, p1);
+                    number Correction = Data.MassAfterExclusion(PocketP, p1);
                     number Pr = Correction - IntersectP[c] + PocketP[p2_1] + PocketP[p2_2];
                     if (Pr <= Tools.eps) continue;
                     Assert.That(Correction > Tools.eps);
@@ -162,11 +164,26 @@ namespace Poker
         }
 
 #if SUIT_REDUCE
+		const int MaxThreads = 4;
+		System.Threading.Semaphore BranchSem = new System.Threading.Semaphore(MaxThreads, MaxThreads);
         void CalculateBestAgainst_FlopSuitReduced(Player Opponent)
         {
             // First decide strategy for children nodes.
-            foreach (Node node in Branches)
-                node.CalculateBestAgainst(Opponent);
+			//foreach (Node node in Branches)
+			//{				
+			//    new System.Threading.Thread(() =>
+			//        {
+			//            BranchSem.WaitOne();
+			//            node.CalculateBestAgainst(Opponent);
+			//            BranchSem.Release();
+			//        }).Start();
+			//}
+			//BranchSem.WaitOne();
+
+			var r = System.Threading.Tasks.Parallel.ForEach(Branches, node => node.CalculateBestAgainst(Opponent));
+
+			//foreach (Node node in Branches)
+			//    node.CalculateBestAgainst(Opponent);
 
             // For each pocket we might have, calculate what we should do.
             PocketData UpdatedP = new PocketData();

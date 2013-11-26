@@ -24,8 +24,8 @@ namespace Poker
 
         public Flop MyFlop;
 
-        public FlopCommunity(Flop flop)
-            : base()
+        public FlopCommunity(CommunityRoot Parent, Flop flop)
+            : base(Parent)
         {
             MyFlop = flop;
             ClassifyAvailability();
@@ -34,12 +34,18 @@ namespace Poker
             Phase = BettingPhase.Flop;
             InitiallyActivePlayer = Player.Dealer;
 
+			MakeScratchSpace();
             CreateBranches();
 
 #if DEBUG
 			InstanceCount++;
 #endif
         }
+
+		public override string FileString()
+		{
+			return FileString_Community(MyFlop);
+		}
 
         protected override void CreateBranches()
         {
@@ -53,7 +59,7 @@ namespace Poker
                 if (AvailableCard[turn])
                 {
 					if (MyFlop.IsRepresentative())
-						NewBranch = new TurnCommunity(MyFlop, turn);
+						NewBranch = new TurnCommunity(this, MyFlop, turn);
 					else
 						NewBranch = null;
 

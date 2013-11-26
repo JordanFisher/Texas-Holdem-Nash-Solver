@@ -19,18 +19,19 @@ namespace Poker
     class FirstActionNode_PreFlop : RaiseCallFoldNode
     {
         public FirstActionNode_PreFlop(Node parent, Player ActivePlayer, int Spent, int Pot)
-            : base(parent, ActivePlayer, Spent, Pot, 0)
+            : base(parent, PlayerAction.Nothing, ActivePlayer, Spent, Pot, 0)
         {
         }
 
         protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
-                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
+                RaiseBranch =      new CallFoldNode(this, PlayerAction.Raise, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             else
-                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
-            CallBranch = new RaiseCheckNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot, NumRaises);
+                RaiseBranch = new RaiseCallFoldNode(this, PlayerAction.Raise, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             
+			CallBranch =      new RaiseCheckNode   (this, PlayerAction.Call,  Tools.NextPlayer(ActivePlayer), Pot, Pot, NumRaises);
+
             Branches = new List<Node>(2);
             Branches.Add(RaiseBranch);
             Branches.Add(CallBranch);
@@ -41,8 +42,8 @@ namespace Poker
     {
         protected Node RaiseBranch, CallBranch;
 
-        public RaiseCallFoldNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
-            : base(parent, ActivePlayer, Spent, Pot, NumRaises, DataOffset)
+        public RaiseCallFoldNode(Node parent, PlayerAction ActionTaken, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
+            : base(parent, ActionTaken, ActivePlayer, Spent, Pot, NumRaises, DataOffset)
         {
             Initialize();
         }
@@ -59,15 +60,15 @@ namespace Poker
         protected override void CreateBranches()
         {
             if (NumRaises + 1 == AllowedRaises)
-                RaiseBranch =      new CallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
+                RaiseBranch =      new CallFoldNode(this, PlayerAction.Raise, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
             else
-                RaiseBranch = new RaiseCallFoldNode(this, Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
+                RaiseBranch = new RaiseCallFoldNode(this, PlayerAction.Raise,  Tools.NextPlayer(ActivePlayer), Pot, Pot + RaiseVal, NumRaises + 1, Node.MaxDepth / 2);
 
             if (Phase == BettingPhase.River)
                 CallBranch = new ShowdownNode(this, Pot);
             else
                 CallBranch = Junction.GetJunction(Phase, this, Pot, Pot);
-            
+
             Branches = new List<Node>(2);
             Branches.Add(RaiseBranch);
             Branches.Add(CallBranch);
@@ -139,8 +140,8 @@ namespace Poker
             // For each pocket we might have, calculate what we expect to happen.
 #if NAIVE
 #else
-            Optimize.Data.ChanceToActPrecomputation(PocketP, _S.Raise, MyCommunity);
-            Optimize.Data2.ChanceToActPrecomputation(PocketP, _S.Call, MyCommunity);
+            Data.ChanceToActPrecomputation(PocketP, _S.Raise, MyCommunity);
+            Data2.ChanceToActPrecomputation(PocketP, _S.Call, MyCommunity);
 #endif
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
@@ -152,8 +153,8 @@ namespace Poker
                 number RaiseChance = TotalChance(PocketP, _S.Raise, p1);
                 number CallChance = TotalChance(PocketP, _S.Call, p1);
 #else
-                number RaiseChance = Optimize.Data.ChanceToActWithExclusion(PocketP, _S.Raise, p1);
-                number CallChance = Optimize.Data2.ChanceToActWithExclusion(PocketP, _S.Call, p1);
+                number RaiseChance = Data.ChanceToActWithExclusion(PocketP, _S.Raise, p1);
+                number CallChance = Data2.ChanceToActWithExclusion(PocketP, _S.Call, p1);
 #endif
                 number FoldChance = ((number)1) - RaiseChance - CallChance;
 

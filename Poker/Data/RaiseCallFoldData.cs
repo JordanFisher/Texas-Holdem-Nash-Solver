@@ -20,13 +20,13 @@ namespace Poker
     {
 		public override void Serialize(System.IO.BinaryWriter writer)
 		{
-			Raise.Serialize(writer);
+			base.Serialize(writer);
 			Call.Serialize(writer);
 		}
 
 		public override void Deserialize(System.IO.BinaryReader reader)
 		{
-			Raise.Deserialize(reader);
+			base.Deserialize(reader);
 			Call.Deserialize(reader);
 		}
 

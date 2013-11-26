@@ -29,8 +29,8 @@ namespace Poker
         public int[] SortedPockets;
         public uint[] SortedPocketValue;
 
-        public RiverCommunity(Flop flop, int turn, int river)
-            : base()
+        public RiverCommunity(TurnCommunity Parent, Flop flop, int turn, int river)
+            : base(Parent)
         {
 #if DEBUG
 			InstanceCount++;
@@ -67,8 +67,14 @@ namespace Poker
             PocketValue.CopyTo(SortedPocketValue, 0);
 
             Array.Sort(SortedPocketValue, SortedPockets);
-            Tools.Nothing();
+
+			MakeScratchSpace();
         }
+
+		public override string FileString()
+		{
+			return FileString_Community(MyFlop, MyTurn, MyRiver);
+		}
 
         public override bool NewCollision(Pocket p)
         {

@@ -75,7 +75,7 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
 #if NAIVE
 #else
-            Optimize.Data.ChanceToActPrecomputation(PocketP, S, MyCommunity);
+            Data.ChanceToActPrecomputation(PocketP, S, MyCommunity);
 #endif
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
@@ -85,7 +85,7 @@ namespace Poker
 #if NAIVE
                 number RaiseChance = TotalChance(PocketP, S, p1);
 #else
-                number RaiseChance = Optimize.Data.ChanceToActWithExclusion(PocketP, S, p1);
+                number RaiseChance = Data.ChanceToActWithExclusion(PocketP, S, p1);
 #endif
                 number FoldChance = 1 - RaiseChance;
                 Assert.IsNum(RaiseChance);

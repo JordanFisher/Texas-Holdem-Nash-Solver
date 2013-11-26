@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
 
-using HoldemHand;
 
 namespace Poker
 {
@@ -20,17 +16,14 @@ namespace Poker
     {
         protected Node CallBranch;
 
-        public CallFoldNode(Node parent, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
-            : base(parent, ActivePlayer, Spent, Pot, NumRaises, DataOffset)
+        public CallFoldNode(Node parent, PlayerAction ActionTaken, Player ActivePlayer, int Spent, int Pot, int NumRaises, int DataOffset = 0)
+            : base(parent, ActionTaken, ActivePlayer, Spent, Pot, NumRaises, DataOffset)
         {
             Initialize();
         }
 
         protected override void Initialize()
         {
-            //PocketP = new PocketData();
-            //EV = new PocketData();
-
             S = new PocketData();
             B = new PocketData();
             if (MakeHold) Hold = new PocketData();
@@ -94,7 +87,7 @@ namespace Poker
             // For each pocket we might have, calculate what we expect to happen.
 #if NAIVE
 #else
-            Optimize.Data.ChanceToActPrecomputation(PocketP, S, MyCommunity);
+            Data.ChanceToActPrecomputation(PocketP, S, MyCommunity);
 #endif
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {

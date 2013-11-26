@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-
+using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace Poker
@@ -16,7 +16,7 @@ namespace Poker
     class Setup
     {
 		// Cards
-		public const int Vals = 3;
+		public const int Vals = 5;
 		public const int Suits = 4;
 
 		// Betting
@@ -33,6 +33,14 @@ namespace Poker
 		public const int MaxPot = SimultaneousBetting ?
 			PreDeal + PreFlop + Flop + Turn + River :	// Max pot for simultaneous betting
 			BigBlind + 4 * AllowedRaises * RaiseAmount;	// Max pot for classic betting
+
+		// Directory strategy is saved to/loaded from
+		public const string SaveDir = "Strategy";
+
+		// If true we will load a saved strategy and start from there.
+		public const bool	LoadStrategy = false;
+		public const string StrategyFile = "Strategy/cards=4x3_ev=0.03367609_its=900___13_05_26___17_05_58.strat";
+		public const int	StartIteration = 900;
     }
 
     class Program
@@ -43,34 +51,50 @@ namespace Poker
         {
 			Initialize();
 
+			if (Setup.LoadStrategy)
+			{
+				GameRoot.FullLoad(Setup.StrategyFile);
+			}
+
+			// Test saving/loading
+			//Tests.SaveLoad_Test(GameRoot);
+
 			// Test the Best ev
-            //B_Test();
+            //Tests.B_Test(GameRoot);
 
 			// Run a game
-			//var pgame = new Game(new HumanPlayer(), new HumanPlayer(), true);
+			////var pgame = new Game(new HumanPlayer(), new HumanPlayer(), true);
+			//GameRoot.Process(i => (number)1);
 			//var pgame = new Game(new HumanPlayer(), new StrategyPlayer(Node.VarS), true);
-			//var pgame = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed:0);
+			////var pgame = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed: 0);
 			//number result = (number)pgame.Round(2000000000);
-			//Console.WriteLine("Result = {0}", result);
+			////Tools.LogPrint("Result = {0}", result);
 
             // Harmonic
-            for (int i = 0; i < 1000000; i++)
+			int StartIteration = Setup.LoadStrategy ? Setup.StartIteration : 0;
+			for (int i = StartIteration; i < 1000000; i++)
             {
-				Console.WriteLine();
+				Tools.LogPrint();
 
                 number EV_FromBest = GameRoot.BestAgainstS();
-				Console.WriteLine("          EV = {0}", EV_FromBest);
+				Tools.LogPrint("({2})          EV = {0}          ({1})", EV_FromBest, PocketRoot.Best_AverageTime, i);
 
-				// Monte Carlo Simulation
-				//var game = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed: 0);
-				//float EV_FromMonteCarlo = (float)game.Round(100000000);
-				//Console.WriteLine("Monte Carlo Simulation EV = {0}", EV_FromMonteCarlo);
-				
-				// Full Simulation
-				number EV_FromSim = Tests.Simulation(Node.VarB, Node.VarS, GameRoot);
-				Console.WriteLine("Simulated EV = {0}", EV_FromSim);
+				if (i % 20 == 0 && i != StartIteration)
+				{
+					// Save
+					GameRoot.FullSave(i, EV_FromBest);
 
-                GameRoot.HarmonicAlg(i + 2);
+					//// Monte Carlo Simulation
+					var game = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed: 0);
+					float EV_FromMonteCarlo = (float)game.Round(4999999);
+					Tools.LogPrint("Monte Carlo Simulation EV = {0}", EV_FromMonteCarlo);
+
+					//// Full Simulation
+					//number EV_FromSim = Tests.Simulation(Node.VarB, Node.VarS, GameRoot);
+					//Tools.LogPrint("Simulated EV = {0}", EV_FromSim);
+				}
+
+				GameRoot.HarmonicAlg(i + 2);
             }
 
 			Console.Read();
@@ -78,6 +102,26 @@ namespace Poker
 
 		private static void Initialize()
 		{
+			Tools.LogPrint("Suits x Vals : {0} x {1}   = {2} card deck", Card.Suits, Card.Vals, Card.Suits * Card.Vals);
+
+			Tools.LogPrint("Flop reduced = {0}",
+				#if SUIT_REDUCE
+					true);
+				#else
+					false);
+				#endif
+
+			Tools.LogPrint("Precision = {0}",
+				#if SINGLE
+					"single");
+				#elif DOUBLE
+					"double");
+				#else
+					"decimal");
+				#endif
+
+			Tools.LogPrint();
+
 			Counting.Test();
 
 			Pocket.InitPockets();
@@ -86,29 +130,29 @@ namespace Poker
 			Flop.InitFlops();
 			Game.InitFlopLookup();
 
-			Node.InitPocketData();
+			//Node.InitPocketData();
 
 			CommunityRoot.Root = new CommunityRoot();
-			Console.WriteLine("Lookups initialized.");
+			Tools.LogPrint("Lookups initialized.");
 
 #if DEBUG
-			Console.WriteLine("#(Flops) = {0}", Flop.Flops.Count);
-			Console.WriteLine("#(Unique Flops) = {0}", Flop.Flops.Count(fl => fl.IsRepresentative()));
-			Console.WriteLine("#(FlopCommunites) = {0}", FlopCommunity.InstanceCount);
-			Console.WriteLine("#(TurnCommunity) = {0}", TurnCommunity.InstanceCount);
-			Console.WriteLine("#(RiverCommunity) = {0}", RiverCommunity.InstanceCount);
-			Console.WriteLine();
+			Tools.LogPrint("#(Flops) = {0}", Flop.Flops.Count);
+			Tools.LogPrint("#(Unique Flops) = {0}", Flop.Flops.Count(fl => fl.IsRepresentative()));
+			Tools.LogPrint("#(FlopCommunites) = {0}", FlopCommunity.InstanceCount);
+			Tools.LogPrint("#(TurnCommunity) = {0}", TurnCommunity.InstanceCount);
+			Tools.LogPrint("#(RiverCommunity) = {0}", RiverCommunity.InstanceCount);
+			Tools.LogPrint();
 #endif
 
 			PocketRoot.Root = GameRoot = new PocketRoot();
-			Console.WriteLine("Data structure initialized.");
+			Tools.LogPrint("Data structure initialized.");
 
 #if DEBUG
-			Console.WriteLine("#(FlopRoots) = {0}", FlopRoot.InstanceCount);
-			Console.WriteLine("#(PocketDatas) = {0}", PocketData.InstanceCount);
-			Console.WriteLine("#(BetNodes) = {0}", BetNode.InstanceCount);
-			Console.WriteLine("#(ShowdownNodes) = {0}", ShowdownNode.InstanceCount);
-			Console.WriteLine();
+			Tools.LogPrint("#(FlopRoots) = {0}", FlopRoot.InstanceCount);
+			Tools.LogPrint("#(PocketDatas) = {0}", PocketData.InstanceCount);
+			Tools.LogPrint("#(BetNodes) = {0}", BetNode.InstanceCount);
+			Tools.LogPrint("#(ShowdownNodes) = {0}", ShowdownNode.InstanceCount);
+			Tools.LogPrint();
 #endif
 		}
     }

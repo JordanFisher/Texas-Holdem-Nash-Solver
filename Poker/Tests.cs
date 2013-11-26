@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Poker
 {
@@ -26,7 +27,7 @@ namespace Poker
 				number EV1 = _Simulation(S1, S2, root);
 				number EV2 = -_Simulation(S2, S1, root);
 				number TotalEV = ((number).5) * (EV1 + EV2);
-				Console.WriteLine("EV = {0} : {1} -> {2}", EV1, EV2, TotalEV);
+				Tools.LogPrint("EV = {0} : {1} -> {2}", EV1, EV2, TotalEV);
 				return TotalEV;
 			}
 		}
@@ -86,8 +87,8 @@ namespace Poker
 					}
 				}
 
-				//Console.WriteLine("  EV(p1 = {0}) = {1}", p1, PocketEV / PocketTotalMass);
-				//Console.WriteLine("  EV(p1 = {0}) = {1}", Pocket.Pockets[p1], PocketEV / PocketTotalMass);
+				//Tools.LogPrint("  EV(p1 = {0}) = {1}", p1, PocketEV / PocketTotalMass);
+				//Tools.LogPrint("  EV(p1 = {0}) = {1}", Pocket.Pockets[p1], PocketEV / PocketTotalMass);
 			}
 			Assert.IsNum(EV / TotalMass);
 
@@ -96,31 +97,47 @@ namespace Poker
 
 		/// <summary>
 		/// Given S and B = B(S), verify that B is the best strategy against S.
-		/// Procedure: Verify EV(~B, S) < EV(B, S) for all other strategies ~B.
+		/// Procedure: Verify EV(B', S) is less than EV(B, S) for all other strategies B'.
 		/// </summary>
-		private static void B_Test(PocketRoot root)
+		public static void B_Test(PocketRoot root)
 		{
 			number EV;
-			Assert.That(Node.MakeHold);
 
-			// Strategy S
-			root.Process(i => (number)Math.Cos(i));
-			//root.Process(i => .5);
-			//root.Process(Node.VarB, (n, i) => Math.Sin(i));
-
-			// Strategy B = Hold = B(S). Must have Hold data initialized.
+			// Calculate Strategy B = B(S)
 			EV = root.BestAgainstS();
-			root.CopyTo(Node.VarB, Node.VarHold);
 
-			// Calculate EV(~B, S) for many ~B
+			// Calculate EV(B', S) for many B'
 			number Min = number.MaxValue;
 			for (int k = 0; k < 10000; k++)
 			{
-				root.CopyTo(Node.VarHold, Node.VarB);
-				root.Process(Node.VarB, (n, i) => n.B[i] + (number)((Tools.Rnd.NextDouble() - .5f) * .01f));
-				number ModdedEV = Simulation(Node.VarB, Node.VarS, root);
+				// Pure passive
+				//root.Process(Node.VarB, (n, i) => (number)0);
+
+				// Pure aggressive
+				//root.Process(Node.VarB, (n, i) => (number)1);
+
+				// Totally randomize
+				//root.Process(Node.VarB, (n, i) => (number)(Tools.Rnd.NextDouble()));
+
+				// Random perturbation
+				//root.Process(Node.VarB, (n, i) => n.B[i] + (number)((Tools.Rnd.NextDouble() - .5f) * .1f));
+
+				// Random raise
+				root.Process(Node.VarB, (n, i) => n.B[i] + (number)(Tools.Rnd.NextDouble() > .85 ? 1 : 0));
+
+				// Random fold
+				//root.Process(Node.VarB, (n, i) => n.B[i] + (number)(Tools.Rnd.NextDouble() > .99 ? -1 : 0));
+
+				// Full simulation
+				//number ModdedEV = Simulation(Node.VarB, Node.VarS, root);
+
+				// Monte Carlo simulation
+				var game = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed: 0);
+				float ModdedEV = (float)game.Round(4999999);
+				Tools.LogPrint("Monte Carlo Simulation EV = {0}", ModdedEV);
+				
 				Min = Math.Min(Min, EV - ModdedEV);
-				Console.WriteLine("Difference = {0}, min = {1}", EV - ModdedEV, Min);
+				Tools.LogPrint("Difference = {0}, min = {1}", EV - ModdedEV, Min);
 			}
 		}
 
@@ -131,19 +148,44 @@ namespace Poker
 
 			root.Process(Node.VarHold, (n, j) => number.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
 			EV = Simulation(Node.VarHold, Node.VarS, root);
-			Console.WriteLine("Simulated EV = {0}  (perturbed)", EV);
+			Tools.LogPrint("Simulated EV = {0}  (perturbed)", EV);
 
 			root.Process(Node.VarHold, (n, j) => .5f);
 			EV = Simulation(Node.VarS, Node.VarHold, root);
-			Console.WriteLine("Simulated EV = {0}  (idiot)", EV);
+			Tools.LogPrint("Simulated EV = {0}  (idiot)", EV);
 
 			root.Process(Node.VarHold, (n, j) => 1);
 			EV = Simulation(Node.VarS, Node.VarHold, root);
-			Console.WriteLine("Simulated EV = {0}  (aggressive)", EV);
+			Tools.LogPrint("Simulated EV = {0}  (aggressive)", EV);
 
 			root.Process(Node.VarHold, (n, j) => 0);
 			EV = Simulation(Node.VarS, Node.VarHold, root);
-			Console.WriteLine("Simulated EV = {0}  (passive)", EV);
+			Tools.LogPrint("Simulated EV = {0}  (passive)", EV);
+		}
+
+		public static void SaveLoad_Test(PocketRoot root)
+		{
+			Stopwatch stopwatch;
+
+			root.Process(i => (number)Math.Cos(i));
+			var hash_saved = root.Hash(Node.VarS);
+
+			stopwatch = Stopwatch.StartNew();
+			var file = root.FullSave();
+			stopwatch.Stop();
+			Tools.LogPrint("Save done! Time = {0}", stopwatch.Elapsed.TotalSeconds);
+
+			root.Process(i => 0);
+			var hash_cleared = root.Hash(Node.VarS);
+
+			stopwatch = Stopwatch.StartNew();
+			root.FullLoad(file);
+			var hash_loaded = root.Hash(Node.VarS);
+			stopwatch.Stop();
+
+			Tools.LogPrint("Load done! Time = {0}", stopwatch.Elapsed.TotalSeconds);
+
+			Tools.LogPrint("Hash comparison {0} vs {1}.  (Sanity check : {2})", hash_saved, hash_loaded, hash_cleared);
 		}
 	}
 }
