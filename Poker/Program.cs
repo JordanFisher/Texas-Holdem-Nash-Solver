@@ -18,6 +18,8 @@ namespace Poker
 		// Cards
 		public const int Vals = 3;
 		public const int Suits = 4;
+		public const bool Flushes = true;
+		public const bool SuitReduce = false;
 
 		// Betting
 		public const bool SimultaneousBetting = false;
@@ -186,12 +188,7 @@ namespace Poker
 		{
 			Tools.LogPrint("Suits x Vals : {0} x {1}   = {2} card deck", Card.Suits, Card.Vals, Card.Suits * Card.Vals);
 
-			Tools.LogPrint("Flop reduced = {0}",
-				#if SUIT_REDUCE
-					true);
-				#else
-					false);
-				#endif
+			Tools.LogPrint("Flop reduced = {0}", Flop.SuitReduce);
 
 			Tools.LogPrint("Precision = {0}",
 				#if SINGLE

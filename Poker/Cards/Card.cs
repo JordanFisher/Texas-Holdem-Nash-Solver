@@ -29,7 +29,7 @@ namespace Poker
         public static OutputStyle DefaultStyle = OutputStyle.Number;
 
 		public const int Vals = Setup.Vals;
-		public const int Suits = Setup.Suits;
+		public const int Suits = Setup.Flushes ? Setup.Suits : 1;
 
 		/// <summary>
 		/// This shifts the values of all cards, so that the highest possible card is an Ace.
@@ -128,6 +128,14 @@ namespace Poker
 
             return s;
         }
+
+		public static int SetSuit(int c, int suit)
+		{
+			var card = new Card(c);
+			card.Suit = suit;
+			return card.CalculateNumber();
+		}
+
 
         public static bool ColorCardNum = true;
         public static bool ColorCards = true;

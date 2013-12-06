@@ -36,18 +36,20 @@ namespace Poker
         {
             MyFlop = ((FlopCommunity)MyCommunity).MyFlop;
 
-#if SUIT_REDUCE
-            FindRepresentative();
+			if (Flop.SuitReduce)
+			{
+				FindRepresentative();
 
-            // Only initialize if this is a representative branch
-            if (IsRepresentative())
-                base.Initialize();
-#else
-            base.Initialize();
-#endif
+				// Only initialize if this is a representative branch
+				if (IsRepresentative())
+					base.Initialize();
+			}
+			else
+			{
+				base.Initialize();
+			}
         }
 
-#if SUIT_REDUCE
         public FlopRoot Representative;
         public bool IsRepresentative() { return MyFlop.IsRepresentative(); }
 
@@ -69,6 +71,5 @@ namespace Poker
             if (IsRepresentative())
                 base.CalculateBestAgainst(Opponent);
         }
-#endif
     }
 }

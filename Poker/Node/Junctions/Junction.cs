@@ -92,11 +92,14 @@ namespace Poker
 			// Otherwise we're preflop and the Flop is next, which requires a special suit reduce.
 			else
 			{
-#if SUIT_REDUCE
-				CalculateBestAgainst_FlopSuitReduced(Opponent);
-#else
-                CalculateBestAgainst_Naive(Opponent);
-#endif
+				if (Flop.SuitReduce)
+				{
+					CalculateBestAgainst_FlopSuitReduced(Opponent);
+				}
+				else
+				{
+					CalculateBestAgainst_Naive(Opponent);
+				}
 			}
 #endif
         }
@@ -176,7 +179,6 @@ namespace Poker
 			}
 		}
 
-#if SUIT_REDUCE
         void CalculateBestAgainst_FlopSuitReduced(Player Opponent)
         {
 			System.Threading.Tasks.Parallel.ForEach(Branches, node => node.CalculateBestAgainst(Opponent));
@@ -231,7 +233,7 @@ namespace Poker
                 Assert.IsNum(EV[p1]);
             }
         }
-#endif
+
         void CalculateBestAgainst_Naive(Player Opponent)
         {
             // First decide strategy for children nodes.

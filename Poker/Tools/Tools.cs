@@ -271,7 +271,9 @@ namespace Poker
             return GetHand(Flop.Flops[flop], turn, river, Pocket.Pockets[p]);
         }
         public static Hand GetHand(Flop flop, int turn, int river, Pocket p)
-        {
+		{
+			if (!Setup.Flushes) return GetHand_Flopless(flop.c1, flop.c2, flop.c3, turn, river, p.Cards[0], p.Cards[1]);
+
             string CommunityStr = Card.ToString(Card.OutputStyle.Text, flop.c1, flop.c2, flop.c3, turn, river);
             string PocketStr = p.ToString(Card.OutputStyle.Text);
 
@@ -279,11 +281,38 @@ namespace Poker
         }
         public static Hand GetHand(int c1, int c2, int c3, int c4, int c5, int c6, int c7)
         {
+			if (!Setup.Flushes) return GetHand_Flopless(c1, c2, c3, c4, c5, c6, c7);
+
             string CommunityStr = Card.ToString(Card.OutputStyle.Text, c1, c2, c3, c4, c5);
             string PocketStr = Card.ToString(Card.OutputStyle.Text, c6, c7);
 
             return new Hand(PocketStr, CommunityStr);
         }
+
+		public static Hand GetHand_Flopless(params int[] c)
+		{
+			// Change suit of first 4 community cards to be all different.
+			for (int i = 0; i < 4; i++)
+				c[i] = Card.SetSuit(c[i], i);
+
+			// Make sure remaining 3 cards (1 community card, 2 pocket cards) are not the same as any other card.
+			for (int i = 4; i < 7; i++)
+			{
+				for (int j = 0; j < i; j++)
+				{
+					if (c[i] == c[j])
+					{
+						c[i] = Card.SetSuit(c[i], (Card.GetSuit(c[i]) + 1) % 4);
+						j = -1;
+					}
+				}
+			}
+
+			string CommunityStr = Card.ToString(Card.OutputStyle.Text, c[0], c[1], c[2], c[3], c[4]);
+			string PocketStr = Card.ToString(Card.OutputStyle.Text, c[5], c[6]);
+
+			return new Hand(PocketStr, CommunityStr);
+		}
 
         public static uint Eval(Flop flop, int turn, int river, Pocket p)
         {

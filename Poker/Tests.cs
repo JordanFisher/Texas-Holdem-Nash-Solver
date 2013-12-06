@@ -61,21 +61,25 @@ namespace Poker
 								if (Pocket.Pockets[p1].Contains(river)) continue;
 								if (Pocket.Pockets[p2].Contains(river)) continue;
 
-#if SUIT_REDUCE
-								// Map all of our cards (community and pockets) using the flop map
-								// (because we are using a suit reduced data structure).
-								var f = Flop.Flops[flop];
-								int _flop = Flop.IndexOf(f.Representative);
-								int _turn = f.CardMap[turn];
-								int _river = f.CardMap[river];
+								number ev;
+								if (Flop.SuitReduce)
+								{
+									// Map all of our cards (community and pockets) using the flop map
+									// (because we are using a suit reduced data structure).
+									var f = Flop.Flops[flop];
+									int _flop = Flop.IndexOf(f.Representative);
+									int _turn = f.CardMap[turn];
+									int _river = f.CardMap[river];
 
-								int _p1 = f.PocketMap[p1];
-								int _p2 = f.PocketMap[p2];
+									int _p1 = f.PocketMap[p1];
+									int _p2 = f.PocketMap[p2];
 
-								number ev = root.Simulate(S1, S2, _p1, _p2, _flop, _turn, _river);
-#else
-								number ev = root.Simulate(S1, S2, p1, p2, flop, turn, river);
-#endif
+									ev = root.Simulate(S1, S2, _p1, _p2, _flop, _turn, _river);
+								}
+								else
+								{
+									ev = root.Simulate(S1, S2, p1, p2, flop, turn, river);
+								}
 
 								TotalMass += 1;
 								EV += ev;

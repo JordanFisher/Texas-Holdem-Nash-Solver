@@ -120,34 +120,37 @@ namespace Poker
         public override void SetFlop(int c1, int c2, int c3)
         {
             int flop = Game.FlopLookup[c1, c2, c3];
-            
-#if SUIT_REDUCE
-			TrueFlop = Flop.Flops[flop];
-			flop = Flop.RepresentativeOf(flop);
 
-			TruePocket = Pocket;
-			Pocket = TrueFlop.PocketMap[Pocket];
-#endif
+			if (Flop.SuitReduce)
+			{
+				TrueFlop = Flop.Flops[flop];
+				flop = Flop.RepresentativeOf(flop);
+
+				TruePocket = Pocket;
+				Pocket = TrueFlop.PocketMap[Pocket];
+			}
 
 			Head = Head.AdvanceHead(flop);
 		}
 
         public override void SetTurn(int c1)
         {
-#if SUIT_REDUCE
-			TrueTurn = c1;
-			c1 = TrueFlop.CardMap[c1];
-#endif
+			if (Flop.SuitReduce)
+			{
+				TrueTurn = c1;
+				c1 = TrueFlop.CardMap[c1];
+			}
 
 			Head = Head.AdvanceHead(c1);
         }
 
         public override void SetRiver(int c1)
         {
-#if SUIT_REDUCE
-			TrueRiver = c1;
-			c1 = TrueFlop.CardMap[c1];
-#endif
+			if (Flop.SuitReduce)
+			{
+				TrueRiver = c1;
+				c1 = TrueFlop.CardMap[c1];
+			}
 
             Head = Head.AdvanceHead(c1);
         }
