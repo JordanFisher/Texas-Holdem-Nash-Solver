@@ -19,7 +19,7 @@ namespace Poker
 		public const int Vals = 3;
 		public const int Suits = 4;
 		public const bool Flushes = true;
-		public const bool SuitReduce = false;
+		public const bool SuitReduce = true;
 
 		// Betting
 		public const bool SimultaneousBetting = false;
@@ -216,7 +216,7 @@ namespace Poker
 
 #if DEBUG
 			Tools.LogPrint("#(Flops) = {0}", Flop.Flops.Count);
-			Tools.LogPrint("#(Unique Flops) = {0}", Flop.Flops.Count(fl => fl.IsRepresentative()));
+			//Tools.LogPrint("#(Unique Flops) = {0}", Flop.Flops.Count(fl => fl.IsRepresentative()));
 			Tools.LogPrint("#(FlopCommunites) = {0}", FlopCommunity.InstanceCount);
 			Tools.LogPrint("#(TurnCommunity) = {0}", TurnCommunity.InstanceCount);
 			Tools.LogPrint("#(RiverCommunity) = {0}", RiverCommunity.InstanceCount);

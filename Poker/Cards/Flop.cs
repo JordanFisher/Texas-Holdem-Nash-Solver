@@ -123,7 +123,7 @@ namespace Poker
 
         public Flop Representative;
         static Flop CurrentRepresentative = null;
-        public bool IsRepresentative() { return this == Representative; }
+        public bool IsRepresentative() { return this == Representative || !Flop.SuitReduce; }
 
         private static int[] SuitMap = new int[Card.Suits];
         private static int SuitMapSum = 0;
