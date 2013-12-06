@@ -163,24 +163,23 @@ namespace Poker
             }
         }
 
+		public override void _CombineStrats(int p, number t1, number t2, Player player)
+		{
+			if (Phase == BettingPhase.Flop)
+			{
+				//base._CombineStrats(p, t1, t2, player);
+				System.Threading.Tasks.Parallel.ForEach(Branches, node => node._CombineStrats(p, t1, t2, player));
+			}
+			else
+			{
+				base._CombineStrats(p, t1, t2, player);
+			}
+		}
+
 #if SUIT_REDUCE
-		const int MaxThreads = 4;
-		System.Threading.Semaphore BranchSem = new System.Threading.Semaphore(MaxThreads, MaxThreads);
         void CalculateBestAgainst_FlopSuitReduced(Player Opponent)
         {
-            // First decide strategy for children nodes.
-			//foreach (Node node in Branches)
-			//{				
-			//    new System.Threading.Thread(() =>
-			//        {
-			//            BranchSem.WaitOne();
-			//            node.CalculateBestAgainst(Opponent);
-			//            BranchSem.Release();
-			//        }).Start();
-			//}
-			//BranchSem.WaitOne();
-
-			var r = System.Threading.Tasks.Parallel.ForEach(Branches, node => node.CalculateBestAgainst(Opponent));
+			System.Threading.Tasks.Parallel.ForEach(Branches, node => node.CalculateBestAgainst(Opponent));
 
 			//foreach (Node node in Branches)
 			//    node.CalculateBestAgainst(Opponent);

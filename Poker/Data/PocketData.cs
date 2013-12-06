@@ -35,7 +35,7 @@ namespace Poker
 		{
 			for (int i = 0; i < Pocket.N; i++)
 			{
-				data[i] = reader.ReadSingle();
+				data[i] = (number)reader.ReadSingle();
 			}
 		}
 
@@ -99,6 +99,8 @@ namespace Poker
 
         public virtual void Linear(int pocket, number t1, PocketData data1, number t2, PocketData data2)
         {
+			//t1 = .5 * (t1 + Node.__t);
+			//t2 = .5 * (t2 + (1 - Node.__t));
             this[pocket] = t1 * data1[pocket] + t2 * data2[pocket];
         }
 
@@ -106,6 +108,16 @@ namespace Poker
         {
             this[pocket] = t1 * data1[pocket] + t2 * data2[pocket] + t3 * data3[pocket];
         }
+
+		public virtual bool IsValid()
+		{
+			for (int i = 0; i < Pocket.N; i++)
+			{
+				if (data[i] < -Tools.eps || data[i] > 1 + Tools.eps) return false;
+			}
+
+			return true;
+		}
 
         public virtual string[] Formated
         {

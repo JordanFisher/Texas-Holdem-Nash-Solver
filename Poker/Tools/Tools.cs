@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -85,6 +86,26 @@ namespace Poker
 
     class Tools
     {
+		public static void Incr<T>(ref T t)
+		{
+			int i = (int)(object)t;
+			i++;
+			if (i >= Length<T>())
+				i = 0;
+			t = (T)(object)i;
+		}
+
+		public static int Length<T>()
+		{
+			return GetValues<T>().Count();
+		}
+
+		public static IEnumerable<T> GetValues<T>()
+		{
+			return (from x in typeof(T).GetFields(BindingFlags.Static | BindingFlags.Public)
+					select (T)x.GetValue(null));
+		}
+
         public static void Raise(string message)
         {
 #if DEBUG

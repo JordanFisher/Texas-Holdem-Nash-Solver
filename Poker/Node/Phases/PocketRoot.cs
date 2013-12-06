@@ -86,5 +86,109 @@ namespace Poker
         {
             return _Simulate(S1, S2, p1, p2, ref BranchIndex, 0);
         }
+
+		public number PureIterate(int n)
+		{
+			number EV_FromBest = BestAgainstS();
+
+			Tools.LogPrint();
+			Tools.LogPrint("{2,-14} EV = {0,-20} ({1})", EV_FromBest, PocketRoot.Best_AverageTime, string.Format("({0})", n));
+
+			Program.Iteration_Auxillary(n, EV_FromBest);
+
+			CopyTo(VarB, VarS);
+
+			return EV_FromBest;
+		}
+
+		public number MiniHarmonicAlg(int n, bool UseNaive = true)
+		{
+			number EV_FromBest = BestAgainstS();
+
+			Tools.LogPrint();
+			Tools.LogPrint("{2,-14} EV = {0,-20} ({1})", EV_FromBest, PocketRoot.Best_AverageTime, string.Format("({0})", n));
+
+			Program.Iteration_Auxillary(n, EV_FromBest);
+
+			Switch(VarS, VarHold);
+			Switch(VarB, VarS);
+
+			for (int iter = 0; iter < 1; iter++)
+			{
+				number EV = HarmonicAlg(iter, UseNaive, Output : false);
+			}
+			Switch(VarS, VarB);
+			Switch(VarHold, VarS);
+
+			n += 3;
+
+			number t = ((number)1) / n;
+			number s = ((number)1) - t;
+
+			if (UseNaive)
+				NaiveCombine(Node.VarS, s, Node.VarB, t, Node.VarS);
+			else
+				CombineStrats(s, t);
+
+			return EV_FromBest;
+		}
+
+		public number HarmonicAlg(int n, bool UseNaive = true, bool Output = true)
+		{
+			number EV_FromBest = BestAgainstS();
+
+			if (Output)
+			{
+				Tools.LogPrint();
+				Tools.LogPrint("{2,-14} EV = {0,-20} ({1})", EV_FromBest, PocketRoot.Best_AverageTime, string.Format("({0})", n));
+				Program.Iteration_Auxillary(n, EV_FromBest);
+			}
+
+			n += 3;
+
+			number t = ((number)1) / n;
+			number s = ((number)1) - t;
+
+			//Node.__t = s;
+			if (UseNaive)
+				NaiveCombine(Node.VarS, s, Node.VarB, t, Node.VarS);
+			else
+				CombineStrats(s, t);
+
+			return EV_FromBest;
+		}
+
+		public number B2Defense(int n)
+		{
+			number EV_FromBest = BestAgainstS();
+
+			Switch(VarS,	VarB);
+			Switch(VarHold, VarB);
+
+			number EV_FromBest_2 = BestAgainstS();
+
+			Tools.LogPrint();
+			Tools.LogPrint("({3})          EV = {0},  EV2 = {1}          ({2})", EV_FromBest, EV_FromBest_2, PocketRoot.Best_AverageTime, n);
+
+			Switch(VarHold, VarS);
+
+			Program.Iteration_Auxillary(n, EV_FromBest);
+
+			number t = EV_FromBest / (EV_FromBest + EV_FromBest_2);
+			//t /= 10;
+			//t /= (n + 100) / 100 * 10;
+			t /= (n + 1);
+
+			CombineStrats(1 - t, t);
+			//NaiveCombine(Node.VarS, 1 - t, Node.VarB, t, Node.VarS);
+
+			// Test
+			//number s_vs_b = Tests.Simulation(Node.VarS, Node.VarHold, this);
+			//Tools.LogPrint("Test -> {0}", s_vs_b);
+			//number b2_vs_b = Tests.Simulation(Node.VarB, Node.VarHold, this);
+			//Tools.LogPrint("Test -> {0}", b2_vs_b);
+
+			return EV_FromBest;
+		}
     }
 }

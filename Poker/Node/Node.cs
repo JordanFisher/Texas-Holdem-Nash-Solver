@@ -292,34 +292,6 @@ namespace Poker
             if (Branches != null) foreach (Node node in Branches) node.CopyTo(Source, Destination);
         }
 
-        public void BiHarmonicAlg(int n, number ev1, number ev2)
-        {
-            n++;
-            number t = ((number)1) / n;
-            number s = ((number)1) - t;
-
-            number _ev1 = n - 1, _ev2 = ((number)1), _ev3 = ((number)1) * _ev2;
-            //number _ev1 = 1f / ev1 + n, _ev2 = 1f / ev2, _ev3 = .5f * _ev2;
-
-            double power = 1; //1.2f;
-            _ev1 = (number)Math.Pow((double)_ev1, power);
-            _ev2 = (number)Math.Pow((double)_ev2, power);
-            _ev3 = (number)Math.Pow((double)_ev3, power);
-
-            number total = _ev1 + _ev2 + _ev3;
-            CombineStrats(_ev1 / total, _ev2 / total, _ev3 / total);
-        }
-
-        public void HarmonicAlg(int n)
-        {
-            n++;
-            number t = ((number)1) / n;
-            number s = ((number)1) - t;
-
-            //CombineStrats(s, t);
-            NaiveCombine(Node.VarS, s, Node.VarB, t, Node.VarS);
-        }
-
         public void Switch(Var S1, Var S2)
         {
             PocketData Data1 = S1(this), Data2 = S2(this);
@@ -333,10 +305,13 @@ namespace Poker
 
         public void Process(Action<int, Node> PocketMod)
         {
-            for (int i = 0; i < Pocket.N; i++)
-                PocketMod(i, this);
+			if (S != null)
+			{
+				for (int i = 0; i < Pocket.N; i++)
+					PocketMod(i, this);
+			}
 
-            if (Branches == null) foreach (Node node in Branches)
+            if (Branches != null) foreach (Node node in Branches)
                 node.Process(PocketMod);
         }
 
@@ -536,22 +511,40 @@ namespace Poker
             return 0;
         }
 
+		public static number __t = 0;
         public void CombineStrats(number t1, number t2)
         {
-            for (int p = 0; p < Pocket.N; p++)
-                _CombineStrats(p, t1, t2);
+			if (Setup.SimultaneousBetting)
+			{
+				for (int p = 0; p < Pocket.N; p++)
+					CombineStrats_Simultaneous(p, t1, t2);
+			}
+			else
+			{
+				for (int p = 0; p < Pocket.N; p++)
+				{
+					_CombineStrats(p, t1, t2, Player.Button);
+					_CombineStrats(p, t1, t2, Player.Dealer);
+				}
+			}
         }
-        void _CombineStrats(int p, number t1, number t2)
+        void CombineStrats_Simultaneous(int p, number t1, number t2)
         {
             number _t1, _t2;
 
-            //if (S != null && B != null && !number.IsNaN(S[p]) && !number.IsNaN(B[p]))
-            if (S != null && B != null &&
-                MyCommunity.AvailablePocket[p])
+            if (S != null && B != null && MyCommunity.AvailablePocket[p])
             {
                 number normalize = (t1 * S[p] + t2 * B[p]);
-                _t1 = t1 * S[p] / normalize;
-                _t2 = t2 * B[p] / normalize;
+				
+				if (normalize == 0)
+				{
+					_t1 = _t2 = 0;
+				}
+				else
+				{
+					_t1 = t1 * S[p] / normalize;
+					_t2 = t2 * B[p] / normalize;
+				}
 
                 S.Linear(p, t1, S, t2, B);
             }
@@ -561,42 +554,15 @@ namespace Poker
             }
 
             if (Branches != null) foreach (Node node in Branches)
-                    node._CombineStrats(p, _t1, _t2);
+                    node.CombineStrats_Simultaneous(p, _t1, _t2);
         }
+		public virtual void _CombineStrats(int p, number t1, number t2, Player player)
+		{
+			if (Branches != null) foreach (Node node in Branches)
+					node._CombineStrats(p, t1, t2, player);
+		}
 
-        public void CombineStrats(number t1, number t2, number t3)
-        {
-            for (int p = 0; p < Pocket.N; p++)
-                _CombineStrats(p, t1, t2, t3);
-        }
-        void _CombineStrats(int p, number t1, number t2, number t3)
-        {
-            PocketData S1 = Hold, S2 = S, S3 = B;
-
-            number _t1, _t2, _t3;
-
-            //if (S1 != null && S2 != null && S3 != null && !number.IsNaN(S1[p]) && !number.IsNaN(S2[p]) && !number.IsNaN(S3[p]))
-            if (S1 != null && S2 != null && S3 != null &&
-                MyCommunity.AvailablePocket[p])
-            {
-                number normalize = (t1 * S1[p] + t2 * S2[p] + t3 * S3[p]);
-                Assert.That(normalize != 0);
-                _t1 = t1 * S1[p] / normalize;
-                _t2 = t2 * S2[p] / normalize;
-                _t3 = t3 * S3[p] / normalize;
-
-                S.Linear(p, t1, S1, t2, S2, t3, S3);
-            }
-            else
-            {
-                _t1 = t1; _t2 = t2; _t3 = t3;
-            }
-
-            if (Branches != null) foreach (Node node in Branches)
-                    node._CombineStrats(p, _t1, _t2, _t3);
-        }
-
-        void NaiveCombine(Var S1, number t1, Var S2, number t2, Var Destination)
+        public void NaiveCombine(Var S1, number t1, Var S2, number t2, Var Destination)
         {
             PocketData s1 = S1(this), s2 = S2(this), destination = Destination(this);
 
@@ -604,7 +570,6 @@ namespace Poker
             {
                 for (int p = 0; p < Pocket.N; p++)
                     destination.Linear(p, t1, s1, t2, s2);
-                    //destination[i] = t1 * s1[i] + t2 * s2[i];
             }
 
             if (Branches != null) foreach (Node node in Branches)

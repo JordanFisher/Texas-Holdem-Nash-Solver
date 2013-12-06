@@ -159,6 +159,59 @@ namespace Poker
             }
         }
 
+		public override void _CombineStrats(int p, number t1, number t2, Player player)
+		{
+			t1 = Tools.Restrict(t1); t2 = 1 - t1;
+
+			number _t1, _t2;
+
+			if (S != null && B != null && ActivePlayer == player && MyCommunity.AvailablePocket[p])
+			{
+				// Update Raise branch
+				number normalize_r = (t1 * S[p] + t2 * B[p]);
+
+				if (normalize_r == 0)
+				{
+					_t1 = _t2 = 0;
+				}
+				else
+				{
+					_t1 = t1 * S[p] / normalize_r;
+					_t2 = t2 * B[p] / normalize_r;
+				}
+
+				RaiseBranch._CombineStrats(p, _t1, _t2, player);
+
+				// Update Check branch
+				number normalize_c = (t1 * (1 - S[p]) + t2 * (1 - B[p]));
+
+				if (normalize_c == 0)
+				{
+					_t1 = _t2 = 0;
+				}
+				else
+				{
+					_t1 = t1 * (1 - S[p]) / normalize_c;
+					_t2 = t2 * (1 - B[p]) / normalize_c;
+				}
+
+				CheckBranch._CombineStrats(p, _t1, _t2, player);
+
+				// Update this node's strategy
+				S.Linear(p, t1, S, t2, B);
+
+				Assert.That(t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1 && (Tools.Equals(t1 + t2, 1) || t1 == 0 && t2 == 0));
+				Assert.That(S.IsValid());
+			}
+			else
+			{
+				_t1 = t1; _t2 = t2;
+
+				RaiseBranch._CombineStrats(p, _t1, _t2, player);
+				CheckBranch._CombineStrats(p, _t1, _t2, player);
+			}
+		}
+
         public override number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             PocketData Data = (ActivePlayer == Player.Button ? S1 : S2)(this);

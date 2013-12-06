@@ -49,7 +49,7 @@ namespace Poker
             Call[pocket] = c;
         }
 
-        public bool IsValid()
+        public override bool IsValid()
         {
             for (int i = 0; i < Pocket.N; i++)
             {

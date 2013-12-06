@@ -119,10 +119,14 @@ namespace Poker
                         Data.SummedChance_OneCardFixed[c2];
 
                     Correction = Data.MassAfterExclusion(PocketP, p);
-                    if (Correction == 0)
-                        ChanceToWin = 0;
-                    else
-                        ChanceToWin /= Correction;
+					if (Correction < Tools.eps)
+					{
+						ChanceToWin = 0;
+					}
+					else
+					{
+						ChanceToWin /= Correction;
+					}
 
                     EV[p] = ChanceToWin * Pot;
                     Assert.IsNum(EV[p]);

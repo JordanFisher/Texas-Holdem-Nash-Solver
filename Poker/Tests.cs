@@ -107,7 +107,7 @@ namespace Poker
 			EV = root.BestAgainstS();
 
 			// Calculate EV(B', S) for many B'
-			number Min = number.MaxValue;
+			double Min = double.MaxValue;
 			for (int k = 0; k < 10000; k++)
 			{
 				// Pure passive
@@ -135,9 +135,9 @@ namespace Poker
 				var game = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed: 0);
 				float ModdedEV = (float)game.Round(4999999);
 				Tools.LogPrint("Monte Carlo Simulation EV = {0}", ModdedEV);
-				
-				Min = Math.Min(Min, EV - ModdedEV);
-				Tools.LogPrint("Difference = {0}, min = {1}", EV - ModdedEV, Min);
+
+				Min = Math.Min((double)Min, (double)EV - (double)ModdedEV);
+				Tools.LogPrint("Difference = {0}, min = {1}", (double)EV - (double)ModdedEV, Min);
 			}
 		}
 
@@ -146,11 +146,11 @@ namespace Poker
 			number EV;
 			Assert.That(Node.MakeHold);
 
-			root.Process(Node.VarHold, (n, j) => number.IsNaN(n.B[j]) ? 0 : n.B[j] + .01f);
+			root.Process(Node.VarHold, (n, j) => n.B[j] + (number).01);
 			EV = Simulation(Node.VarHold, Node.VarS, root);
 			Tools.LogPrint("Simulated EV = {0}  (perturbed)", EV);
 
-			root.Process(Node.VarHold, (n, j) => .5f);
+			root.Process(Node.VarHold, (n, j) => (number).5);
 			EV = Simulation(Node.VarS, Node.VarHold, root);
 			Tools.LogPrint("Simulated EV = {0}  (idiot)", EV);
 
@@ -161,6 +161,26 @@ namespace Poker
 			root.Process(Node.VarHold, (n, j) => 0);
 			EV = Simulation(Node.VarS, Node.VarHold, root);
 			Tools.LogPrint("Simulated EV = {0}  (passive)", EV);
+		}
+
+		public static void Combine_Test(PocketRoot root)
+		{
+			root.Process(Node.VarS,		(node, i) => (number)Math.Cos(i));
+			root.Process(Node.VarB,		(node, i) => (number)Math.Sin(i));
+			root.Process(Node.VarHold,	(node, i) => (number)Math.Tan(i));
+
+			number h_vs_s = Tests.Simulation(Node.VarHold, Node.VarS, root);
+			number h_vs_b = Tests.Simulation(Node.VarHold, Node.VarB, root);
+
+			root.CombineStrats((number).5, (number).5);
+			//root.NaiveCombine(Node.VarS, .5, Node.VarB, .5, Node.VarS);
+
+			number h_vs_mix = Tests.Simulation(Node.VarHold, Node.VarS, root);
+
+			Tools.LogPrint("vs s   = {0}", h_vs_s);
+			Tools.LogPrint("vs b   = {0}", h_vs_b);
+			Tools.LogPrint("vs mix = {0}", h_vs_mix);
+			Tools.LogPrint("should = {0}", .5 * (h_vs_s + h_vs_b));
 		}
 
 		public static void SaveLoad_Test(PocketRoot root)

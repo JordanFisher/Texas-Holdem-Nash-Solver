@@ -499,7 +499,7 @@ namespace Poker
             {
                 // Do one round, swapping player roles if necessary
                 if (!BetNode.SimultaneousBetting && RoundNumber % 2 == 1) SwapPlayers();
-                number outcome = Round();
+                double outcome = (double)Round();
                 if (!BetNode.SimultaneousBetting && RoundNumber % 2 == 1) SwapPlayers();
 
                 // Update totals and averages

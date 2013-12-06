@@ -171,6 +171,61 @@ namespace Poker
             }
         }
 
+		public override void _CombineStrats(int p, number t1, number t2, Player player)
+		{
+			t1 = Tools.Restrict(t1); t2 = 1 - t1;
+
+			number _t1, _t2;
+
+			if (S != null && B != null && ActivePlayer == player && MyCommunity.AvailablePocket[p])
+			{
+				RaiseCallFoldData _S = (RaiseCallFoldData)S, _B = (RaiseCallFoldData)B;
+
+				// Update Raise branch
+				number normalize_r = (t1 * _S.Raise[p] + t2 * _B.Raise[p]);
+
+				if (normalize_r == 0)
+				{
+					_t1 = _t2 = 0;
+				}
+				else
+				{
+					_t1 = t1 * _S.Raise[p] / normalize_r;
+					_t2 = t2 * _B.Raise[p] / normalize_r;
+				}
+
+				RaiseBranch._CombineStrats(p, _t1, _t2, player);
+
+				// Update Call branch
+				number normalize_c = (t1 * _S.Call[p] + t2 * _B.Call[p]);
+
+				if (normalize_c == 0)
+				{
+					_t1 = _t2 = 0;
+				}
+				else
+				{
+					_t1 = t1 * _S.Call[p] / normalize_c;
+					_t2 = t2 * _B.Call[p] / normalize_c;
+				}
+
+				CallBranch._CombineStrats(p, _t1, _t2, player);
+
+				// Update this node's strategy
+				S.Linear(p, t1, S, t2, B);
+
+				Assert.That(t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1 && (Tools.Equals(t1 + t2, 1) || t1 == 0 && t2 == 0));
+				Assert.That(_S.IsValid());
+			}
+			else
+			{
+				_t1 = t1; _t2 = t2;
+
+				RaiseBranch._CombineStrats(p, _t1, _t2, player);
+				CallBranch._CombineStrats(p, _t1, _t2, player);
+			}
+		}
+
         public override number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
             RaiseCallFoldData Data = (ActivePlayer == Player.Button ? S1 : S2)(this) as RaiseCallFoldData;
