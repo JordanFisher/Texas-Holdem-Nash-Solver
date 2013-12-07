@@ -92,7 +92,7 @@ namespace Poker
 				{
 					CalculateBestAgainst_SingleCardOptimized(Opponent);
 				}
-				// Otherwise we're preflop and the Flop is next, which requires a special suit reduce.
+				// Otherwise we're preflop and the Flop is next, which may require a special suit reduce.
 				else
 				{
 					if (DerivedSetup.SuitReduce)
@@ -230,7 +230,7 @@ namespace Poker
                 }
                 Assert.ZeroOrOne(BranchPDF.Sum());
                 Assert.ZeroOrOne(TotalWeight);
-                Assert.That(BranchEV >= -Setup.MaxPot - Tools.eps && BranchEV <= Setup.MaxPot + Tools.eps);
+				Assert.That(BranchEV >= -DerivedSetup.MaxPot - Tools.eps && BranchEV <= DerivedSetup.MaxPot + Tools.eps);
                 
                 EV[p1] = BranchEV;
                 Assert.IsNum(EV[p1]);
@@ -276,7 +276,7 @@ namespace Poker
                 }
                 Assert.ZeroOrOne(BranchPDF.Sum());
                 Assert.ZeroOrOne(TotalWeight);
-                Assert.That(BranchEV >= -Setup.MaxPot - Tools.eps && BranchEV <= Setup.MaxPot + Tools.eps);
+				Assert.That(BranchEV >= -DerivedSetup.MaxPot - Tools.eps && BranchEV <= DerivedSetup.MaxPot + Tools.eps);
 
                 EV[p1] = BranchEV;
                 Assert.IsNum(EV[p1]);

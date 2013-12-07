@@ -140,6 +140,7 @@ namespace Poker
 			if (Output)
 			{
 				Tools.LogPrint();
+				//Tools.LogPrint("Best Hash = {0}", Hash(VarB));
 				Tools.LogPrint("{2,-14} EV = {0,-20} ({1})", EV_FromBest, PocketRoot.Best_AverageTime, string.Format("({0})", n));
 				Program.Iteration_Auxillary(n, EV_FromBest);
 			}

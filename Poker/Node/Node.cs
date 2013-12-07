@@ -563,9 +563,6 @@ namespace Poker
             PocketData data = v(this);
             number hash;
 
-            if (data != null && !(this is SimultaneousNode))
-                Tools.Nothing();
-
             if (data != null)
                 hash = data.Hash();
             else

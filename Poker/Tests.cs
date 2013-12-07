@@ -184,7 +184,7 @@ namespace Poker
 			Tools.LogPrint("vs s   = {0}", h_vs_s);
 			Tools.LogPrint("vs b   = {0}", h_vs_b);
 			Tools.LogPrint("vs mix = {0}", h_vs_mix);
-			Tools.LogPrint("should = {0}", .5 * (h_vs_s + h_vs_b));
+			Tools.LogPrint("should = {0}", (number).5 * (h_vs_s + h_vs_b));
 		}
 
 		public static void SaveLoad_Test(PocketRoot root)

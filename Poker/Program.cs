@@ -28,13 +28,9 @@ namespace Poker
         public const int LittleBlind = 1, BigBlind = 2, RaiseAmount = 2;
 
 		// Simultaneous Antes
-		public const int PreDeal = 2, PreFlop = 6, Flop = 6, Turn = 16, River = 16;
+		public const int PreDeal = 2, PreFlop = 2, Flop = 2, Turn = 2, River = 2;
+		//public const int PreDeal = 2, PreFlop = 6, Flop = 6, Turn = 16, River = 16;
 		
-		// Max pot
-		public const int MaxPot = SimultaneousBetting ?
-			PreDeal + PreFlop + Flop + Turn + River :	// Max pot for simultaneous betting
-			BigBlind + 4 * AllowedRaises * RaiseAmount;	// Max pot for classic betting
-
 		// Directory strategy is saved to/loaded from
 		public const string SaveDir = "Strategy";
 
@@ -53,8 +49,12 @@ namespace Poker
 	/// </summary>
 	class DerivedSetup
 	{
-		public const bool SuitReduce = Setup.Flushes && Setup.Suits == 4;
+		public const bool SuitReduce = Setup.Flushes && Setup.Suits == 4 && !Naive;
 		public const bool Naive = !Setup.Flushes;
+
+		public const int MaxPot = Setup.SimultaneousBetting ?
+			Setup.PreDeal + Setup.PreFlop + Setup.Flop + Setup.Turn + Setup.River : // Max pot for simultaneous betting
+			Setup.BigBlind + 4 * Setup.AllowedRaises * Setup.RaiseAmount;           // Max pot for classic betting
 	}
 
     class Program
@@ -70,7 +70,30 @@ namespace Poker
         {
 			Initialize();
 
-			//GameRoot.Process(i => 1);
+			//GameRoot.Process(Node.VarS, (node, i) => (number)Math.Pow(Math.Sin(i), 2));
+			//GameRoot.Process(Node.VarB, (node, i) => (number)Math.Pow(Math.Tan(i), 2));
+			//Tests.Simulation(Node.VarS, Node.VarB, GameRoot);
+			//Console.ReadLine();
+
+			GameRoot.Process((i, node) =>
+			{
+				if (node.S == null) return;
+
+				var r = node as RaiseCallFoldNode;
+				if (null != r)
+				{
+					((RaiseCallFoldData)r.S).Raise[i] =
+					((RaiseCallFoldData)r.S).Call[i] = (number).001;
+				}
+				else
+				{
+					node.S[i] = (number).001;
+				}
+			});
+
+			//GameRoot.Process(i => (number).001);
+			//GameRoot.Process(i => (number)1);
+			//GameRoot.Process(i => 0);
 			//GameRoot.Process(i => Math.Pow(Math.Sin(i),2));
 			//GameRoot.Process(i => (number)Math.Pow(Math.Cos(i), 2));
 
@@ -171,7 +194,6 @@ namespace Poker
 		{
 			if (i % Setup.Save_Period == 0 && i != StartIteration)
 			{
-				// Save
 				GameRoot.FullSave(i, (float)EV_FromBest);
 			}
 		}
@@ -182,7 +204,7 @@ namespace Poker
 			{
 				// Monte Carlo Simulation
 				var game = new Game(new StrategyPlayer(Node.VarB), new StrategyPlayer(Node.VarS), Seed: 0);
-				float EV_FromMonteCarlo = (float)game.Round(4999999);
+				float EV_FromMonteCarlo = (float)game.Round(2999999);
 				Tools.LogPrint("Monte Carlo Simulation EV = {0}", EV_FromMonteCarlo);
 
 				//// Full Simulation
@@ -224,7 +246,7 @@ namespace Poker
 
 #if DEBUG
 			Tools.LogPrint("#(Flops) = {0}", Flop.Flops.Count);
-			//Tools.LogPrint("#(Unique Flops) = {0}", Flop.Flops.Count(fl => fl.IsRepresentative()));
+			Tools.LogPrint("#(Unique Flops) = {0}", Flop.Flops.Count(fl => fl.IsRepresentative()));
 			Tools.LogPrint("#(FlopCommunites) = {0}", FlopCommunity.InstanceCount);
 			Tools.LogPrint("#(TurnCommunity) = {0}", TurnCommunity.InstanceCount);
 			Tools.LogPrint("#(RiverCommunity) = {0}", RiverCommunity.InstanceCount);

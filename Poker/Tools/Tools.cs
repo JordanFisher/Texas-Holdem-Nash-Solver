@@ -155,9 +155,11 @@ namespace Poker
         }
 
 #if SINGLE
-        public const float eps = .001f;
+		public const float eps = .001f;
+		//public const float eps  = .0001f;
 #elif DOUBLE
-        public const double eps = .00001;
+		//public const double eps = .001;
+		public const double eps = .00001;
 #elif DECIMAL
         public const decimal eps = .000001M;
 #endif
