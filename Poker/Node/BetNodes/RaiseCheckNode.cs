@@ -98,7 +98,6 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get EV for raising/Checking/folding.
@@ -132,20 +131,24 @@ namespace Poker
             
 
             // For each pocket we might have, calculate what we expect to happen.
-#if NAIVE
-#else
-            Data.ChanceToActPrecomputation(PocketP, S, MyCommunity);
-#endif
+			if (!DerivedSetup.Naive)
+				Data.ChanceToActPrecomputation(PocketP, S, MyCommunity);
+
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get likelihoods for opponent raising/Checking/folding.
-#if NAIVE
-                number RaiseChance = TotalChance(PocketP, S, p1);
-#else
-                number RaiseChance = Data.ChanceToActWithExclusion(PocketP, S, p1);
-#endif
+				number RaiseChance;
+				if (DerivedSetup.Naive)
+				{
+					RaiseChance = TotalChance(PocketP, S, p1);
+				}
+				else
+				{
+					RaiseChance = Data.ChanceToActWithExclusion(PocketP, S, p1);
+				}
+
                 number CheckChance = 1 - RaiseChance;
 
                 // Get EV assuming opponent raising/Checking/folding.

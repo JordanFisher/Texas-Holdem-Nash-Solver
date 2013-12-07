@@ -19,7 +19,6 @@ namespace Poker
 		public const int Vals = 3;
 		public const int Suits = 4;
 		public const bool Flushes = true;
-		public const bool SuitReduce = true;
 
 		// Betting
 		public const bool SimultaneousBetting = false;
@@ -48,6 +47,15 @@ namespace Poker
 		public const int Save_Period = 1000;  // How long to wait between saves
 		public const int Test_Period = 1000;  // How long to wait between tests
     }
+
+	/// <summary>
+	/// Derived simulation variables. Do not hand modify!
+	/// </summary>
+	class DerivedSetup
+	{
+		public const bool SuitReduce = Setup.Flushes && Setup.Suits == 4;
+		public const bool Naive = !Setup.Flushes;
+	}
 
     class Program
     {
@@ -188,7 +196,7 @@ namespace Poker
 		{
 			Tools.LogPrint("Suits x Vals : {0} x {1}   = {2} card deck", Card.Suits, Card.Vals, Card.Suits * Card.Vals);
 
-			Tools.LogPrint("Flop reduced = {0}", Flop.SuitReduce);
+			Tools.LogPrint("Flop reduced = {0}", DerivedSetup.SuitReduce);
 
 			Tools.LogPrint("Precision = {0}",
 				#if SINGLE

@@ -121,7 +121,7 @@ namespace Poker
         {
             int flop = Game.FlopLookup[c1, c2, c3];
 
-			if (Flop.SuitReduce)
+			if (DerivedSetup.SuitReduce)
 			{
 				TrueFlop = Flop.Flops[flop];
 				flop = Flop.RepresentativeOf(flop);
@@ -135,7 +135,7 @@ namespace Poker
 
         public override void SetTurn(int c1)
         {
-			if (Flop.SuitReduce)
+			if (DerivedSetup.SuitReduce)
 			{
 				TrueTurn = c1;
 				c1 = TrueFlop.CardMap[c1];
@@ -146,7 +146,7 @@ namespace Poker
 
         public override void SetRiver(int c1)
         {
-			if (Flop.SuitReduce)
+			if (DerivedSetup.SuitReduce)
 			{
 				TrueRiver = c1;
 				c1 = TrueFlop.CardMap[c1];

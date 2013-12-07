@@ -85,9 +85,7 @@ namespace Poker
         protected override void CalculateBest_Active(Player Opponent)
         {
             // First decide strategy for children nodes.
-            //RaiseBranch.PocketP.CopyFrom(PocketP);
             RaiseBranch.CalculateBestAgainst(Opponent);
-            //CallBranch.PocketP.CopyFrom(PocketP);
             CallBranch.CalculateBestAgainst(Opponent);
 
             RaiseCallFoldData _B = B as RaiseCallFoldData;
@@ -97,7 +95,6 @@ namespace Poker
             // For each pocket we might have, calculate what we should do.
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get EV for raising/calling/folding.
@@ -130,32 +127,34 @@ namespace Poker
             RaiseCallFoldData _S = S as RaiseCallFoldData;
 
             // First decide strategy for children nodes.
-            //Update(PocketP, _S.Raise, RaiseBranch.PocketP);
             RaiseBranch.CalculateBestAgainst(Opponent);
-            //Update(PocketP, _S.Call, CallBranch.PocketP);
             CallBranch.CalculateBestAgainst(Opponent);
 
             Assert.That(_S.IsValid());
 
             // For each pocket we might have, calculate what we expect to happen.
-#if NAIVE
-#else
-            Data.ChanceToActPrecomputation(PocketP, _S.Raise, MyCommunity);
-            Data2.ChanceToActPrecomputation(PocketP, _S.Call, MyCommunity);
-#endif
+			if (!DerivedSetup.Naive)
+			{
+				Data.ChanceToActPrecomputation(PocketP, _S.Raise, MyCommunity);
+				Data2.ChanceToActPrecomputation(PocketP, _S.Call, MyCommunity);
+			}
+
             for (int p1 = 0; p1 < Pocket.N; p1++)
             {
-                //if (number.IsNaN(PocketP[p1])) continue;
                 if (!MyCommunity.AvailablePocket[p1]) continue;
 
                 // Get likelihoods for opponent raising/calling/folding.
-#if NAIVE
-                number RaiseChance = TotalChance(PocketP, _S.Raise, p1);
-                number CallChance = TotalChance(PocketP, _S.Call, p1);
-#else
-                number RaiseChance = Data.ChanceToActWithExclusion(PocketP, _S.Raise, p1);
-                number CallChance = Data2.ChanceToActWithExclusion(PocketP, _S.Call, p1);
-#endif
+				number RaiseChance, CallChance;
+				if (DerivedSetup.Naive)
+				{
+					RaiseChance = TotalChance(PocketP, _S.Raise, p1);
+					CallChance = TotalChance(PocketP, _S.Call, p1);
+				}
+				else
+				{
+					RaiseChance = Data.ChanceToActWithExclusion(PocketP, _S.Raise, p1);
+					CallChance = Data2.ChanceToActWithExclusion(PocketP, _S.Call, p1);
+				}
                 number FoldChance = ((number)1) - RaiseChance - CallChance;
 
                 // Get EV assuming opponent raising/calling/folding.

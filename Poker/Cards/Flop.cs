@@ -18,7 +18,6 @@ namespace Poker
 
     class Flop
     {
-		public const bool SuitReduce = Setup.SuitReduce && Setup.Flushes;
         public static List<Flop> Flops;
         public static int N;
 
@@ -27,7 +26,7 @@ namespace Poker
             int TotalFlops = Counting.Choose(Card.N, 3);
             Flops = new List<Flop>(TotalFlops);
 
-			if (Flop.SuitReduce)
+			if (DerivedSetup.SuitReduce)
 			{
 				int S = Card.Vals;
 
@@ -123,7 +122,7 @@ namespace Poker
 
         public Flop Representative;
         static Flop CurrentRepresentative = null;
-        public bool IsRepresentative() { return this == Representative || !Flop.SuitReduce; }
+        public bool IsRepresentative() { return this == Representative || !DerivedSetup.SuitReduce; }
 
         private static int[] SuitMap = new int[Card.Suits];
         private static int SuitMapSum = 0;
@@ -172,7 +171,7 @@ namespace Poker
             this.c2 = c2;
             this.c3 = c3;
 
-			if (Flop.SuitReduce)
+			if (DerivedSetup.SuitReduce)
 			{
 				// Get the representative of this flop
 				if (CurrentRepresentative == null)

@@ -57,7 +57,6 @@ namespace Poker
             Pocket pocket;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (number.IsNaN(pdf[p])) continue;
                 if (!community.AvailablePocket[p]) continue;
 
                 mass = pdf[p];

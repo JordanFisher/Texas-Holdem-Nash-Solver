@@ -369,7 +369,6 @@ namespace Poker
 
         protected virtual void UpdateChildrensPDFs(Player Opponent)
         {
-            //if (Branches != null) foreach (Node branch in Branches) branch.UpdateChildrensPDFs(Opponent);
         }
 
         public void Update(PocketData PreviousPDF, PocketData Strategy, PocketData Destination)
@@ -377,18 +376,8 @@ namespace Poker
             number ChanceToProceed = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (number.IsNaN(PreviousPDF[p]) || number.IsNaN(Strategy[p]))
-                //if (PreviousPDF[p] < 0 || Strategy[p] < 0)
-                //{
-                //    Destination[p] = number.NaN;
-                //    continue;
-                //}
-                //ChanceToProceed += PreviousPDF[p] * Strategy[p];
-
                 if (MyCommunity.AvailablePocket[p])
                     ChanceToProceed += PreviousPDF[p] * Strategy[p];
-                //else
-                //    Destination[p] = Tools.NaN;
             }
 
             Assert.AlmostPos(ChanceToProceed);
@@ -448,8 +437,8 @@ namespace Poker
         }
 
         /// <summary>
-        /// Takes in a pocket PDF and updated it based on new information,
-        /// the new information being that a particular pocket is already excluded.
+        /// Takes in a pocket PDF and updates it based on new information,
+        /// the new information being that a particular pocket should be excluded.
         /// </summary>
         /// <param name="P">The prior PDF</param>
         /// <param name="UpdatedP">The posterior PDF</param>
@@ -459,7 +448,6 @@ namespace Poker
             number TotalWeight = 0;
             for (int p = 0; p < Pocket.N; p++)
             {
-                //if (number.IsNaN(P[p])) { UpdatedP[p] = P[p]; continue; }
                 if (!MyCommunity.AvailablePocket[p]) continue;
 
                 // If this pocket overlaps with the excluded pocket,
@@ -485,33 +473,19 @@ namespace Poker
             return Pocket.Pockets[p1].Overlaps(Pocket.Pockets[p2]);
         }
 
-        /*
-        /// <summary>
-        /// Checks if the pocket's cards overlap with any of the new community cards of this node.
-        /// </summary>
-        public virtual bool NewCollision(Pocket p)
-        {
-            return false;
-        }
-        public bool NewCollision(int p) { return NewCollision(Pocket.Pockets[p]); }
-
-        /// <summary>
-        /// Checks if the pocket's cards overlap with any of the node's community cards.
-        /// </summary>
-        public virtual bool Collision(Pocket p)
-        {
-            return false;
-        }
-        public bool Collision(int p) { return Collision(Pocket.Pockets[p]); }
-        public virtual bool Contains(int card) { return false; }
-        */
         public virtual number _Simulate(Var S1, Var S2, int p1, int p2, ref int[] BranchIndex, int IndexOffset)
         {
-            //return number.NaN;
             return 0;
         }
 
 		public static number __t = 0;
+
+		/// <summary>
+		/// Combines strategy S and B into a new strategy S' equivalent to randomly choosing between
+		/// S and B for each hand with probabilities t1 and t2 respectively.
+		/// </summary>
+		/// <param name="t1">The probability that S' chooses to behave like S.</param>
+		/// <param name="t2">The probability that S' chooses to behave like B.</param>
         public void CombineStrats(number t1, number t2)
         {
 			if (Setup.SimultaneousBetting)
@@ -562,6 +536,14 @@ namespace Poker
 					node._CombineStrats(p, t1, t2, player);
 		}
 
+		/// <summary>
+		/// Combines strategy S and B into a new strategy S' equivalent to randomly choosing between
+		/// what S and B would do at each point with probabilities t1 and t2 respectively.
+		/// Note that this is NOT the same as the "correct" CombineStrats above.
+		/// CombineStrats and NaiveCombine are linear convex combinations in a particular space.
+		/// </summary>
+		/// <param name="t1">The probability that S' chooses to behave like S at a given point.</param>
+		/// <param name="t2">The probability that S' chooses to behave like B at a given point.</param>
         public void NaiveCombine(Var S1, number t1, Var S2, number t2, Var Destination)
         {
             PocketData s1 = S1(this), s2 = S2(this), destination = Destination(this);

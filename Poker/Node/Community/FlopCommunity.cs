@@ -58,7 +58,7 @@ namespace Poker
 
                 if (AvailableCard[turn])
                 {
-					if (Flop.SuitReduce)
+					if (DerivedSetup.SuitReduce)
 					{
 						if (MyFlop.IsRepresentative())
 							NewBranch = new TurnCommunity(this, MyFlop, turn);

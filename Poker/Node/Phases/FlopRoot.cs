@@ -36,7 +36,7 @@ namespace Poker
         {
             MyFlop = ((FlopCommunity)MyCommunity).MyFlop;
 
-			if (Flop.SuitReduce)
+			if (DerivedSetup.SuitReduce)
 			{
 				FindRepresentative();
 

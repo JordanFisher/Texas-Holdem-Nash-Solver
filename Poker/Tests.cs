@@ -62,7 +62,7 @@ namespace Poker
 								if (Pocket.Pockets[p2].Contains(river)) continue;
 
 								number ev;
-								if (Flop.SuitReduce)
+								if (DerivedSetup.SuitReduce)
 								{
 									// Map all of our cards (community and pockets) using the flop map
 									// (because we are using a suit reduced data structure).

@@ -81,27 +81,30 @@ namespace Poker
 
         public override void CalculateBestAgainst(Player Opponent)
         {
-#if NAIVE
-            CalculateBestAgainst_Naive(Opponent);
-#else
-			// If we're currently at the Flop or Turn, then next is the Turn or River, which is a single additional card.
-			if (Phase == BettingPhase.Turn || Phase == BettingPhase.Flop)
+			if (DerivedSetup.Naive)
 			{
-				CalculateBestAgainst_SingleCardOptimized(Opponent);
+				CalculateBestAgainst_Naive(Opponent);
 			}
-			// Otherwise we're preflop and the Flop is next, which requires a special suit reduce.
 			else
 			{
-				if (Flop.SuitReduce)
+				// If we're currently at the Flop or Turn, then next is the Turn or River, which is a single additional card.
+				if (Phase == BettingPhase.Turn || Phase == BettingPhase.Flop)
 				{
-					CalculateBestAgainst_FlopSuitReduced(Opponent);
+					CalculateBestAgainst_SingleCardOptimized(Opponent);
 				}
+				// Otherwise we're preflop and the Flop is next, which requires a special suit reduce.
 				else
 				{
-					CalculateBestAgainst_Naive(Opponent);
+					if (DerivedSetup.SuitReduce)
+					{
+						CalculateBestAgainst_FlopSuitReduced(Opponent);
+					}
+					else
+					{
+						CalculateBestAgainst_Naive(Opponent);
+					}
 				}
 			}
-#endif
         }
 
 		number[] IntersectP { get { return MyCommunity.IntersectP; } }
@@ -256,21 +259,19 @@ namespace Poker
                 number[] BranchPDF = new number[Branches.Count];
                 for (int p2 = 0; p2 < Pocket.N; p2++)
                 {
-                    //if (number.IsNaN(UpdatedP[p2])) continue;
                     if (!MyCommunity.AvailablePocket[p2]) continue;
 
                     // All branches not overlapping our pocket or the opponent's pocket are equally likely.
-                    int b = 0;
+                    int BranchIndex = 0;
                     foreach (Node Branch in Branches)
                     {
-                        b++;
-                        //if (Branch.MyCommunity.NewCollision(p1) || Branch.MyCommunity.NewCollision(p2)) continue;
+                        BranchIndex++;
                         if (!Branch.MyCommunity.AvailablePocket[p1] || !Branch.MyCommunity.AvailablePocket[p2]) continue;
 
                         number Weight = Branch.Weight;
                         BranchEV += UpdatedP[p2] * Weight * Branch.EV[p1];
                         TotalWeight += UpdatedP[p2] * Weight;
-                        BranchPDF[b - 1] += UpdatedP[p2] * Weight;
+                        BranchPDF[BranchIndex - 1] += UpdatedP[p2] * Weight;
                     }
                 }
                 Assert.ZeroOrOne(BranchPDF.Sum());

@@ -140,10 +140,6 @@ namespace Poker
             number hash = 0;
             for (int i = 0; i < Pocket.N; i++)
             {
-                //hash++;
-                //if (number.IsNaN(data[i])) hash++;
-                //if (number.IsNaN(data[i])) hash += -1f * (i + 1);
-                //else hash += data[i] * (i + 1);
                 hash += data[i] * (i + 1);
             }
 
